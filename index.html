@@ -214,10 +214,25 @@ body.is-rec .studio .recbadge{display:flex}
 .link-ov{position:fixed;inset:0;z-index:30;pointer-events:none}
 .link-ov canvas{position:absolute;inset:0;width:100%;height:100%}
 .link-txt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;font-weight:900;letter-spacing:.32em;text-transform:uppercase;opacity:0;
-  text-shadow:0 0 18px rgba(255,255,255,.9),0 0 40px rgba(255,59,48,.8);animation:linktxt 1.7s ease forwards}
+  text-shadow:0 0 18px rgba(255,255,255,.9),0 0 40px rgba(255,59,48,.8);animation:linktxt 3.8s ease forwards}
 .link-txt span{font-size:clamp(14px,4vw,20px);letter-spacing:.6em;color:#FFB0AA}
 .link-txt b{font-size:clamp(40px,13vw,86px);letter-spacing:.18em;font-weight:900}
 @keyframes linktxt{0%,18%{opacity:0;transform:translate(-50%,-50%) scale(1.6);filter:blur(10px)}32%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:blur(0)}68%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}80%{opacity:0;transform:translate(-50%,-50%) scale(2.4);filter:blur(6px)}100%{opacity:0}}
+
+.link-ov{background:transparent;transition:opacity .45s}
+.link-ov.out{opacity:0}
+.link-check{position:absolute;inset:0;background:#F5F5F7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;animation:lcfade .35s ease}
+@keyframes lcfade{from{opacity:0}}
+.lc-title{margin:0;color:#8E8E93;font-size:13px;font-weight:800;letter-spacing:.4em;text-transform:uppercase}
+.lc-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 26px}
+@media (min-width:640px){.lc-row{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.lc-item{display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:lcin .45s cubic-bezier(.2,1.4,.4,1) forwards;animation-delay:calc(.25s + var(--i)*.35s)}
+@keyframes lcin{from{opacity:0;transform:translateY(14px) scale(.8)}to{opacity:1;transform:none}}
+.lc-orb{width:62px;height:62px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#FFB0AA 35%,#FF3B30 75%);box-shadow:0 0 0 6px rgba(255,59,48,.12),0 10px 24px -8px rgba(255,59,48,.8)}
+.lc-orb.off{background:radial-gradient(circle at 35% 30%,#fff,#C7C7CC 45%,#8E8E93)}
+.lc-item b{color:#1C1C1E;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.lc-item em{font-style:normal;color:#FF3B30;font-weight:900;font-size:15px;letter-spacing:.2em}
+.lc-go{margin:6px 0 0;color:#1C1C1E;font-size:20px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:lcin .5s ease forwards 1.8s}
 </style>
 </head>
 <body>
@@ -646,7 +661,16 @@ draft('readonly',function(st){return st.getAll();}).then(function(){return db();
   ['pointerup','pointercancel','pointerleave'].forEach(function(n){document.addEventListener(n,function(){[].forEach.call(document.querySelectorAll('.press.down'),function(x){x.classList.remove('down');});},true);});
   var rec=document.getElementById('rec');
   
-  window.mvStartFx=function(){
+  function linkChecks(ov){
+  var checks=[['Micro',!!stream],['Niveau sonore',true],['Stockage',!!window.indexedDB],['Transcription',!!(window.SpeechRecognition||window.webkitSpeechRecognition)]];
+  var box=document.createElement('div');box.className='link-check';
+  var h='<p class="lc-title">Vérification</p><div class="lc-row">';
+  checks.forEach(function(c,i){h+='<div class="lc-item" style="--i:'+i+'"><span class="lc-orb'+(c[1]?'':' off')+'"></span><b>'+c[0]+'</b><em>'+(c[1]?'OK':'—')+'</em></div>';});
+  h+='</div><p class="lc-go">Enregistrement lancé</p>';box.innerHTML=h;ov.appendChild(box);
+  ov.style.pointerEvents='auto';var done=function(){ov.classList.add('out');setTimeout(function(){ov.remove();},450);};
+  ov.addEventListener('click',done);setTimeout(done,3000);
+}
+window.mvStartFx=function(){
     /* « Link Start » : tunnel de lumière qui fonce vers l'écran, anneaux, éclair blanc */
     var r=document.getElementById('rec').getBoundingClientRect(),W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1);
     var cx=r.left+r.width/2,cy=r.top+r.height/2;
@@ -658,16 +682,16 @@ draft('readonly',function(st){return st.getAll();}).then(function(){return db();
     var cols=['#FF3B30','#FF9F0A','#FFD60A','#30D158','#64D2FF','#0A84FF','#BF5AF2','#FFFFFF','#FF453A','#FFFFFF'];
     var N=220,st=[],R=Math.hypot(W,H);
     for(var i=0;i<N;i++)st.push({a:Math.random()*Math.PI*2,z:Math.random(),w:.6+Math.random()*2.2,c:cols[i%cols.length]});
-    var t0=performance.now(),D=1700;
+    var t0=performance.now(),D=3800;
     function frame(now){
-      var t=(now-t0)/D;if(t>=1){ov.remove();return;}
+      var t=(now-t0)/D;if(t>=1){cv.remove();tx.remove();linkChecks(ov);return;}
       /* le centre glisse du bouton vers le milieu de l'écran */
       var k=Math.min(1,t/.35),ox=cx+(W/2-cx)*k,oy=cy+(H/2-cy)*k;
       g.globalCompositeOperation='source-over';
-      var dark=t<.12?t/.12:(t>.82?Math.max(0,1-(t-.82)/.18):1);
+      var dark=t<.08?t/.08:1;
       g.fillStyle='rgba(2,2,6,'+(.92*dark)+')';g.fillRect(0,0,W,H);
       g.globalCompositeOperation='lighter';
-      var speed=t<.7?.25+t*2.2:1.8;
+      var speed=t<.75?.15+t*2.6:2.2;
       for(var j=0;j<N;j++){var p=st[j];p.z+=speed*.016*(.5+p.z);if(p.z>1.2){p.z=Math.random()*.15;}
         var r1=Math.pow(p.z,2.2)*R,len=Math.max(4,r1*(.12+speed*.18)),r0=Math.max(0,r1-len);
         var x0=ox+Math.cos(p.a)*r0,y0=oy+Math.sin(p.a)*r0,x1=ox+Math.cos(p.a)*r1,y1=oy+Math.sin(p.a)*r1;
@@ -678,7 +702,7 @@ draft('readonly',function(st){return st.getAll();}).then(function(){return db();
       /* lueur centrale puis éclair blanc final */
       g.globalAlpha=1;var core=g.createRadialGradient(ox,oy,0,ox,oy,120+speed*60);core.addColorStop(0,'rgba(255,255,255,'+(.9*dark)+')');core.addColorStop(.3,'rgba(255,80,60,'+(.45*dark)+')');core.addColorStop(1,'rgba(0,0,0,0)');
       g.fillStyle=core;g.fillRect(0,0,W,H);
-      if(t>.72&&t<.95){g.globalCompositeOperation='source-over';g.globalAlpha=Math.sin((t-.72)/.23*Math.PI)*.9;g.fillStyle='#fff';g.fillRect(0,0,W,H);}
+      if(t>.82){g.globalCompositeOperation='source-over';g.globalAlpha=Math.min(1,(t-.82)/.12);g.fillStyle='#fff';g.fillRect(0,0,W,H);}
       g.globalAlpha=1;requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
