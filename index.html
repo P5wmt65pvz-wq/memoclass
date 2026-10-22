@@ -188,7 +188,7 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
   <header>
     <div class="head glass">
       <div class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7A70"/><stop offset="1" stop-color="#E0241B"/></linearGradient><linearGradient id="mh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#mg)"/><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#mh)"/><g fill="#FFFFFF"><rect x="13" y="26" width="5" height="12" rx="2.5" opacity=".75"/><rect x="21" y="18" width="5" height="28" rx="2.5"/><rect x="29.5" y="28" width="5" height="16" rx="2.5" opacity=".9"/><rect x="38" y="18" width="5" height="28" rx="2.5"/><rect x="46" y="26" width="5" height="12" rx="2.5" opacity=".75"/></g></svg>
-        <div><b>MémoVox</b><small>Tes cours, mot pour mot</small></div></div>
+        <div><b>MémoVox</b><small>Enregistreur de cours</small></div></div>
       <button class="icon-btn glass" id="open-settings" aria-label="Réglages audio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
     <div class="tabs glass" role="tablist">
@@ -200,7 +200,7 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
   <main id="v-studio" role="tabpanel" aria-labelledby="tab-studio" style="display:grid;gap:14px">
     <section class="card studio glass">
       <div class="studio-top">
-        <div><span class="kicker"><i></i>/ 01 — Studio</span><h1>Ton cours, <span>mot</span> <em>pour mot.</em></h1><p id="quality-line">Haute qualité · Opus 160 kbps · 48 kHz · voix du prof renforcée</p></div>
+        <div><h1>Enregistreur</h1><p id="quality-line">Haute qualité · Opus 160 kbps · 48 kHz · voix du prof renforcée</p></div>
       </div>
       <button class="rec" id="rec" aria-label="Démarrer l'enregistrement"><svg id="rec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <div class="status" id="status" role="status"><span class="dot"></span><span id="status-txt">Prêt à enregistrer ton cours</span></div>
@@ -211,7 +211,7 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
         <button class="btn" id="stop" disabled><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>Arrêter et garder</button>
         <button class="btn danger" id="cancel" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>Annuler</button>
       </div>
-      <p class="consent">Avant d'enregistrer, demande l'accord du prof : beaucoup d'établissements l'exigent dans leur règlement.</p>
+      <p class="consent">Demande l'accord du prof avant d'enregistrer.</p>
     </section>
 
     <section class="drop glass" id="drop" tabindex="0" role="button" aria-label="Ajouter des documents au cours">
@@ -248,6 +248,8 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
     <label class="opt"><input type="radio" name="q" value="256"><span><b>Qualité maximale</b><small>Opus 256 kbps · pour la musique ou une conférence</small></span></label>
     <label class="opt"><input type="radio" name="q" value="160" checked><span><b>Haute qualité</b><small>Opus 160 kbps · idéal pour les cours</small></span></label>
     <label class="opt"><input type="radio" name="q" value="96"><span><b>Qualité standard</b><small>Opus 96 kbps · fichiers légers, voix toujours claire</small></span></label>
+    <h3>Sauvegarde</h3>
+    <div class="sw"><span><b>Copier dans mes Fichiers</b><small>Télécharge aussi le fichier audio à chaque arrêt</small></span><input type="checkbox" id="o-files" checked aria-label="Copier dans mes Fichiers"></div>
     <h3>Traitement audio</h3>
     <div class="sw"><span><b>Voix du prof renforcée</b><small>Coupe le grondement, rapproche une voix lointaine</small></span><input type="checkbox" id="o-boost" checked aria-label="Voix du prof renforcée"></div>
     <div class="sw"><span><b>Suppression du bruit</b><small>Filtre le bruit de fond de la salle</small></span><input type="checkbox" id="o-noise" checked aria-label="Suppression du bruit"></div>
@@ -304,27 +306,27 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
   function all(){[].forEach.call(document.querySelectorAll('.glass'),apply);}
   var ro=new ResizeObserver(function(es){es.forEach(function(e){apply(e.target);});});
   function watch(){[].forEach.call(document.querySelectorAll('.glass'),function(el){if(!el.dataset.lgw){el.dataset.lgw=1;ro.observe(el);}});all();}
-  new MutationObserver(function(){watch();}).observe(document.body,{childList:true,subtree:true});
+  var pend=0;new MutationObserver(function(ms){if(pend)return;for(var i=0;i<ms.length;i++){for(var j=0;j<ms[i].addedNodes.length;j++){var nd=ms[i].addedNodes[j];if(nd.nodeType===1&&(nd.classList.contains('glass')||nd.querySelector&&nd.querySelector('.glass'))){pend=requestAnimationFrame(function(){pend=0;watch();});return;}}}}).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('load',watch);watch();
 })();
 (function(){
 'use strict';
 var $=function(id){return document.getElementById(id);};
 /* ---------- réglages ---------- */
-var SKEY='memovox.reglages',S={q:'160',boost:true,noise:true,echo:true,agc:false};
+var SKEY='memovox.reglages',S={q:'160',boost:true,noise:true,echo:true,agc:false,files:true};
 try{var sv=JSON.parse(localStorage.getItem(SKEY));if(sv)for(var k in S)if(k in sv)S[k]=sv[k];}catch(e){}
 function saveS(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
 var dlg=$('settings');
 function paintS(){
   [].forEach.call(document.querySelectorAll('input[name=q]'),function(r){r.checked=r.value===S.q;});
-  $('o-boost').checked=S.boost;$('o-noise').checked=S.noise;$('o-echo').checked=S.echo;$('o-agc').checked=S.agc;
+  $('o-files').checked=S.files;$('o-boost').checked=S.boost;$('o-noise').checked=S.noise;$('o-echo').checked=S.echo;$('o-agc').checked=S.agc;
   var names={'256':'Qualité maximale','160':'Haute qualité','96':'Qualité standard'};
   $('quality-line').textContent=names[S.q]+' · Opus '+S.q+' kbps · 48 kHz'+(S.boost?' · voix du prof renforcée':'');
   $('c-q').textContent=S.q+' kbps';
 }
 dlg.addEventListener('change',function(){
   var r=dlg.querySelector('input[name=q]:checked');S.q=r?r.value:'160';
-  S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
+  S.files=$('o-files').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
 });
 $('open-settings').addEventListener('click',function(){dlg.showModal();});
 paintS();
@@ -454,10 +456,14 @@ function stop(keep){
     var now=new Date(),id=String(now.getTime());
     var title='Cours du '+now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' à '+now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     tx('readwrite',function(st){return st.put({id:id,title:title,date:now.getTime(),duration:total,mime:blob.type,blob:blob,transcript:text,docs:d});})
-      .then(function(){if(window.mvCelebrate)mvCelebrate('+1 cours · '+dur(total));else toast('Cours enregistré ✓');renderList();})
-      .catch(function(){toast("Impossible de sauvegarder : stockage plein ou navigation privée.");});
+      .then(function(){saveToFiles(blob,title);if(window.mvCelebrate)mvCelebrate('Dans Mes cours et tes Téléchargements · '+dur(total));renderList();})
+      .catch(function(){saveToFiles(blob,title);toast('Fichier audio téléchargé dans tes Téléchargements ✓');});
   };
   if(r.state!=='inactive')r.stop();else r.onstop();
+}
+function saveToFiles(blob,title){
+  if(!S.files)return;
+  try{var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='MemoVox-'+title.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w -]/g,'').trim().replace(/\s+/g,'-')+'.'+ext(blob.type);document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},60000);}catch(e){}
 }
 recBtn.addEventListener('click',function(){if(state==='idle')start();else if(state==='rec')pause();else resume();});
 stopBtn.addEventListener('click',function(){stop(true);});
@@ -539,12 +545,11 @@ draft('readonly',function(st){return st.getAll();}).then(function(){return db();
   var rec=document.getElementById('rec');
   
   window.mvCelebrate=function(info){
-    if(calm)return;
     var ov=document.createElement('div');ov.className='done-ov';ov.setAttribute('aria-hidden','true');
     var h='<div class="rays"></div>',cols=['#FFFFFF','#FF3B30','#FF9F0A','#FFB0AA'];
     for(var i=0;i<16;i++){var a=i/16*Math.PI*2+Math.random()*.3,r=120+Math.random()*90,z=10+Math.random()*16;
       h+='<span class="spark" style="--x:'+Math.cos(a)*r+'px;--y:'+Math.sin(a)*r+'px;--z:'+z+'px;--c:'+cols[i%4]+';--d:'+(0.6+Math.random()*.25)+'s"></span>';}
-    h+='<div class="card3d"><div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h3>Cours gardé !</h3><p>'+(info||'+1 cours dans ta collection')+'</p></div>';
+    h+='<div class="card3d"><div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h3>Enregistré !</h3><p>'+(info||'+1 cours dans ta collection')+'</p></div>';
     ov.innerHTML=h;document.body.appendChild(ov);
     var kill=function(){if(ov.isConnected)ov.remove();};ov.addEventListener('click',kill);setTimeout(kill,2950);
     if(navigator.vibrate)try{navigator.vibrate([18,40,28]);}catch(e){}
