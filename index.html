@@ -30,7 +30,7 @@ button{font:inherit;color:inherit}
 .halo span{position:absolute;border-radius:50%;filter:blur(28px);animation:drift 26s ease-in-out infinite alternate}
 .halo span:nth-child(1){width:65vmax;height:65vmax;left:-28vmax;top:-26vmax;background:radial-gradient(circle,rgba(255,59,48,.70),transparent 62%)}
 .halo span:nth-child(2){width:60vmax;height:60vmax;right:-30vmax;bottom:-28vmax;background:radial-gradient(circle,rgba(255,120,70,.50),transparent 62%);animation-duration:32s}
-.halo span:nth-child(3){width:45vmax;height:45vmax;right:-14vmax;top:24vmax;background:radial-gradient(circle,rgba(150,150,160,.35),transparent 62%);animation-duration:38s}
+.halo span:nth-child(3){width:45vmax;height:45vmax;right:-14vmax;top:24vmax;background:radial-gradient(circle,rgba(200,30,20,.35),transparent 62%);animation-duration:38s}
 @keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(8vmax,6vmax) scale(1.15)}100%{transform:translate(-4vmax,10vmax) scale(1.05)}}
 .glass{position:relative;isolation:isolate;background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.04) 60%);border:1px solid rgba(255,255,255,.08);-webkit-backdrop-filter:blur(16px) saturate(180%) brightness(1.06);backdrop-filter:blur(16px) saturate(180%) brightness(1.06);
   box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -1px 1px rgba(255,255,255,.08),inset 0 0 24px rgba(255,255,255,.04),0 14px 36px -18px rgba(0,0,0,.85)}
@@ -179,6 +179,37 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
   animation:spark 1.1s var(--d) cubic-bezier(.15,.8,.3,1) forwards}
 @keyframes spark{0%{transform:translate(0,0) scale(.2) rotate(0);opacity:1}70%{opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1) rotate(160deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.press,.press.down,.tilt{transition:none;transform:none!important}.ripple,.rec.jelly,.done-ov *{animation:none!important}.done-ov{display:none!important}}
+
+/* ---------- animation de départ d'enregistrement ---------- */
+.go-ov{position:fixed;inset:0;z-index:30;pointer-events:none;overflow:hidden;perspective:900px}
+.go-ov .flash{position:absolute;inset:0;background:radial-gradient(circle at var(--cx) var(--cy),rgba(255,59,48,.55),rgba(255,59,48,0) 60%);animation:goflash .9s ease-out forwards}
+@keyframes goflash{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+.go-ov .shock{position:absolute;left:var(--cx);top:var(--cy);width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;
+  border:3px solid rgba(255,90,80,.9);box-shadow:0 0 30px rgba(255,59,48,.9),inset 0 0 30px rgba(255,59,48,.6);animation:shock 1.1s cubic-bezier(.1,.7,.2,1) forwards}
+.go-ov .shock:nth-child(3){animation-delay:.12s;border-color:rgba(255,255,255,.7)}.go-ov .shock:nth-child(4){animation-delay:.24s}
+@keyframes shock{0%{transform:scale(.4);opacity:1}100%{transform:scale(45);opacity:0}}
+.go-ov .word{position:absolute;left:50%;top:42%;transform-style:preserve-3d;display:flex;align-items:center;gap:.18em;
+  font-size:clamp(70px,24vw,170px);font-weight:900;letter-spacing:-.04em;color:#fff;line-height:1;
+  text-shadow:0 0 30px rgba(255,59,48,.95),0 0 80px rgba(255,59,48,.7),3px 0 0 rgba(255,59,48,.9),-3px 0 0 rgba(255,180,170,.6);
+  animation:word 1.5s cubic-bezier(.2,.9,.25,1) forwards}
+.go-ov .word i{width:.42em;height:.42em;border-radius:50%;background:#FF3B30;box-shadow:0 0 40px #FF3B30,0 0 90px rgba(255,59,48,.8);animation:dotpulse .5s ease-in-out 3 alternate}
+@keyframes dotpulse{to{transform:scale(1.25)}}
+@keyframes word{0%{transform:translate(-50%,-50%) rotateX(75deg) scale(3.2);opacity:0;filter:blur(14px)}
+  22%{transform:translate(-50%,-50%) rotateX(-8deg) scale(.95);opacity:1;filter:blur(0)}
+  32%{transform:translate(-50%,-50%) rotateX(0) scale(1.04)}
+  40%{transform:translate(-50%,-50%) scale(1)}
+  72%{transform:translate(-50%,-50%) scale(1);opacity:1}
+  100%{transform:translate(-50%,-260%) scale(.18);opacity:0;filter:blur(2px)}}
+.go-ov .ember{position:absolute;left:var(--cx);top:var(--cy);width:var(--z);height:var(--z);margin:calc(var(--z)/-2) 0 0 calc(var(--z)/-2);border-radius:50%;
+  background:var(--c);box-shadow:0 0 12px var(--c);animation:ember 1s var(--d) cubic-bezier(.1,.8,.3,1) forwards;opacity:0}
+@keyframes ember{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(.2);opacity:0}}
+.go-ov .bars{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 2px,transparent 2px 5px);animation:goflash 1s ease-out forwards}
+.studio .recbadge{position:absolute;top:18px;right:18px;z-index:5;display:none;align-items:center;gap:7px;
+  font-weight:800;font-size:12px;letter-spacing:.14em;color:#fff;padding:7px 12px;border-radius:999px;background:rgba(255,59,48,.18);border:1px solid rgba(255,59,48,.5);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.studio .recbadge i{width:8px;height:8px;border-radius:50%;background:#FF3B30;box-shadow:0 0 10px #FF3B30;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.2}}
+body.is-rec .studio .recbadge{display:flex}
 </style>
 </head>
 <body>
@@ -199,6 +230,7 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
 
   <main id="v-studio" role="tabpanel" aria-labelledby="tab-studio" style="display:grid;gap:14px">
     <section class="card studio glass">
+      <div class="recbadge" aria-hidden="true"><i></i>REC</div>
       <div class="studio-top">
         <div><h1>Enregistreur</h1><p id="quality-line">Haute qualité · Opus 160 kbps · 48 kHz · voix du prof renforcée</p></div>
       </div>
@@ -381,7 +413,7 @@ var recBtn=$('rec'),stopBtn=$('stop'),cancelBtn=$('cancel'),statusEl=$('status')
 var ICON_MIC='<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',ICON_PAUSE='<path d="M9 5v14M15 5v14"/>',ICON_PLAY='<path d="M8 5l11 7-11 7z" fill="currentColor"/>';
 function setUI(){
   var icon=$('rec-icon');
-  recBtn.classList.toggle('live',state==='rec');
+  recBtn.classList.toggle('live',state==='rec');document.body.classList.toggle('is-rec',state==='rec');
   statusEl.className='status'+(state==='rec'?' live':state==='pause'?' paused':'');
   if(state==='idle'){icon.innerHTML=ICON_MIC;recBtn.setAttribute('aria-label',"Démarrer l'enregistrement");statusTxt.textContent='Prêt à enregistrer ton cours';}
   if(state==='rec'){icon.innerHTML=ICON_PAUSE;recBtn.setAttribute('aria-label','Mettre en pause');statusTxt.textContent='Enregistrement en cours';}
@@ -441,7 +473,7 @@ function start(){
     draft('readwrite',function(st){st.clear();st.put({meta:true,mime:mime,date:Date.now()},'meta');});
     recorder.ondataavailable=function(e){if(e.data&&e.data.size){chunks.push(e.data);var d=e.data,el=elapsed(),tx2=finalTxt;draft('readwrite',function(st){st.add(d);st.put({meta:true,mime:mime,date:Date.now(),duration:el,transcript:tx2},'meta');}).catch(function(){});}};
     recorder.start(1000);
-    bars=bars.map(function(){return 0;});finalTxt='';renderT('');docs=docs||[];acc=0;t0=performance.now();state='rec';setUI();startSR();
+    bars=bars.map(function(){return 0;});finalTxt='';renderT('');docs=docs||[];acc=0;t0=performance.now();state='rec';setUI();startSR();if(window.mvStartFx)mvStartFx();
     if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){wake=w;}).catch(function(){});
     cancelAnimationFrame(raf);draw();
   }).catch(function(err){toast(err&&err.name==='NotAllowedError'?"Autorise le micro pour enregistrer.":"Micro introuvable ou occupé.");});
@@ -552,6 +584,16 @@ draft('readonly',function(st){return st.getAll();}).then(function(){return db();
   ['pointerup','pointercancel','pointerleave'].forEach(function(n){document.addEventListener(n,function(){[].forEach.call(document.querySelectorAll('.press.down'),function(x){x.classList.remove('down');});},true);});
   var rec=document.getElementById('rec');
   
+  window.mvStartFx=function(){
+    var r=document.getElementById('rec').getBoundingClientRect(),cx=(r.left+r.width/2)+'px',cy=(r.top+r.height/2)+'px';
+    var ov=document.createElement('div');ov.className='go-ov';ov.setAttribute('aria-hidden','true');ov.style.setProperty('--cx',cx);ov.style.setProperty('--cy',cy);
+    var h='<div class="flash"></div><span class="shock"></span><span class="shock"></span><span class="shock"></span><div class="bars"></div>',cols=['#FF3B30','#FF6B5B','#FFFFFF','#FF9F0A'];
+    for(var i=0;i<26;i++){var a=Math.random()*Math.PI*2,d=160+Math.random()*260,z=4+Math.random()*9;
+      h+='<span class="ember" style="--x:'+Math.cos(a)*d+'px;--y:'+Math.sin(a)*d+'px;--z:'+z+'px;--c:'+cols[i%4]+';--d:'+(Math.random()*.15)+'s"></span>';}
+    h+='<div class="word"><i></i>REC</div>';
+    ov.innerHTML=h;document.body.appendChild(ov);setTimeout(function(){ov.remove();},1600);
+    if(navigator.vibrate)try{navigator.vibrate([30,30,60]);}catch(e){}
+  };
   window.mvCelebrate=function(info){
     var ov=document.createElement('div');ov.className='done-ov';ov.setAttribute('aria-hidden','true');
     var h='<div class="rays"></div>',cols=['#FFFFFF','#FF3B30','#FF9F0A','#FFB0AA'];
