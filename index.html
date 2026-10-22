@@ -78,7 +78,7 @@ header{display:grid;gap:14px}
 .status.live .dot{background:var(--red)}
 .status.paused .dot{background:var(--warn)}
 .timer{font-family:var(--mono);font-size:46px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-canvas.meter{width:100%;height:72px;display:block;border-radius:14px;background:rgba(0,0,0,.25);box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
+canvas.meter{width:100%;height:36px;display:block}
 .level{font-size:12.5px;color:var(--soft);min-height:1.2em}
 .level.warn{color:var(--warn)}
 .ctrl{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
@@ -395,27 +395,26 @@ function dur(ms){var s=Math.round(ms/1000),m=Math.floor(s/60);return m?m+' min '
 var canvas=$('meter'),c2=canvas.getContext('2d'),buf=null,peakHold=0,lastWarn=0;
 function sizeCanvas(){var r=canvas.getBoundingClientRect(),d=window.devicePixelRatio||1;canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);}
 sizeCanvas();window.addEventListener('resize',sizeCanvas);
-var hist=[],lastPush=0;
+var hist=[],bars=[0,0,0,0,0,0,0],fbuf=null;
 function draw(){
   raf=requestAnimationFrame(draw);timer.textContent=fmt(elapsed());
-  var d=window.devicePixelRatio||1,w=canvas.width,h=canvas.height,bw=3*d,gap=2.5*d,step=bw+gap,n=Math.floor(w/step),mid=h/2;
+  var d=window.devicePixelRatio||1,w=canvas.width,h=canvas.height,mid=h/2;
   c2.clearRect(0,0,w,h);
-  var rms=0,peak=0,db=-100;
-  if(analyser){analyser.getFloatTimeDomainData(buf);var sum=0;for(var i=0;i<buf.length;i++){var v=buf[i];sum+=v*v;if(Math.abs(v)>peak)peak=Math.abs(v);}rms=Math.sqrt(sum/buf.length);db=20*Math.log10(rms||1e-8);}
-  /* une barre toutes les 60 ms, qui défile vers la gauche, comme un dictaphone */
-  var now=performance.now();
-  if(state==='rec'&&now-lastPush>60){lastPush=now;var lv=Math.max(0,Math.min(1,(db+60)/54));hist.push(lv);if(hist.length>n)hist.shift();}
-  /* ligne de base */
-  c2.fillStyle='rgba(255,255,255,.12)';c2.fillRect(0,mid-.5*d,w,1*d);
-  for(var k=0;k<hist.length;k++){
-    var lvl=hist[hist.length-1-k],x=w-(k+1)*step,bh=Math.max(2*d,lvl*(h-8*d));
-    c2.fillStyle=state==='rec'?(k===0?'#FFFFFF':'#FF453A'):'#6C6C70';c2.globalAlpha=k<n*.85?1:Math.max(.2,1-(k-n*.85)/(n*.15));
-    var y=mid-bh/2,r=Math.min(bw/2,bh/2);c2.beginPath();
-    if(c2.roundRect)c2.roundRect(x,y,bw,bh,r);else c2.rect(x,y,bw,bh);c2.fill();
+  var rms=0,peak=0,db=-100,N=bars.length;
+  if(analyser){analyser.getFloatTimeDomainData(buf);var sum=0;for(var i=0;i<buf.length;i++){var v=buf[i];sum+=v*v;if(Math.abs(v)>peak)peak=Math.abs(v);}rms=Math.sqrt(sum/buf.length);db=20*Math.log10(rms||1e-8);
+    if(!fbuf)fbuf=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(fbuf);}
+  /* petites barres au centre qui suivent la voix, comme la dictée de Claude */
+  var lv=state==='rec'?Math.max(0,Math.min(1,(db+58)/50)):0;
+  for(var k=0;k<N;k++){
+    var band=fbuf?fbuf[3+k*4]/255:0,shape=1-Math.abs(k-(N-1)/2)/((N-1)/2)*.45,target=state==='rec'?Math.max(lv*shape,band*lv*1.2):0;
+    bars[k]+=(target-bars[k])*.35;
   }
-  c2.globalAlpha=1;
+  var bw=4*d,gap=4*d,total=N*bw+(N-1)*gap,x0=(w-total)/2;
+  c2.fillStyle=state==='rec'?'#FF453A':'#6C6C70';
+  for(var j=0;j<N;j++){var bh=Math.max(bw,Math.min(1,bars[j])*(h-2*d)),x=x0+j*(bw+gap),y=mid-bh/2;c2.beginPath();
+    if(c2.roundRect)c2.roundRect(x,y,bw,bh,bw/2);else c2.rect(x,y,bw,bh);c2.fill();}
   if(state!=='rec')return;
-  if(now-lastWarn<600)return;lastWarn=now;
+  var now=performance.now();if(now-lastWarn<600)return;lastWarn=now;
   if(peak>0.98){levelEl.textContent='Son trop fort : éloigne un peu le téléphone.';levelEl.className='level warn';}
   else if(db<-50){levelEl.textContent='Son très faible : rapproche le téléphone du prof.';levelEl.className='level warn';}
   else{levelEl.textContent='Niveau correct ✓';levelEl.className='level';}
@@ -442,7 +441,7 @@ function start(){
     draft('readwrite',function(st){st.clear();st.put({meta:true,mime:mime,date:Date.now()},'meta');});
     recorder.ondataavailable=function(e){if(e.data&&e.data.size){chunks.push(e.data);var d=e.data,el=elapsed(),tx2=finalTxt;draft('readwrite',function(st){st.add(d);st.put({meta:true,mime:mime,date:Date.now(),duration:el,transcript:tx2},'meta');}).catch(function(){});}};
     recorder.start(1000);
-    hist=[];finalTxt='';renderT('');docs=docs||[];acc=0;t0=performance.now();state='rec';setUI();startSR();
+    bars=bars.map(function(){return 0;});finalTxt='';renderT('');docs=docs||[];acc=0;t0=performance.now();state='rec';setUI();startSR();
     if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){wake=w;}).catch(function(){});
     cancelAnimationFrame(raf);draw();
   }).catch(function(err){toast(err&&err.name==='NotAllowedError'?"Autorise le micro pour enregistrer.":"Micro introuvable ou occupé.");});
