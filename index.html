@@ -27,12 +27,23 @@ html{overflow-x:clip}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit}
 .halo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.halo span{position:absolute;border-radius:50%;filter:blur(70px);animation:drift 26s ease-in-out infinite alternate}
+.halo span{position:absolute;border-radius:50%;filter:blur(40px);animation:drift 26s ease-in-out infinite alternate}
 .halo span:nth-child(1){width:65vmax;height:65vmax;left:-28vmax;top:-26vmax;background:radial-gradient(circle,rgba(190,210,235,.16),transparent 65%)}
 .halo span:nth-child(2){width:60vmax;height:60vmax;right:-30vmax;bottom:-28vmax;background:radial-gradient(circle,rgba(160,180,205,.12),transparent 65%);animation-duration:32s}
 .halo span:nth-child(3){width:40vmax;height:40vmax;right:-10vmax;top:20vmax;background:radial-gradient(circle,rgba(255,255,255,.07),transparent 65%);animation-duration:38s}
 @keyframes drift{to{transform:translate(5vmax,4vmax) scale(1.1)}}
-.glass{background:var(--glass);border:1px solid var(--edge);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);box-shadow:var(--shadow)}
+.glass{position:relative;isolation:isolate;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);-webkit-backdrop-filter:blur(16px) saturate(180%) brightness(1.06);backdrop-filter:blur(16px) saturate(180%) brightness(1.06);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -1px 1px rgba(255,255,255,.08),inset 0 0 24px rgba(255,255,255,.04),0 14px 36px -18px rgba(0,0,0,.85)}
+/* Liquid Glass : liseré spéculaire (lumière en haut à gauche, rebond en bas à droite) */
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;z-index:1;
+  background:linear-gradient(140deg,rgba(255,255,255,.75),rgba(255,255,255,.12) 28%,rgba(255,255,255,0) 55%,rgba(255,255,255,.08) 78%,rgba(255,255,255,.35));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+/* reflet doux dans le haut du verre */
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,0) 38%),radial-gradient(120% 60% at 15% 0%,rgba(255,255,255,.06),transparent 60%)}
+.glass>*{position:relative;z-index:2}
+/* Réfraction (Chrome, Edge, Chromebook) : le verre courbe ce qui passe derrière ses bords */
+html.lg .glass{-webkit-backdrop-filter:url(#lg) saturate(170%) brightness(1.06);backdrop-filter:url(#lg) saturate(170%) brightness(1.06)}
 .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding-block:max(16px,env(safe-area-inset-top,0px)) 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
 header{display:grid;gap:14px}
 .head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 8px 8px 12px;border-radius:22px}
@@ -123,14 +134,19 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
 .tip{font-size:12.5px;color:var(--soft);background:rgba(0,0,0,.2);border-radius:14px;padding:10px 12px;margin:2px 0}
 .foot{text-align:center;font-size:12px;color:var(--dim);line-height:1.5;margin:0}
 .foot a{color:var(--soft)}
-.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);border-radius:16px;padding:11px 16px;font-size:14px;font-weight:700;transition:transform .35s cubic-bezier(.2,.9,.3,1.15);z-index:10;max-width:calc(100% - 32px);background:rgba(18,21,34,.8)}
-.toast.on{transform:translate(-50%,0)}
+.toast.glass{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);border-radius:16px;padding:11px 16px;font-size:14px;font-weight:700;transition:transform .35s cubic-bezier(.2,.9,.3,1.15);z-index:10;max-width:calc(100% - 32px);background:rgba(18,21,34,.8)}
+.toast.glass.on{transform:translate(-50%,0)}
 :focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){.rec.live,.halo span{animation:none}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="lg" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">
+  <feGaussianBlur in="SourceGraphic" stdDeviation=".012" result="b"/>
+  <feImage id="lg-map" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="m"/>
+  <feDisplacementMap in="b" in2="m" scale=".09" xChannelSelector="R" yChannelSelector="G"/>
+</filter></svg>
 <div class="halo" aria-hidden="true"><span></span><span></span><span></span></div>
 <div class="wrap">
   <header>
@@ -209,6 +225,20 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
 <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+/* ---------- Liquid Glass : carte de déplacement (bords en loupe) ---------- */
+(function(){
+  var isChromium=!!window.chrome&&CSS.supports('backdrop-filter','blur(1px)')&&!/Firefox/.test(navigator.userAgent);
+  if(!isChromium||matchMedia('(prefers-reduced-transparency: reduce)').matches)return;
+  var n=128,c=document.createElement('canvas');c.width=c.height=n;var g=c.getContext('2d'),img=g.createImageData(n,n),band=.22;
+  for(var y=0;y<n;y++)for(var x=0;x<n;x++){
+    var u=x/(n-1),v=y/(n-1),dl=u,dr=1-u,dt=v,db=1-v,dx=0,dy=0;
+    if(dl<band)dx+=Math.pow(1-dl/band,2.2);if(dr<band)dx-=Math.pow(1-dr/band,2.2);
+    if(dt<band)dy+=Math.pow(1-dt/band,2.2);if(db<band)dy-=Math.pow(1-db/band,2.2);
+    var i=(y*n+x)*4;img.data[i]=128+dx*127;img.data[i+1]=128+dy*127;img.data[i+2]=128;img.data[i+3]=255;}
+  g.putImageData(img,0,0);
+  document.getElementById('lg-map').setAttribute('href',c.toDataURL());
+  document.documentElement.classList.add('lg');
+})();
 (function(){
 'use strict';
 var $=function(id){return document.getElementById(id);};
