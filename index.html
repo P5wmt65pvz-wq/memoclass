@@ -213,11 +213,6 @@ body.is-rec .studio .recbadge{display:flex}
 
 .link-ov{position:fixed;inset:0;z-index:30;pointer-events:none}
 .link-ov canvas{position:absolute;inset:0;width:100%;height:100%}
-.link-txt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;font-weight:900;letter-spacing:.32em;text-transform:uppercase;opacity:0;
-  text-shadow:0 0 18px rgba(255,255,255,.9),0 0 40px rgba(255,59,48,.8);animation:linktxt 3.8s ease forwards}
-.link-txt span{font-size:clamp(14px,4vw,20px);letter-spacing:.6em;color:#FFB0AA}
-.link-txt b{font-size:clamp(40px,13vw,86px);letter-spacing:.18em;font-weight:900}
-@keyframes linktxt{0%,18%{opacity:0;transform:translate(-50%,-50%) scale(1.6);filter:blur(10px)}32%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:blur(0)}68%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}80%{opacity:0;transform:translate(-50%,-50%) scale(2.4);filter:blur(6px)}100%{opacity:0}}
 
 .link-ov{background:transparent;transition:opacity .45s}
 .link-ov.out{opacity:0}
@@ -671,42 +666,79 @@ draft('readonly',function(st){return st.getAll();}).then(function(){return db();
   ov.addEventListener('click',done);setTimeout(done,3000);
 }
 window.mvStartFx=function(){
-    /* « Link Start » : tunnel de lumière qui fonce vers l'écran, anneaux, éclair blanc */
-    var r=document.getElementById('rec').getBoundingClientRect(),W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1);
-    var cx=r.left+r.width/2,cy=r.top+r.height/2;
+    /* Séquence « Link start! » (~10 s) : écran noir + sous-titre, fond blanc et gerbe multicolore,
+       écran gris « Welcome to MémoVox ! », zoom dans le texte, tunnel bleu, éclair blanc, vérification */
+    var W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1),cx=W/2,cy=H/2,R=Math.hypot(W,H)*.75;
     var ov=document.createElement('div');ov.className='link-ov';ov.setAttribute('aria-hidden','true');
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);
-    var tx=document.createElement('div');tx.className='link-txt';tx.innerHTML='<span>REC</span><b>START</b>';ov.appendChild(tx);
-    document.body.appendChild(ov);
+    document.body.appendChild(ov);ov.style.pointerEvents='auto';
     var g=cv.getContext('2d');g.scale(dpr,dpr);
-    var cols=['#FF3B30','#FF9F0A','#FFD60A','#30D158','#64D2FF','#0A84FF','#BF5AF2','#FFFFFF','#FF453A','#FFFFFF'];
-    var N=220,st=[],R=Math.hypot(W,H);
-    for(var i=0;i<N;i++)st.push({a:Math.random()*Math.PI*2,z:Math.random(),w:.6+Math.random()*2.2,c:cols[i%cols.length]});
-    var t0=performance.now(),D=3800;
+    function mk(n,cols,wMin,wMax){var a=[];for(var i=0;i<n;i++)a.push({a:Math.random()*Math.PI*2,w:wMin+Math.random()*(wMax-wMin),z:Math.random(),c:cols[i%cols.length],v:.6+Math.random()*.8});return a;}
+    var multi=mk(140,['#E8202A','#F4E400','#2BE35A','#18E0D8','#E01BD0','#8E8E93','#111114','#FFFFFF','#E8202A','#F4E400','#18E0D8','#E01BD0'],.03,.12);
+    var blue=mk(170,['#0B2FD8','#1F5BFF','#2F8CFF','#55C8FF','#8FF0FF','#D8FBFF','#FFFFFF','#1F5BFF','#55C8FF'],.015,.06);
+    var bub=[];for(var k=0;k<14;k++)bub.push({a:Math.random()*Math.PI*2,z:Math.random(),s:6+Math.random()*16});
+    var t0=performance.now(),D=10000,skip=false;
+    ov.addEventListener('click',function(){skip=true;});
+    function ray(p,scale,stretch){
+      var r1=Math.pow(p.z,1.6)*R*scale,len=r1*(.35+stretch),r0=Math.max(r1*.04,r1-len);
+      if(r1<2)return;
+      var w0=p.w*.25;
+      g.beginPath();
+      g.moveTo(cx+Math.cos(p.a-w0)*r0,cy+Math.sin(p.a-w0)*r0);
+      g.lineTo(cx+Math.cos(p.a-p.w/2)*r1,cy+Math.sin(p.a-p.w/2)*r1);
+      g.lineTo(cx+Math.cos(p.a+p.w/2)*r1,cy+Math.sin(p.a+p.w/2)*r1);
+      g.lineTo(cx+Math.cos(p.a+w0)*r0,cy+Math.sin(p.a+w0)*r0);g.closePath();
+      var gr=g.createRadialGradient(cx,cy,r0,cx,cy,r1);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(.35,p.c);gr.addColorStop(1,p.c);
+      g.fillStyle=gr;g.fill();
+    }
+    function tunnel(arr,grow,speed,rot){
+      for(var j=0;j<arr.length;j++){var p=arr[j];p.z+=speed*p.v;if(p.z>1.15){p.z=.02+Math.random()*.1;p.a=Math.random()*Math.PI*2;}
+        ray({a:p.a+rot,w:p.w,z:p.z,c:p.c},.08+grow*.92,Math.min(1.2,speed*40));}
+    }
+    function glow(rad,col,a){var c=g.createRadialGradient(cx,cy,0,cx,cy,rad);c.addColorStop(0,'rgba('+col+','+a+')');c.addColorStop(1,'rgba('+col+',0)');g.fillStyle=c;g.fillRect(0,0,W,H);}
+    function bg(col,trail){g.globalAlpha=trail;g.fillStyle=col;g.fillRect(0,0,W,H);g.globalAlpha=1;}
+    function flash(a){if(a<=0)return;g.globalAlpha=Math.min(1,a);g.fillStyle='#fff';g.fillRect(0,0,W,H);g.globalAlpha=1;}
+    /* texte « jeu vidéo » : chasse fixe, lettres étirées en hauteur */
+    function welcome(zoom,alpha){
+      var fs=Math.min(W*.85/11*1.6,H*.15);
+      g.save();g.globalAlpha=alpha;g.translate(cx,cy);g.scale(zoom,zoom*1.7);
+      g.font='700 '+fs+'px Cousine,"Courier New",monospace';g.textAlign='center';g.textBaseline='middle';g.fillStyle='#111';
+      g.fillText('Welcome to',0,-fs*.62);g.fillText('MémoVox !',0,fs*.62);g.restore();
+    }
+    function sub(a){
+      g.save();g.globalAlpha=a;g.font='800 '+Math.max(26,Math.min(44,W*.07))+'px Manrope,system-ui,sans-serif';g.textAlign='center';
+      g.lineWidth=5;g.strokeStyle='#000';g.strokeText('REC start !',cx,H*.78);g.fillStyle='#fff';g.fillText('REC start !',cx,H*.78);g.restore();
+    }
     function frame(now){
-      var t=(now-t0)/D;if(t>=1){cv.remove();tx.remove();linkChecks(ov);return;}
-      /* le centre glisse du bouton vers le milieu de l'écran */
-      var k=Math.min(1,t/.35),ox=cx+(W/2-cx)*k,oy=cy+(H/2-cy)*k;
-      g.globalCompositeOperation='source-over';
-      var dark=t<.08?t/.08:1;
-      g.fillStyle='rgba(2,2,6,'+(.92*dark)+')';g.fillRect(0,0,W,H);
-      g.globalCompositeOperation='lighter';
-      var speed=t<.75?.15+t*2.6:2.2;
-      for(var j=0;j<N;j++){var p=st[j];p.z+=speed*.016*(.5+p.z);if(p.z>1.2){p.z=Math.random()*.15;}
-        var r1=Math.pow(p.z,2.2)*R,len=Math.max(4,r1*(.12+speed*.18)),r0=Math.max(0,r1-len);
-        var x0=ox+Math.cos(p.a)*r0,y0=oy+Math.sin(p.a)*r0,x1=ox+Math.cos(p.a)*r1,y1=oy+Math.sin(p.a)*r1;
-        var gr=g.createLinearGradient(x0,y0,x1,y1);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(1,p.c);
-        g.strokeStyle=gr;g.globalAlpha=Math.min(1,p.z*1.6)*dark;g.lineWidth=p.w*(.5+p.z*1.5);g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();}
-      /* anneaux qui se succèdent */
-      for(var q=0;q<5;q++){var rt=((t*2.4+q/5)%1),rr=Math.pow(rt,2)*R*.9;g.globalAlpha=(1-rt)*.55*dark;g.strokeStyle=q%2?'#FF453A':'#FFFFFF';g.lineWidth=2+rt*6;g.beginPath();g.arc(ox,oy,rr,0,Math.PI*2);g.stroke();}
-      /* lueur centrale puis éclair blanc final */
-      g.globalAlpha=1;var core=g.createRadialGradient(ox,oy,0,ox,oy,120+speed*60);core.addColorStop(0,'rgba(255,255,255,'+(.9*dark)+')');core.addColorStop(.3,'rgba(255,80,60,'+(.45*dark)+')');core.addColorStop(1,'rgba(0,0,0,0)');
-      g.fillStyle=core;g.fillRect(0,0,W,H);
-      if(t>.82){g.globalCompositeOperation='source-over';g.globalAlpha=Math.min(1,(t-.82)/.12);g.fillStyle='#fff';g.fillRect(0,0,W,H);}
-      g.globalAlpha=1;requestAnimationFrame(frame);
+      var e=now-t0;
+      if(skip){ov.remove();return;}
+      if(e>=D){cv.remove();linkChecks(ov);return;}
+      if(e<1000){                                              /* 1. noir + sous-titre */
+        bg('#000',1);sub(Math.min(1,e/150));
+      }else if(e<4300){                                        /* 2. blanc, gerbe multicolore qui envahit l'écran */
+        var u=(e-1000)/3300;bg('#F2F2F4',u<.05?1:.55);
+        var grow=u<.45?Math.pow(u/.45,2.4):1,speed=u<.45?.004:.006+(u-.45)*.05;
+        tunnel(multi,grow,speed,u*.6);glow(40+grow*90,'255,255,255',1);flash((e-4000)/300);
+      }else if(e<6900){                                        /* 3. écran gris + « Welcome to MémoVox ! », zoom */
+        var v=(e-4300)/2600;bg('#C6C6CA',1);
+        var vg=g.createRadialGradient(cx,cy,H*.2,cx,cy,R);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.22)');g.fillStyle=vg;g.fillRect(0,0,W,H);
+        welcome(v<.7?1+v*.15:1.105+Math.pow((v-.7)/.3,2)*2.4,1);
+        if(v>.6)glow(10+(v-.6)*90,'90,170,255',Math.min(1,(v-.6)*3));
+        flash(1-(e-4300)/300);
+      }else if(e<9500){                                        /* 4. tunnel bleu, cœur blanc, bulles */
+        var w=(e-6900)/2600;
+        bg('rgb('+Math.round(198-170*w)+','+Math.round(198-120*w)+','+Math.round(202+30*w)+')',w<.05?1:.5);
+        if(w<.25)welcome(3.5+w*8,1-w*4);
+        var gw=Math.min(1,Math.pow(w/.5,1.8));tunnel(blue,gw,.007+w*.03,w*.3);
+        glow(60+w*R*.9,'225,250,255',.6+w*.4);
+        if(w>.4)bub.forEach(function(b){b.z+=.012;if(b.z>1)b.z=.1;var d=b.z*R*.8;g.globalAlpha=.45*(w-.4)/.6;g.fillStyle='#E8FBFF';g.beginPath();g.ellipse(cx+Math.cos(b.a)*d,cy+Math.sin(b.a)*d,b.s*b.z*2,b.s*b.z*1.3,b.a,0,7);g.fill();g.globalAlpha=1;});
+      }else{                                                   /* 5. éclair blanc */
+        var f=(e-9500)/500;tunnel(blue,1,.04,0);glow(R,'255,255,255',1);flash(f*1.2);
+      }
+      requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
-    if(navigator.vibrate)try{navigator.vibrate([20,40,20,40,80]);}catch(e){}
+    if(navigator.vibrate)try{navigator.vibrate([20,60,20,60,120]);}catch(e){}
   };
   window.mvCelebrate=function(info){
     var ov=document.createElement('div');ov.className='done-ov';ov.setAttribute('aria-hidden','true');
