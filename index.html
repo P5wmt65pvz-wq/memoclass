@@ -6,17 +6,18 @@
 <title>MémoVox — enregistrement et transcription de cours</title>
 <meta name="description" content="Enregistre tes cours en haute qualité, avec la voix du prof renforcée, la transcription en direct et tes documents au même endroit. Les enregistrements restent sur ton appareil.">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0B0A09">
+<meta name="theme-color" content="#080A14">
 <link rel="apple-touch-icon" href="icone-180.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FFC266'/%3E%3Cstop offset='.55' stop-color='%23FF8A1C'/%3E%3Cstop offset='1' stop-color='%23FF5E7E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='18' fill='url(%23g)'/%3E%3Cg fill='%23fff'%3E%3Crect x='13' y='26' width='5' height='12' rx='2.5'/%3E%3Crect x='21' y='18' width='5' height='28' rx='2.5'/%3E%3Crect x='29.5' y='28' width='5' height='16' rx='2.5'/%3E%3Crect x='38' y='18' width='5' height='28' rx='2.5'/%3E%3Crect x='46' y='26' width='5' height='12' rx='2.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23C8F53C'/%3E%3Cstop offset='.35' stop-color='%235CE1E6'/%3E%3Cstop offset='.7' stop-color='%238C7CFF'/%3E%3Cstop offset='1' stop-color='%23FF7AC8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='18' fill='url(%23g)'/%3E%3Cg fill='%230A0D18'%3E%3Crect x='13' y='26' width='5' height='12' rx='2.5'/%3E%3Crect x='21' y='18' width='5' height='28' rx='2.5'/%3E%3Crect x='29.5' y='28' width='5' height='16' rx='2.5'/%3E%3Crect x='38' y='18' width='5' height='28' rx='2.5'/%3E%3Crect x='46' y='26' width='5' height='12' rx='2.5'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 /* Layout : fond nuit chaud où dérivent deux halos (ambre, prune) ; tout en verre liquide : panneaux flous, liseré de lumière, ombres douces. Gros bouton micro au centre, réglages en feuille de verre. */
 @font-face{font-family:"Manrope";src:url(polices/manrope.woff2) format("woff2");font-weight:200 800;font-display:swap}
 :root{
   color-scheme:dark;
-  --bg:#0A0908; --glass:rgba(255,255,255,.06); --glass-2:rgba(255,255,255,.09); --edge:rgba(255,255,255,.13); --hi:rgba(255,255,255,.22);
-  --text:#F7F3EE; --soft:#B3A99E; --dim:#857B71;
-  --orange:#FF9F1C; --orange-2:#FFC266; --pink:#FF5E7E; --ink-on:#1A1206; --red:#FF5A52;
+  --bg:#080A14; --glass:rgba(255,255,255,.06); --glass-2:rgba(255,255,255,.09); --edge:rgba(255,255,255,.13); --hi:rgba(255,255,255,.22);
+  --text:#F2F4FA; --soft:#A2A8BC; --dim:#6E7488;
+  --orange:#C8F53C; --orange-2:#E2FF86; --pink:#FF5E7E; --ink-on:#0A0D18; --red:#FF5A52;
+  --iris:linear-gradient(90deg,#C8F53C,#5CE1E6 35%,#8C7CFF 68%,#FF7AC8);
   --body:"Manrope",-apple-system,"SF Pro Text","Segoe UI",system-ui,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --blur:blur(24px) saturate(170%);
@@ -28,32 +29,36 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);min
 button{font:inherit;color:inherit}
 .halo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .halo span{position:absolute;border-radius:50%;filter:blur(70px);animation:drift 26s ease-in-out infinite alternate}
-.halo span:nth-child(1){width:65vmax;height:65vmax;left:-28vmax;top:-26vmax;background:radial-gradient(circle,rgba(255,159,28,.30),transparent 65%)}
-.halo span:nth-child(2){width:60vmax;height:60vmax;right:-30vmax;bottom:-28vmax;background:radial-gradient(circle,rgba(255,94,126,.20),transparent 65%);animation-duration:32s}
-.halo span:nth-child(3){width:40vmax;height:40vmax;right:-10vmax;top:20vmax;background:radial-gradient(circle,rgba(140,110,255,.14),transparent 65%);animation-duration:38s}
+.halo span:nth-child(1){width:65vmax;height:65vmax;left:-28vmax;top:-26vmax;background:radial-gradient(circle,rgba(92,120,255,.22),transparent 65%)}
+.halo span:nth-child(2){width:60vmax;height:60vmax;right:-30vmax;bottom:-28vmax;background:radial-gradient(circle,rgba(140,124,255,.18),transparent 65%);animation-duration:32s}
+.halo span:nth-child(3){width:40vmax;height:40vmax;right:-10vmax;top:20vmax;background:radial-gradient(circle,rgba(92,225,230,.10),transparent 65%);animation-duration:38s}
 @keyframes drift{to{transform:translate(5vmax,4vmax) scale(1.1)}}
 .glass{background:var(--glass);border:1px solid var(--edge);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);box-shadow:var(--shadow)}
 .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding-block:max(16px,env(safe-area-inset-top,0px)) 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
 header{display:grid;gap:14px}
-.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 8px 8px 12px;border-radius:22px}
 .logo{display:flex;align-items:center;gap:11px}
-.logo svg.mark{width:40px;height:40px;flex:none;filter:drop-shadow(0 8px 18px rgba(255,120,60,.45))}
-.logo b{display:block;font-size:18px;font-weight:800;letter-spacing:-.02em}
-.logo small{display:block;font-size:12px;color:var(--soft)}
+.logo svg.mark{width:34px;height:34px;flex:none;filter:drop-shadow(0 8px 18px rgba(140,124,255,.45))}
+.logo b{display:block;font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase}
+.logo small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--soft)}
 .icon-btn{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;cursor:pointer}
 .icon-btn svg{width:19px;height:19px}
-.tabs{display:inline-flex;gap:4px;padding:4px;border-radius:14px;justify-self:start}
-.tab{display:flex;align-items:center;gap:7px;border:0;background:transparent;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer;color:var(--soft);transition:background .25s,color .25s}
-.tab[aria-selected="true"]{background:linear-gradient(135deg,var(--orange-2),var(--orange));color:var(--ink-on);box-shadow:0 6px 18px -8px var(--orange),inset 0 1px 0 rgba(255,255,255,.5)}
+.tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;justify-self:start}
+.tab{display:flex;align-items:center;gap:7px;border:0;background:transparent;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer;color:var(--soft);transition:background .25s,color .25s}
+.tab[aria-selected="true"]{background:#F2F4FA;color:var(--ink-on);box-shadow:0 6px 18px -10px rgba(255,255,255,.6)}
 .tab svg{width:16px;height:16px}
 .card{border-radius:24px;padding:20px}
 .studio{display:grid;gap:14px;text-align:center}
 .studio-top{text-align:left}
-.studio-top h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
-.studio-top p{margin:3px 0 0;font-size:12.5px;color:var(--soft)}
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);display:flex;align-items:center;gap:8px}
+.kicker i{width:6px;height:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px var(--orange)}
+.studio-top h1{margin:6px 0 0;font-size:clamp(30px,8.5vw,40px);font-weight:800;letter-spacing:-.045em;line-height:.95;text-transform:uppercase}
+.studio-top h1 em{font-style:normal;background:var(--iris);-webkit-background-clip:text;background-clip:text;color:transparent}
+.studio-top h1 span{color:rgba(242,244,250,.32)}
+.studio-top p{margin:10px 0 0;font-family:var(--mono);font-size:11px !important;letter-spacing:.04em;font-size:12.5px;color:var(--soft)}
 .rec{position:relative;justify-self:center;width:108px;height:108px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;margin-top:4px;
-  background:radial-gradient(circle at 34% 28%,#FFE0A8 0,var(--orange-2) 18%,var(--orange) 55%,#EE6A10 100%);
-  box-shadow:inset 0 2px 1px rgba(255,255,255,.55),inset 0 -6px 14px rgba(150,50,0,.35),0 0 0 10px rgba(255,159,28,.10),0 18px 44px -14px var(--orange);transition:transform .15s}
+  background:radial-gradient(circle at 34% 28%,#F6FFD6 0,var(--orange-2) 18%,var(--orange) 58%,#86B81A 100%);
+  box-shadow:inset 0 2px 1px rgba(255,255,255,.55),inset 0 -6px 14px rgba(60,90,0,.35),0 0 0 10px rgba(200,245,60,.10),0 18px 44px -14px var(--orange);transition:transform .15s}
 .rec:active{transform:scale(.95)}
 .rec svg{width:38px;height:38px;color:var(--ink-on)}
 .rec.live{background:radial-gradient(circle at 34% 28%,#FFC4BE 0,#FF8A80 18%,var(--red) 58%,#C92B2B 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,.5),inset 0 -6px 14px rgba(120,0,0,.35),0 0 0 10px rgba(255,90,82,.14),0 18px 44px -14px var(--red);animation:pulse 1.6s ease-in-out infinite}
@@ -75,7 +80,7 @@ a.btn{text-decoration:none;color:var(--text)}
 .btn.danger{color:#FF8A80}
 .consent{font-size:12.5px;color:var(--soft);text-align:left;margin:0;padding-top:12px;border-top:1px solid var(--edge)}
 .drop{border-radius:22px;padding:18px;text-align:center;cursor:pointer;color:var(--soft);font-size:14px;transition:border-color .2s,background .2s}
-.drop.over{border-color:var(--orange);background:rgba(255,159,28,.08)}
+.drop.over{border-color:var(--orange);background:rgba(200,245,60,.06)}
 .drop b{display:block;color:var(--text);margin-top:6px}
 .drop svg{width:22px;height:22px}
 .files{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
@@ -101,13 +106,13 @@ a.btn{text-decoration:none;color:var(--text)}
 .course summary{cursor:pointer;color:var(--soft)}
 .course .txt{white-space:pre-wrap;background:rgba(0,0,0,.22);border-radius:12px;padding:10px 12px;margin-top:8px;max-height:220px;overflow:auto;line-height:1.55}
 .list{display:grid;gap:12px}
-dialog{border:1px solid var(--edge);background:rgba(28,24,21,.72);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);color:var(--text);border-radius:26px;padding:0;width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 40px);box-shadow:var(--shadow)}
+dialog{border:1px solid var(--edge);background:rgba(16,19,32,.74);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);color:var(--text);border-radius:26px;padding:0;width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 40px);box-shadow:var(--shadow)}
 dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .dlg{padding:20px;display:grid;gap:10px}
 .dlg h2{margin:0;font-size:18px}
 .dlg h3{margin:6px 0 0;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
 .opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--edge);background:var(--glass);border-radius:16px;padding:10px 12px;cursor:pointer}
-.opt:has(input:checked){border-color:rgba(255,159,28,.6);background:rgba(255,159,28,.10)}
+.opt:has(input:checked){border-color:rgba(200,245,60,.6);background:rgba(200,245,60,.08)}
 .opt input{accent-color:var(--orange);margin-top:3px}
 .opt b,.sw b{display:block;font-size:14px}
 .opt small,.sw small{display:block;font-size:12px;color:var(--soft)}
@@ -119,7 +124,7 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
 .tip{font-size:12.5px;color:var(--soft);background:rgba(0,0,0,.2);border-radius:14px;padding:10px 12px;margin:2px 0}
 .foot{text-align:center;font-size:12px;color:var(--dim);line-height:1.5;margin:0}
 .foot a{color:var(--soft)}
-.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);border-radius:16px;padding:11px 16px;font-size:14px;font-weight:700;transition:transform .35s cubic-bezier(.2,.9,.3,1.15);z-index:10;max-width:calc(100% - 32px);background:rgba(30,26,23,.75)}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);border-radius:16px;padding:11px 16px;font-size:14px;font-weight:700;transition:transform .35s cubic-bezier(.2,.9,.3,1.15);z-index:10;max-width:calc(100% - 32px);background:rgba(18,21,34,.8)}
 .toast.on{transform:translate(-50%,0)}
 :focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 [hidden]{display:none!important}
@@ -130,9 +135,9 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
 <div class="halo" aria-hidden="true"><span></span><span></span><span></span></div>
 <div class="wrap">
   <header>
-    <div class="head">
-      <div class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFC266"/><stop offset=".55" stop-color="#FF8A1C"/><stop offset="1" stop-color="#FF5E7E"/></linearGradient><linearGradient id="mh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#mg)"/><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#mh)"/><g fill="#fff"><rect x="13" y="26" width="5" height="12" rx="2.5" opacity=".75"/><rect x="21" y="18" width="5" height="28" rx="2.5"/><rect x="29.5" y="28" width="5" height="16" rx="2.5" opacity=".9"/><rect x="38" y="18" width="5" height="28" rx="2.5"/><rect x="46" y="26" width="5" height="12" rx="2.5" opacity=".75"/></g></svg>
-        <div><b>MémoVox</b><small>Enregistrement &amp; transcription de cours</small></div></div>
+    <div class="head glass">
+      <div class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8F53C"/><stop offset=".35" stop-color="#5CE1E6"/><stop offset=".7" stop-color="#8C7CFF"/><stop offset="1" stop-color="#FF7AC8"/></linearGradient><linearGradient id="mh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#mg)"/><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#mh)"/><g fill="#0A0D18"><rect x="13" y="26" width="5" height="12" rx="2.5" opacity=".75"/><rect x="21" y="18" width="5" height="28" rx="2.5"/><rect x="29.5" y="28" width="5" height="16" rx="2.5" opacity=".9"/><rect x="38" y="18" width="5" height="28" rx="2.5"/><rect x="46" y="26" width="5" height="12" rx="2.5" opacity=".75"/></g></svg>
+        <div><b>MémoVox</b><small>Tes cours, mot pour mot</small></div></div>
       <button class="icon-btn glass" id="open-settings" aria-label="Réglages audio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
     <div class="tabs glass" role="tablist">
@@ -144,7 +149,7 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
   <main id="v-studio" role="tabpanel" aria-labelledby="tab-studio" style="display:grid;gap:14px">
     <section class="card studio glass">
       <div class="studio-top">
-        <div><h1>Studio d'enregistrement</h1><p id="quality-line">Haute qualité · Opus 160 kbps · 48 kHz · voix du prof renforcée</p></div>
+        <div><span class="kicker"><i></i>/ 01 — Studio</span><h1>Ton cours, <span>mot</span> <em>pour mot.</em></h1><p id="quality-line">Haute qualité · Opus 160 kbps · 48 kHz · voix du prof renforcée</p></div>
       </div>
       <button class="rec" id="rec" aria-label="Démarrer l'enregistrement"><svg id="rec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <div class="status" id="status" role="status"><span class="dot"></span><span id="status-txt">Prêt à enregistrer ton cours</span></div>
@@ -297,7 +302,7 @@ function draw(){
   analyser.getFloatTimeDomainData(buf);
   var sum=0,peak=0;for(var i=0;i<buf.length;i++){var v=buf[i];sum+=v*v;if(Math.abs(v)>peak)peak=Math.abs(v);}
   var rms=Math.sqrt(sum/buf.length),db=20*Math.log10(rms||1e-8);
-  c2.strokeStyle=state==='rec'?'#FF9F1C':'#7B7168';c2.lineWidth=2*(window.devicePixelRatio||1);c2.beginPath();
+  c2.strokeStyle=state==='rec'?'#C8F53C':'#6E7488';c2.lineWidth=2*(window.devicePixelRatio||1);c2.beginPath();
   for(var j=0;j<buf.length;j+=4){var x=j/buf.length*w,y=h/2+buf[j]*h*0.9;j?c2.lineTo(x,y):c2.moveTo(x,y);}c2.stroke();
   if(state!=='rec')return;
   var now=performance.now();if(now-lastWarn<600)return;lastWarn=now;
