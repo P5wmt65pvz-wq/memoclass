@@ -78,7 +78,7 @@ header{display:grid;gap:14px}
 .status.live .dot{background:var(--red)}
 .status.paused .dot{background:var(--warn)}
 .timer{font-family:var(--mono);font-size:46px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-canvas.meter{width:100%;height:54px;display:block;border-radius:14px;background:rgba(0,0,0,.25);box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
+canvas.meter{width:100%;height:72px;display:block;border-radius:14px;background:rgba(0,0,0,.25);box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
 .level{font-size:12.5px;color:var(--soft);min-height:1.2em}
 .level.warn{color:var(--warn)}
 .ctrl{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
@@ -395,22 +395,31 @@ function dur(ms){var s=Math.round(ms/1000),m=Math.floor(s/60);return m?m+' min '
 var canvas=$('meter'),c2=canvas.getContext('2d'),buf=null,peakHold=0,lastWarn=0;
 function sizeCanvas(){var r=canvas.getBoundingClientRect(),d=window.devicePixelRatio||1;canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);}
 sizeCanvas();window.addEventListener('resize',sizeCanvas);
+var hist=[],lastPush=0;
 function draw(){
   raf=requestAnimationFrame(draw);timer.textContent=fmt(elapsed());
-  var w=canvas.width,h=canvas.height;c2.clearRect(0,0,w,h);
-  if(!analyser)return;
-  analyser.getFloatTimeDomainData(buf);
-  var sum=0,peak=0;for(var i=0;i<buf.length;i++){var v=buf[i];sum+=v*v;if(Math.abs(v)>peak)peak=Math.abs(v);}
-  var rms=Math.sqrt(sum/buf.length),db=20*Math.log10(rms||1e-8);
-  c2.strokeStyle=state==='rec'?'#FF453A':'#6E7488';c2.lineWidth=2*(window.devicePixelRatio||1);c2.beginPath();
-  for(var j=0;j<buf.length;j+=4){var x=j/buf.length*w,y=h/2+buf[j]*h*0.9;j?c2.lineTo(x,y):c2.moveTo(x,y);}c2.stroke();
+  var d=window.devicePixelRatio||1,w=canvas.width,h=canvas.height,bw=3*d,gap=2.5*d,step=bw+gap,n=Math.floor(w/step),mid=h/2;
+  c2.clearRect(0,0,w,h);
+  var rms=0,peak=0,db=-100;
+  if(analyser){analyser.getFloatTimeDomainData(buf);var sum=0;for(var i=0;i<buf.length;i++){var v=buf[i];sum+=v*v;if(Math.abs(v)>peak)peak=Math.abs(v);}rms=Math.sqrt(sum/buf.length);db=20*Math.log10(rms||1e-8);}
+  /* une barre toutes les 60 ms, qui défile vers la gauche, comme un dictaphone */
+  var now=performance.now();
+  if(state==='rec'&&now-lastPush>60){lastPush=now;var lv=Math.max(0,Math.min(1,(db+60)/54));hist.push(lv);if(hist.length>n)hist.shift();}
+  /* ligne de base */
+  c2.fillStyle='rgba(255,255,255,.12)';c2.fillRect(0,mid-.5*d,w,1*d);
+  for(var k=0;k<hist.length;k++){
+    var lvl=hist[hist.length-1-k],x=w-(k+1)*step,bh=Math.max(2*d,lvl*(h-8*d));
+    c2.fillStyle=state==='rec'?(k===0?'#FFFFFF':'#FF453A'):'#6C6C70';c2.globalAlpha=k<n*.85?1:Math.max(.2,1-(k-n*.85)/(n*.15));
+    var y=mid-bh/2,r=Math.min(bw/2,bh/2);c2.beginPath();
+    if(c2.roundRect)c2.roundRect(x,y,bw,bh,r);else c2.rect(x,y,bw,bh);c2.fill();
+  }
+  c2.globalAlpha=1;
   if(state!=='rec')return;
-  var now=performance.now();if(now-lastWarn<600)return;lastWarn=now;
+  if(now-lastWarn<600)return;lastWarn=now;
   if(peak>0.98){levelEl.textContent='Son trop fort : éloigne un peu le téléphone.';levelEl.className='level warn';}
   else if(db<-50){levelEl.textContent='Son très faible : rapproche le téléphone du prof.';levelEl.className='level warn';}
   else{levelEl.textContent='Niveau correct ✓';levelEl.className='level';}
 }
-
 function start(){
   if(!navigator.mediaDevices||!window.MediaRecorder){toast("Ce navigateur ne peut pas enregistrer. Essaie Chrome ou Safari.");return;}
   navigator.mediaDevices.getUserMedia({audio:{channelCount:1,sampleRate:48000,sampleSize:16,echoCancellation:S.echo,noiseSuppression:S.noise,autoGainControl:S.agc}}).then(function(s){
@@ -433,7 +442,7 @@ function start(){
     draft('readwrite',function(st){st.clear();st.put({meta:true,mime:mime,date:Date.now()},'meta');});
     recorder.ondataavailable=function(e){if(e.data&&e.data.size){chunks.push(e.data);var d=e.data,el=elapsed(),tx2=finalTxt;draft('readwrite',function(st){st.add(d);st.put({meta:true,mime:mime,date:Date.now(),duration:el,transcript:tx2},'meta');}).catch(function(){});}};
     recorder.start(1000);
-    finalTxt='';renderT('');docs=docs||[];acc=0;t0=performance.now();state='rec';setUI();startSR();
+    hist=[];finalTxt='';renderT('');docs=docs||[];acc=0;t0=performance.now();state='rec';setUI();startSR();
     if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){wake=w;}).catch(function(){});
     cancelAnimationFrame(raf);draw();
   }).catch(function(err){toast(err&&err.name==='NotAllowedError'?"Autorise le micro pour enregistrer.":"Micro introuvable ou occupé.");});
