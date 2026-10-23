@@ -1,6 +1,6 @@
 # Mémoclass — enregistreur vocal de cours (site statique)
 
-Site GitHub Pages (`https://p5wmt65pvz-wq.github.io/memoclass/`), un seul fichier `index.html`, sans serveur : tout reste dans le navigateur. Propriétaire : Adrien (utilise surtout un **Mac / Safari** ; Chromebook en second). Parle français, réponses courtes.
+Site GitHub Pages (`https://p5wmt65pvz-wq.github.io/memoclass/`), un seul fichier `index.html`, sans serveur : tout reste dans le navigateur. Propriétaire : Adrien (utilise surtout un **Mac / Safari** ; Chromebook en second). Parle français, réponses courtes. **Usage réel : en cours de français sur son Chromebook** (souvent 4 Go de mémoire, pas toujours de WebGPU) : tout doit y marcher, sans modèle trop gros (`prefer()` choisit selon `navigator.deviceMemory`).
 
 ## Règles de travail
 - **Une image ou une vidéo qu'Adrien envoie est un cahier des charges à reproduire à l'identique** (pas « à ma sauce »). La regarder en entier, relever forme / taille / position / couleurs / timing, dire en une ligne ce qu'on va reproduire, puis construire une seule fois.
@@ -15,7 +15,7 @@ Site GitHub Pages (`https://p5wmt65pvz-wq.github.io/memoclass/`), un seul fichie
 - `mvStartFx` : animation de départ « Link Start » (canvas) + partition sonore synthétisée (`score`).
 - `mvCelebrate(info, done, status)` : animation de fin. `status()` = ce que l'appli fait vraiment sur le texte (affiché en bas). La carte `#fin` arrive avec la classe `.warp` (CSS) et fait trembler la page (`body.thud`).
 - `analyse` : titre et matière proposés d'après le contenu (mots-clés, expressions de deux mots). `polish` : mise au propre du texte (mots doublés, typographie française). `finFill` / `finRefresh` : la carte se remet à jour quand le texte précis arrive, sans écraser ce qu'Adrien a modifié.
-- `WORKER_SRC` (transformers.js 4.3.1) : Cohere Transcribe sur carte graphique, sinon Whisper large-v3-turbo (réglage « Mode léger » `S.light`), puis Whisper small ; sans carte graphique, Whisper small (wasm). `wkName()` = modèle réellement utilisé (affiché dans le direct et dans Mes cours). `cleanAsr` coupe les boucles de répétition.
+- `WORKER_SRC` (transformers.js 4.3.1) : Cohere Transcribe sur carte graphique si l'ordinateur a au moins 8 Go de mémoire (`prefer()`), sinon Whisper large-v3-turbo (réglage « Mode léger » `S.light`), puis Whisper small ; sans carte graphique, Whisper small (wasm). `wkName()` = modèle réellement utilisé (affiché dans le direct et dans Mes cours). `cleanAsr` coupe les boucles de répétition.
 - `hqRun` / `autoHq` : transcription précise automatique (lancée dès l'arrêt, pendant l'animation, si déjà acceptée) ; `importAudio` : importer un audio ; `renderList` / `courseBody` : Mes cours (puces par matière, recherche, lecteur avec vitesse, Télécharger / Partager l'audio).
 - Liquid Glass : uniquement Chromium ; ailleurs, verre dépoli classique.
 

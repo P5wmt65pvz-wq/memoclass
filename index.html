@@ -930,9 +930,11 @@ self.onmessage=async(e)=>{
 };`;
 /* un seul « ouvrier » pour toute la transcription précise (en direct et après coup) */
 var PREFER_URL=(/[?&]whisper=(tiny|small)/.exec(location.search)||[])[1];
-function prefer(){return PREFER_URL||(S.light?'turbo':'max');}   /* max = Cohere Transcribe, turbo = mode léger (Whisper) */
+/* Le modèle suit la mémoire de l'ordinateur (un Chromebook de classe a souvent 4 Go) : Cohere Transcribe (2 Go) à partir de 8 Go, Whisper turbo (0,8 Go) à 4 Go ou en mode léger, Whisper small en dessous.
+   Un onglet qui manque de mémoire plante sans prévenir : on ne tente pas un modèle trop gros. */
+function prefer(){if(PREFER_URL)return PREFER_URL;var mem=navigator.deviceMemory||8;return mem<4?'small':(S.light||mem<8)?'turbo':'max';}
 var wk=null,wkCb={},wkSeq=0,wkReady=null,wkLoad=null,wkInfo=null;
-function mdlSize(){return prefer()==='max'?'2 Go':'0,8 Go';}
+function mdlSize(){var p=prefer();return p==='max'?'2 Go':p==='small'?'0,3 Go':'0,8 Go';}
 function wkGet(){
   if(!wk){wk=new Worker(URL.createObjectURL(new Blob([WORKER_SRC],{type:'text/javascript'})),{type:'module'});
     wk.onmessage=function(e){var m=e.data;
