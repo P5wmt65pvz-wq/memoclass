@@ -1,6 +1,6 @@
 # Mémoclass — enregistreur vocal de cours (site statique)
 
-Site GitHub Pages (`https://p5wmt65pvz-wq.github.io/memovox/`, puis `/memoclass/` quand le dépôt sera renommé), un seul fichier `index.html`, sans serveur : tout reste dans le navigateur. Propriétaire : Adrien (utilise surtout un **Mac / Safari** ; Chromebook en second). Parle français, réponses courtes.
+Site GitHub Pages (`https://p5wmt65pvz-wq.github.io/memoclass/`), un seul fichier `index.html`, sans serveur : tout reste dans le navigateur. Propriétaire : Adrien (utilise surtout un **Mac / Safari** ; Chromebook en second). Parle français, réponses courtes.
 
 ## Règles de travail
 - **Une image ou une vidéo qu'Adrien envoie est un cahier des charges à reproduire à l'identique** (pas « à ma sauce »). La regarder en entier, relever forme / taille / position / couleurs / timing, dire en une ligne ce qu'on va reproduire, puis construire une seule fois.
@@ -32,7 +32,7 @@ Fait et en ligne :
 - Fichier en M4A ; boutons « Partager le fichier » et « Enregistrer le fichier » ; boutons Copier pour le texte.
 
 À faire / en attente :
-- Adrien doit renommer le dépôt `memovox` → `memoclass` (la création d'un dépôt par l'API est refusée, erreur 403).
+- Dépôt renommé `memoclass` le 23/10 (l'ancienne adresse /memovox/ ne marche plus).
 - Questions restées sans réponse : « les lignes bizarres » et « les trucs bleus pas bien montés » (écran non précisé).
 - Jamais testé ici :
   - Safari ;
