@@ -235,6 +235,12 @@ body.is-rec .studio .recbadge{display:flex}
 .rec.jb{transition:transform .15s,translate .3s cubic-bezier(.3,1.6,.5,1),scale .4s cubic-bezier(.3,1.7,.5,1)}
 .jw{animation:wob .5s cubic-bezier(.3,1.3,.5,1)}
 @keyframes wob{0%{scale:1}30%{scale:1.045 .965}60%{scale:.985 1.015}100%{scale:1}}
+/* Cercle d'écriture doré qui suit la voix (pendant l'enregistrement) */
+.orb{display:grid;place-items:center;justify-self:center}
+.orb>*{grid-area:1/1}
+#oracle{display:none;width:min(88vw,360px,44svh);aspect-ratio:1;pointer-events:none}
+body.recmode #oracle{display:block}
+body.recmode .meter{display:none}
 /* Mode enregistrement : un écran rien que pour le dictaphone ; la transcription est plus bas */
 .more,.mini{display:none}
 body.recmode .tabs,body.recmode .chips,body.recmode .foot{display:none}
@@ -281,7 +287,7 @@ body.recmode .mini.on{translate:-50% 0;opacity:1}
       <div class="studio-top">
         <div><h1>Enregistreur</h1><p id="quality-line">Haute qualité · Opus 160 kbps · 48 kHz · voix du prof renforcée</p></div>
       </div>
-      <button class="rec" id="rec" aria-label="Démarrer l'enregistrement"><svg id="rec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <div class="orb"><canvas id="oracle" aria-hidden="true"></canvas><button class="rec" id="rec" aria-label="Démarrer l'enregistrement"><svg id="rec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
       <div class="status" id="status" role="status"><span class="dot"></span><span id="status-txt">Prêt à enregistrer ton cours</span></div>
       <div class="timer" id="timer" aria-live="off">00:00.0</div>
       <canvas class="meter" id="meter" aria-hidden="true"></canvas>
@@ -507,6 +513,50 @@ function dur(ms){var s=Math.round(ms/1000),m=Math.floor(s/60);return m?m+' min '
 var canvas=$('meter'),c2=canvas.getContext('2d'),buf=null,peakHold=0,lastWarn=0;
 function sizeCanvas(){var r=canvas.getBoundingClientRect(),d=window.devicePixelRatio||1;canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);}
 sizeCanvas();window.addEventListener('resize',sizeCanvas);
+
+/* ---------- cercle d'écriture doré (réagit à la voix) ---------- */
+var oc=$('oracle'),og=oc.getContext('2d'),oS=0,oV=0,oPrev=0,oFlash=0,oRot=0,oT=0,oLast=0;
+var oGl=[],oDots=[],TAU2=Math.PI*2;
+(function(){for(var i=0;i<90;i++){var st=[],n=3+Math.random()*3|0;for(var k=0;k<n;k++){st.push([Math.random()*2|0,Math.random()*4|0,Math.random()*2|0,Math.random()*4|0]);}oGl.push({st:st,dot:Math.random()<.3});}
+  for(var j=0;j<70;j++)oDots.push({a:Math.random()*TAU2,d:Math.random(),s:.5+Math.random()*1.6,v:.4+Math.random()});})();
+function sizeOracle(){var r=oc.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);oS=r.width;oc.width=Math.max(1,r.width*d);oc.height=Math.max(1,r.height*d);og.setTransform(d,0,0,d,0,0);}
+window.addEventListener('resize',sizeOracle);
+function oRing(R0,wd,rot,n,al){
+  og.save();og.translate(oS/2,oS/2);og.strokeStyle='rgba(255,196,80,'+al+')';og.lineWidth=Math.max(1,wd*.1);og.lineCap='round';
+  for(var i=0;i<n;i++){var g=oGl[(i*7+(wd|0))%oGl.length],a=rot+i/n*TAU2;og.save();og.rotate(a);og.translate(0,-R0);
+    var h=wd*.9,w=wd*.5;og.beginPath();for(var k=0;k<g.st.length;k++){var q=g.st[k];og.moveTo(q[0]*w-w/2,-q[1]/3*h);og.lineTo(q[2]*w-w/2,-q[3]/3*h);}og.stroke();
+    if(g.dot){og.beginPath();og.arc(0,-h*1.1,wd*.07,0,TAU2);og.fillStyle='rgba(255,220,130,'+al+')';og.fill();}og.restore();}
+  og.restore();
+}
+function oracleFrame(lv,fb){
+  if(oc.offsetParent===null)return;
+  if(!oS||Math.abs(oc.getBoundingClientRect().width-oS)>1)sizeOracle();
+  var now=performance.now(),dt=Math.min(.05,(now-oLast)/1000||.016);oLast=now;oT+=dt;
+  var v=state==='rec'?lv:0;oV+=(v-oV)*.28;if(oV-oPrev>.2)oFlash=1;oPrev=oV;oFlash=Math.max(0,oFlash-dt*3);
+  var S=oS,c=S/2;og.clearRect(0,0,S,S);
+  og.globalCompositeOperation='source-over';
+  var bgd=og.createRadialGradient(c,c,S*.1,c,c,S*.5);bgd.addColorStop(0,'rgba(24,12,0,.65)');bgd.addColorStop(.8,'rgba(12,28,34,.45)');bgd.addColorStop(1,'rgba(12,28,34,0)');og.fillStyle=bgd;og.fillRect(0,0,S,S);
+  og.globalCompositeOperation='lighter';
+  var rot=oT*(.12+oV*.7);
+  /* lueur du cœur */
+  var cg=og.createRadialGradient(c,c,0,c,c,S*(.2+oV*.14));cg.addColorStop(0,'rgba(255,205,90,'+(.55+oV*.4+oFlash*.2)+')');cg.addColorStop(1,'rgba(255,150,20,0)');og.fillStyle=cg;og.fillRect(0,0,S,S);
+  /* rayons fins, plus longs quand la voix monte */
+  og.lineWidth=1;var NR=84;
+  for(var i=0;i<NR;i++){var a=i/NR*TAU2+rot*.3,band=fb?fb[3+(i%14)*4]/255:0,L=S*(.30+.04*Math.sin(i*1.7+oT*2))+S*(band*.16*oV*2+oV*.06);
+    og.strokeStyle='rgba(255,'+(214+(i%3)*10)+',150,'+(.16+oV*.34+oFlash*.2)+')';og.beginPath();og.moveTo(c+Math.cos(a)*S*.2,c+Math.sin(a)*S*.2);og.lineTo(c+Math.cos(a)*L,c+Math.sin(a)*L);og.stroke();}
+  /* anneaux d'écriture */
+  var pul=1+oV*.05+oFlash*.03;
+  oRing(S*.355*pul,S*.05,rot,64,.85);oRing(S*.43*pul,S*.035,-rot*.7,86,.6);
+  og.globalCompositeOperation='source-over';
+  /* anneau épais crème, comme dans la scène */
+  og.strokeStyle='rgba(247,232,196,.95)';og.lineWidth=S*(.018+oV*.014);og.beginPath();og.arc(c,c,S*.27*pul,0,TAU2);og.stroke();
+  og.strokeStyle='rgba(255,196,80,.55)';og.lineWidth=1.5;og.beginPath();og.arc(c,c,S*.455*pul,0,TAU2);og.stroke();og.beginPath();og.arc(c,c,S*.49,0,TAU2);og.stroke();
+  /* poussière dorée qui s'échappe */
+  og.globalCompositeOperation='lighter';
+  for(var j=0;j<oDots.length;j++){var d=oDots[j];d.d+=dt*(.03+oV*.22)*d.v;if(d.d>1){d.d=0;d.a=Math.random()*TAU2;}
+    var rr=S*(.2+d.d*.3),al=Math.sin(d.d*Math.PI)*(.35+oV*.6);og.fillStyle='rgba(255,224,150,'+al+')';og.beginPath();og.arc(c+Math.cos(d.a+rot*.2)*rr,c+Math.sin(d.a+rot*.2)*rr,d.s*(1+oV),0,TAU2);og.fill();}
+  og.globalCompositeOperation='source-over';
+}
 var hist=[],bars=[0,0,0,0,0,0,0],fbuf=null;
 function draw(){
   raf=requestAnimationFrame(draw);var tm=fmt(elapsed());timer.textContent=tm;$('mini-t').textContent=tm;
@@ -521,6 +571,7 @@ function draw(){
     var band=fbuf?fbuf[3+k*4]/255:0,shape=1-Math.abs(k-(N-1)/2)/((N-1)/2)*.45,target=state==='rec'?Math.max(lv*shape,band*lv*1.2):0;
     bars[k]+=(target-bars[k])*.35;
   }
+  oracleFrame(lv,fbuf);
   var bw=4*d,gap=4*d,total=N*bw+(N-1)*gap,x0=(w-total)/2;
   c2.fillStyle=state==='rec'?'#FF453A':'#6C6C70';
   for(var j=0;j<N;j++){var bh=Math.max(bw,Math.min(1,bars[j])*(h-2*d)),x=x0+j*(bw+gap),y=mid-bh/2;c2.beginPath();
