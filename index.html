@@ -148,8 +148,8 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
 .tip{font-size:12.5px;color:var(--soft);background:rgba(0,0,0,.2);border-radius:14px;padding:10px 12px;margin:2px 0}
 .foot{text-align:center;font-size:12px;color:var(--dim);line-height:1.5;margin:0}
 .foot a{color:var(--soft)}
-.toast.glass{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);border-radius:16px;padding:11px 16px;font-size:14px;font-weight:700;transition:transform .35s cubic-bezier(.2,.9,.3,1.15);z-index:10;max-width:calc(100% - 32px);background:rgba(18,21,34,.8)}
-.toast.glass.on{transform:translate(-50%,0)}
+.toast.glass{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,calc(100% + 60px));visibility:hidden;border-radius:16px;padding:11px 16px;font-size:14px;font-weight:700;transition:transform .35s cubic-bezier(.2,.9,.3,1.15),visibility 0s .35s;z-index:10;max-width:calc(100% - 32px);background:rgba(18,21,34,.8)}
+.toast.glass.on{transform:translate(-50%,0);visibility:visible;transition:transform .35s cubic-bezier(.2,.9,.3,1.15)}   /* caché pour de vrai : plus de liseré qui dépasse en bas de l'écran */
 :focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){.rec.live,.halo span{animation:none}}
@@ -240,6 +240,8 @@ body.is-rec .studio .recbadge{display:flex}
 @keyframes wob{0%{scale:1}30%{scale:1.045 .965}60%{scale:.985 1.015}100%{scale:1}}
 /* Mes cours : rangés par matière, repérables d'un coup d'œil */
 .lib-bar{display:grid;gap:10px;margin-bottom:6px}
+.lib-imp{display:flex;justify-content:flex-end;margin:0 0 10px}
+.course .player{display:flex;align-items:center;gap:8px}.course .player audio{flex:1;min-width:0}
 .lib-bar[hidden]{display:none}
 .lib-bar input{font:inherit;font-size:15px;font-weight:600;color:var(--text);background:rgba(255,255,255,.07);border:1px solid var(--edge);border-radius:14px;padding:11px 14px;width:100%}
 .lib-bar input:focus{outline:2px solid #2F86FF;outline-offset:1px}
@@ -263,6 +265,19 @@ body.is-rec .studio .recbadge{display:flex}
 @keyframes tabpop{40%{scale:1.3;box-shadow:0 0 0 9px rgba(255,200,80,.35),0 0 22px rgba(255,190,60,.7)}}
 dialog[open]{animation:dlgin .4s cubic-bezier(.2,1,.3,1)}
 @keyframes dlgin{from{opacity:0;transform:scale(.9) translateY(16px)}}
+#fin.warp{animation:warp 1.5s .08s both,warpglow 2.2s ease-out both}   /* sort du tourbillon en tournant, vient vers toi, puis retombe d'un coup sur la page */
+@keyframes warp{0%{transform:perspective(900px) scale(.04) rotate(-300deg);opacity:0;filter:blur(10px);animation-timing-function:cubic-bezier(.2,.8,.3,1)}
+ 48%{transform:perspective(900px) translateZ(170px) rotateX(8deg);opacity:1;filter:blur(0);animation-timing-function:linear}
+ 60%{transform:perspective(900px) translateZ(178px) rotateX(9deg);animation-timing-function:cubic-bezier(.7,0,1,.5)}
+ 78%{transform:perspective(900px) translateZ(-16px) scale(1.025,.965)}
+ 87%{transform:perspective(900px) translateZ(3px) scale(.995,1.01)}
+ 100%{transform:none;opacity:1}}
+body.thud{animation:thud .5s linear}   /* l'impact fait trembler le site */
+@keyframes thud{0%{translate:0 0}12%{translate:-8px 6px}26%{translate:7px -5px}40%{translate:-5px 4px}55%{translate:4px -2px}72%{translate:-2px 1px}100%{translate:0 0}}
+@keyframes warpglow{0%,30%{box-shadow:0 0 0 2px rgba(255,205,90,.9),0 0 70px rgba(255,70,50,.75),0 0 140px rgba(255,190,60,.45)}100%{box-shadow:0 0 0 0 rgba(255,205,90,0),0 0 0 rgba(255,70,50,0)}}
+#fin.warp::backdrop{animation:bdin 1.6s ease-in both}
+@keyframes bdin{0%,55%{opacity:0}}
+@media (prefers-reduced-motion:reduce){#fin.warp,#fin.warp::backdrop,body.thud{animation:none}}
 .skill-ov canvas{position:absolute;inset:0;width:100%;height:100%}
 .skill-ov.out{opacity:0}
 /* Pendant l'enregistrement seulement : le ciel bleu de Raphaël (le reste du site garde ses couleurs) */
@@ -375,6 +390,7 @@ body.recmode .mini.on{translate:-50% 0;opacity:1}
   </main>
 
   <main id="v-cours" role="tabpanel" aria-labelledby="tab-cours" hidden>
+    <div class="lib-imp"><button class="btn" id="imp-btn" type="button">Importer un audio</button><input id="imp-in" type="file" accept="audio/*,video/*,.m4a,.mp3,.wav,.aac,.flac,.ogg,.opus,.webm" multiple hidden></div>
     <div class="lib-bar" id="lib-bar"><input id="lib-q" type="search" placeholder="Chercher un cours, une matière, un mot…" aria-label="Chercher un cours" autocomplete="off"><div class="lib-chips" id="lib-chips" role="group" aria-label="Filtrer par matière"></div></div>
     <div class="list" id="list"></div>
   </main>
@@ -392,8 +408,9 @@ body.recmode .mini.on{translate:-50% 0;opacity:1}
     <h3>Sauvegarde</h3>
     <div class="sw"><span><b>Copier dans mes Fichiers</b><small>Télécharge aussi le fichier audio à chaque arrêt</small></span><input type="checkbox" id="o-files" checked aria-label="Copier dans mes Fichiers"></div>
     <div class="sw"><span><b>Voix « Link Start ! »</b><small>La voix de ton ordinateur le dit au départ (le micro peut l'entendre)</small></span><input type="checkbox" id="o-sfx" checked aria-label="Voix Link Start"></div>
-    <div class="sw"><span><b>Transcription précise automatique</b><small>Affine le texte après chaque cours (environ 600 Mo, téléchargé une seule fois)</small></span><input type="checkbox" id="o-hq" checked aria-label="Transcription précise automatique"></div>
+    <div class="sw"><span><b>Transcription précise automatique</b><small>Affine le texte après chaque cours (environ 2 Go, ou 0,8 Go en mode léger, téléchargé une seule fois)</small></span><input type="checkbox" id="o-hq" checked aria-label="Transcription précise automatique"></div>
     <div class="sw"><span><b>Transcription précise en direct</b><small>Pendant le cours, avec la carte graphique de ton ordinateur (Mac récent, Chrome)</small></span><input type="checkbox" id="o-live" checked aria-label="Transcription précise en direct"></div>
+    <div class="sw"><span><b>Mode léger</b><small>Modèle Whisper (0,8 Go) au lieu de Cohere Transcribe (2 Go) : un peu moins précis, plus rapide à télécharger</small></span><input type="checkbox" id="o-light" aria-label="Mode léger"></div>
     <h3>Traitement audio</h3>
     <div class="sw"><span><b>Voix du prof renforcée</b><small>Coupe le grondement, rapproche une voix lointaine</small></span><input type="checkbox" id="o-boost" checked aria-label="Voix du prof renforcée"></div>
     <div class="sw"><span><b>Suppression du bruit</b><small>Filtre le bruit de fond de la salle</small></span><input type="checkbox" id="o-noise" checked aria-label="Suppression du bruit"></div>
@@ -478,13 +495,13 @@ var $=function(id){return document.getElementById(id);};
 /* ---------- format ---------- */
 var MIME=['audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/webm']   /* M4A d'abord : le fichier s'ouvre partout (QuickTime, Musique, iPhone…) au lieu d'un .webm que le Mac envoie vers un autre navigateur */.filter(function(m){return window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m);})[0]||'';
 /* ---------- réglages ---------- */
-var SKEY='memovox.reglages',S={q:'256',boost:true,noise:true,echo:true,agc:false,files:false,sfx:true,hq:true,live:true,v2:true,v3:true};
+var SKEY='memovox.reglages',S={q:'256',boost:true,noise:true,echo:true,agc:false,files:false,sfx:true,hq:true,live:true,light:false,v2:true,v3:true};
 try{var sv=JSON.parse(localStorage.getItem(SKEY));if(sv){if(!sv.v2&&sv.q==='160')sv.q='256';sv.v2=true;if(!sv.v3){sv.files=false;sv.v3=true;}   /* plus de copie dans Téléchargements par défaut */for(var k in S)if(k in sv)S[k]=sv[k];}}catch(e){}
 function saveS(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
 var dlg=$('settings');
 function paintS(){
   [].forEach.call(document.querySelectorAll('input[name=q]'),function(r){r.checked=r.value===S.q;});
-  $('o-files').checked=S.files;$('o-sfx').checked=S.sfx;$('o-hq').checked=S.hq;$('o-live').checked=S.live;$('o-boost').checked=S.boost;$('o-noise').checked=S.noise;$('o-echo').checked=S.echo;$('o-agc').checked=S.agc;
+  $('o-files').checked=S.files;$('o-sfx').checked=S.sfx;$('o-hq').checked=S.hq;$('o-live').checked=S.live;$('o-light').checked=S.light;$('o-boost').checked=S.boost;$('o-noise').checked=S.noise;$('o-echo').checked=S.echo;$('o-agc').checked=S.agc;
   var names={'256':'Qualité maximale','160':'Haute qualité','96':'Qualité standard'};
   var codec=/mp4/.test(MIME)?'AAC':'Opus',mo={'256':115,'160':72,'96':43};
   $('quality-line').textContent=names[S.q]+' · '+codec+' '+S.q+' kbps · 48 kHz'+(S.boost?' · voix du prof renforcée':'');
@@ -493,15 +510,16 @@ function paintS(){
 }
 dlg.addEventListener('change',function(){
   var r=dlg.querySelector('input[name=q]:checked');S.q=r?r.value:'256';
-  S.files=$('o-files').checked;S.sfx=$('o-sfx').checked;S.hq=$('o-hq').checked;S.live=$('o-live').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
+  S.files=$('o-files').checked;S.sfx=$('o-sfx').checked;S.hq=$('o-hq').checked;S.live=$('o-live').checked;S.light=$('o-light').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
 });
 $('open-settings').addEventListener('click',function(){dlg.showModal();});
+dlg.addEventListener('change',function(){if(wk&&wk._pref!==prefer()&&!LIVE.on&&!Object.keys(hqJobs).length){wk.terminate();wk=null;wkReady=null;wkInfo=null;}});   /* changement de modèle : on repart de zéro */
 /* un clic à côté de la fenêtre (gauche, droite, haut, bas) la ferme */
 dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close();});
 paintS();
 
 /* ---------- format ---------- */
-function ext(m){return /webm/.test(m)?'webm':/ogg/.test(m)?'ogg':/mp4/.test(m)?'m4a':'audio';}
+function ext(m){return /webm/.test(m)?'webm':/ogg/.test(m)?'ogg':/mp4|m4a/.test(m)?'m4a':/mpeg|mp3/.test(m)?'mp3':/wav/.test(m)?'wav':/aac/.test(m)?'aac':/flac/.test(m)?'flac':'audio';}
 
 /* ---------- toast ---------- */
 var tt;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on');},3200);}
@@ -768,12 +786,16 @@ function stop(keep){
     var now=new Date(),id=String(now.getTime());
     var title='Cours du '+now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' à '+now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     var lp=liveFinish(),lt=liveText();if(lt)text=lt+(finalTxt.length>LIVE.doneLen?' '+finalTxt.slice(LIVE.doneLen):'');
-    var c={id:id,title:title,date:now.getTime(),duration:total,mime:blob.type,blob:blob,transcript:text,docs:d,subject:'',notes:'',livePending:!!lp};
+    var c={id:id,title:title,date:now.getTime(),duration:total,mime:blob.type,blob:blob,transcript:polish(text),docs:d,subject:'',notes:'',livePending:!!lp};
     /* quand Whisper a fini les derniers morceaux, le texte précis remplace celui du navigateur */
-    if(lp)lp.then(function(t){c.livePending=false;if(t){c.transcript=t;c.hq=true;}tx('readwrite',function(st){return st.put(c);}).then(function(){if(t)toast('Transcription précise prête ✓');renderList();liveNote('');LIVE.texts=[];});});
+    if(lp)lp.then(function(t){c.livePending=false;if(t){c.transcript=polish(t);c.hq=true;c.engine=wkName();}finRefresh(c);tx('readwrite',function(st){return st.put(c);}).then(function(){if(t)toast('Transcription précise prête ✓');renderList();liveNote('');LIVE.texts=[];});});
     tx('readwrite',function(st){return st.put(c);})
       .then(function(){openId=c.id;justAdded=c.id;libSub='';libQ='';renderList();
-        if(window.mvCelebrate&&!matchMedia('(prefers-reduced-motion: reduce)').matches)mvCelebrate(dur(total)+' · rangé dans Mes cours',function(){openFin(c,true);});else openFin(c,true);})
+        /* pendant l'animation, le texte est déjà retravaillé : fin de la transcription précise, puis titre et matière */
+        var hqOk=null;try{hqOk=localStorage.getItem('dictavox.hq');}catch(e){}if(hqOk)autoHq(c);
+        var memo={},stat=function(){if(c.livePending)return 'Transcription précise : les derniers mots…';if(hqJobs[c.id])return 'Transcription précise en cours…';if(!c.transcript)return '';
+          if(memo.t!==c.transcript){memo.t=c.transcript;memo.v=analyse(c.transcript)?'Texte mis au propre · titre et matière proposés':'Texte mis au propre';}return memo.v;};   /* calculé une fois, pas à chaque image */
+        if(window.mvCelebrate&&!matchMedia('(prefers-reduced-motion: reduce)').matches)mvCelebrate(dur(total)+' · rangé dans Mes cours',function(){openFin(c,true,true);},stat);else openFin(c,true);})
       .catch(function(){saveToFiles(blob,title);toast('Fichier audio téléchargé dans tes Téléchargements ✓');});
   };
   if(r.state!=='inactive')r.stop();else r.onstop();
@@ -792,7 +814,8 @@ var SUBJ={
  'Droit':['loi','tribunal','contrat','juridique','jurisprudence','droit','juge','responsabilité','code civil','procès'],
  'Informatique':['algorithme','programme','variable','boucle','code','données','réseau','python','serveur','informatique','base de données','logiciel']
 },STOP={};
-'aujourd,maintenant,vraiment,justement,finalement,parce,quelque,quelques,toujours,pourquoi,comment,plusieurs,beaucoup,exemple,exactement,simplement,effectivement,premier,premiere,deuxieme,ensuite,jusqu,autres,chose,choses,faire,faudrait,avoir,etait,etaient,pendant,depuis,avant,apres,encore,pouvoir,voulait,permet,partie,moment,different,differente,possible,important,importante,question,reponse,cours,heure,heures,quelqu,quelle,quelles,notre,votre,voila,quand,alors,celui,ceux,cette,donc,tellement,d.accord,regardez,regarde'.split(',').forEach(function(w){STOP[w]=1;});
+'aujourd,maintenant,vraiment,justement,finalement,parce,quelque,quelques,toujours,pourquoi,comment,plusieurs,beaucoup,exemple,exactement,simplement,effectivement,premier,premiere,deuxieme,ensuite,jusqu,autres,chose,choses,faire,faudrait,avoir,etait,etaient,pendant,depuis,avant,apres,encore,pouvoir,voulait,permet,partie,moment,different,differente,possible,important,importante,question,reponse,cours,heure,heures,quelqu,quelle,quelles,notre,votre,voila,quand,alors,celui,ceux,cette,donc,tellement,d.accord,regardez,regarde,devrait,devraient,pourrait,pourraient,serait,seraient,aurait,auraient,doivent,peuvent,etaient,avaient,etions,avons,allons,faisait,disait,ecrire,prendre,mettre,video,videos'.split(',').forEach(function(w){STOP[w]=1;});
+var BISTOP={};'dans,pour,avec,sans,mais,sont,etait,avait,vont,fait,peut,tres,plus,elle,elles,nous,vous,leur,leurs,cette,comme,entre,aussi,etre,avoir,faire,dire,voir,ete,tout,tous,toute,toutes'.split(',').forEach(function(w){BISTOP[w]=1;});
 function normT(t){return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
 function analyse(text){
   var t=normT(text),all=t.match(/[a-z']{3,}/g)||[];if(all.length<25)return null;
@@ -801,29 +824,47 @@ function analyse(text){
   if(bs<3)best=null;
   var orig={},toks=text.toLowerCase().match(/[a-zàâäçéèêëîïôöùûüœ']{3,}/g)||[];toks.forEach(function(w){var n=normT(w);if(!orig[n])orig[n]=w;});
   var freq={};all.forEach(function(w){w=w.replace(/^[ldjnsctm]'/,'');if(w.length<6||STOP[w])return;freq[w]=(freq[w]||0)+1;});
-  var top=Object.keys(freq).filter(function(w){return freq[w]>=2;}).sort(function(a,b){return freq[b]-freq[a];}).slice(0,3).map(function(w){return orig[w]||w;});
+  /* expressions de deux mots qui reviennent (« révolution française », « guerre froide ») : gardées ensemble */
+  var seq=all.map(function(w){return w.replace(/^[ldjnsctm]'/,'');}),bi={};
+  for(var i=0;i+1<seq.length;i++){var a=seq[i],b=seq[i+1];if(a.length>=5&&b.length>=4&&!STOP[a]&&!STOP[b]&&!BISTOP[b]){var k=a+' '+b;bi[k]=(bi[k]||0)+1;}}
+  var bis=Object.keys(bi).filter(function(k){return bi[k]>=2;}).sort(function(a,b){return bi[b]-bi[a];}).slice(0,1),used={};
+  bis.forEach(function(k){k.split(' ').forEach(function(w){used[w]=1;});});
+  var top=bis.map(function(k){return k.split(' ').map(function(w){return orig[w]||w;}).join(' ');}).concat(Object.keys(freq).filter(function(w){return freq[w]>=2&&!used[w];}).sort(function(a,b){return freq[b]-freq[a];}).map(function(w){return orig[w]||w;})).slice(0,3);
+  if(top.length)top[0]=top[0].charAt(0).toUpperCase()+top[0].slice(1);
   if(!best&&!top.length)return null;
   return {subject:best||'',title:(best||'Cours')+(top.length?' — '+top.join(', '):'')};
 }
 var finDlg=$('fin'),finCur=null,finNew=false;
 function words(t){return t?t.split(/\s+/).filter(Boolean).length:0;}
-function openFin(c,isNew){
-  finCur=c;finNew=isNew;
+var finAuto=null;   /* titre / matière proposés automatiquement, tant que la personne n'y a pas touché */
+function openFin(c,isNew,warp){
+  finCur=c;finNew=isNew;finDlg.classList.toggle('warp',!!warp);
+  if(warp)setTimeout(function(){var b=document.body;b.classList.remove('thud');void b.offsetWidth;b.classList.add('thud');setTimeout(function(){b.classList.remove('thud');},600);if(navigator.vibrate)try{navigator.vibrate(35);}catch(e){}},1250);   /* moment où la carte touche la page */
   $('f-title').textContent=isNew?'Ton cours est prêt':'Modifier le cours';
-  $('f-sum').textContent=dur(c.duration)+' · '+(c.blob.size/1048576).toFixed(1)+' Mo'+(c.transcript?' · '+words(c.transcript)+' mots':'')+(c.docs&&c.docs.length?' · '+c.docs.length+' document'+(c.docs.length>1?'s':''):'');
   $('f-titre').value=c.title;$('f-mat').value=c.subject||'';$('f-notes').value=c.notes||'';
-  var an=isNew&&c.transcript&&!c.subject?analyse(c.transcript):null;$('f-auto').hidden=!an;if(an){if(an.subject)$('f-mat').value=an.subject;$('f-titre').value=an.title;}
-  $('f-tr').hidden=!c.transcript;$('f-copy').hidden=!c.transcript;$('f-txt').textContent=c.transcript||'';
+  finAuto=null;$('f-auto').hidden=true;finFill(c);
   allCours().then(function(all){var dl=$('f-mats'),seen={};dl.innerHTML='';all.forEach(function(x){if(x.subject&&!seen[x.subject]){seen[x.subject]=1;var o=document.createElement('option');o.value=x.subject;dl.appendChild(o);}});}).catch(function(){});
   finDlg.returnValue='';if(!finDlg.open)finDlg.showModal();
 }
+function finFill(c){   /* (re)remplit la carte avec le meilleur texte disponible ; ne touche pas à ce que la personne a modifié */
+  $('f-sum').textContent=dur(c.duration)+' · '+(c.blob.size/1048576).toFixed(1)+' Mo'+(c.transcript?' · '+words(c.transcript)+' mots':'')+(c.docs&&c.docs.length?' · '+c.docs.length+' document'+(c.docs.length>1?'s':''):'')+(c.livePending||hqJobs[c.id]?' · transcription précise en cours…':'');
+  $('f-tr').hidden=!c.transcript;$('f-copy').hidden=!c.transcript;$('f-txt').textContent=c.transcript||'';
+  if(!finNew||c.subject)return;
+  var an=c.transcript?analyse(c.transcript):null;if(!an)return;
+  var ti=$('f-titre'),ma=$('f-mat');
+  if(!finAuto||ti.value===finAuto.title)ti.value=an.title;
+  if(an.subject&&(!finAuto||ma.value===finAuto.subject))ma.value=an.subject;
+  finAuto={title:ti.value,subject:ma.value};$('f-auto').hidden=false;
+}
+function finRefresh(c){if(finCur===c&&finDlg.open)finFill(c);}
+finDlg.addEventListener('animationend',function(e){if(e.animationName==='warpglow')finDlg.classList.remove('warp');});
 $('f-copy').addEventListener('click',function(){if(finCur&&finCur.transcript)copy(finCur.transcript,'Texte copié ✓ Colle-le dans Claude');});
 ['f-titre','f-mat'].forEach(function(i){$(i).addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();finDlg.close('ok');}});});
 finDlg.addEventListener('close',function(){
   var c=finCur;if(!c)return;finCur=null;var ok=finDlg.returnValue==='ok';
   if(ok){c.title=$('f-titre').value.trim()||c.title;c.subject=$('f-mat').value.trim();c.notes=$('f-notes').value.trim();}
   (ok?tx('readwrite',function(st){return st.put(c);}):Promise.resolve()).then(function(){
-    if(finNew)saveToFiles(c.blob,(c.subject?c.subject+' - ':'')+c.title);
+    if(finNew&&!c.imported)saveToFiles(c.blob,(c.subject?c.subject+' - ':'')+c.title);
     if(ok)toast(finNew&&S.files?'Cours enregistré ✓ Copie dans tes Téléchargements':'Cours enregistré ✓');renderList();
     if(finNew)autoHq(c);
   }).catch(function(){toast('Modification non enregistrée');});
@@ -846,16 +887,20 @@ cancelBtn.addEventListener('click',function(){
    Le modèle est téléchargé une fois (puis gardé en cache par le navigateur) ;
    l'audio, lui, ne quitte jamais l'appareil. */
 var WORKER_SRC=`
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2';
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1';
 env.allowLocalModels=false;
 let asr=null,cpu=null,model='',onGpu=false;
 const prog=(p)=>{if(p.status==='progress'&&p.total)self.postMessage({type:'load',file:p.file,loaded:p.loaded,total:p.total});};
+const COHERE='onnx-community/cohere-transcribe-03-2026-ONNX';
 async function init(wantGpu,prefer){
   let adapter=null;if(wantGpu){try{adapter=navigator.gpu&&await navigator.gpu.requestAdapter();}catch(_){}}
-  const f16=!!(adapter&&adapter.features&&adapter.features.has('shader-f16')),tries=[];
-  /* avec une carte graphique : le meilleur modèle (large-v3-turbo) ; sinon whisper-small sur le processeur */
+  const tries=[];
+  /* avec une carte graphique : Cohere Transcribe (le plus précis en français, mesuré : 6,5 % d'erreurs contre 7,9 % pour Whisper turbo),
+     sinon Whisper large-v3-turbo (mode léger), puis Whisper small ; sans carte graphique : Whisper small sur le processeur.
+     Encodeurs en q4 (calcul en 32 bits) : les variantes 16 bits de Whisper perdent en précision sur WebGPU (transformers.js #1590). */
   if(adapter){
-    if(prefer==='turbo')tries.push(['onnx-community/whisper-large-v3-turbo','webgpu',f16?{encoder_model:'q4f16',decoder_model_merged:'q4f16'}:{encoder_model:'q4',decoder_model_merged:'q4'}]);
+    if(prefer==='max')tries.push([COHERE,'webgpu','q4']);
+    if(prefer==='max'||prefer==='turbo')tries.push(['onnx-community/whisper-large-v3-turbo','webgpu',{encoder_model:'q4',decoder_model_merged:'q4'}]);
     tries.push(['onnx-community/whisper-small','webgpu',{encoder_model:'fp32',decoder_model_merged:'q4'}]);
   }
   tries.push([prefer==='tiny'?'onnx-community/whisper-tiny':'onnx-community/whisper-small','wasm','q8']);
@@ -863,22 +908,33 @@ async function init(wantGpu,prefer){
   for(const [m,dev,dt] of tries){try{asr=await pipeline('automatic-speech-recognition',m,{device:dev,dtype:dt,progress_callback:prog});model=m;onGpu=dev==='webgpu';return;}catch(e){last=e;asr=null;}}
   throw last||new Error('modèle indisponible');
 }
+/* texte borné à la durée (environ 6 éléments par seconde) : une boucle de Whisper ne peut pas s'emballer */
+function opts(m,long,sec){return m===COHERE?{language:'fr',max_new_tokens:448}:long?{language:'french',task:'transcribe',chunk_length_s:30,stride_length_s:5,max_new_tokens:224}:{language:'french',task:'transcribe',max_new_tokens:Math.min(440,Math.round(sec*6)+24)};}
+async function onCpu(audio,long){   /* secours : Whisper small sur le processeur */
+  if(!cpu)cpu=await pipeline('automatic-speech-recognition','onnx-community/whisper-small',{device:'wasm',dtype:'q8',progress_callback:prog});
+  const out=await cpu(audio,opts('',long,audio.length/16000));return (out&&out.text||'').trim();
+}
 self.onmessage=async(e)=>{
   const d=e.data;
   if(d.type==='init'){try{if(!asr)await init(d.gpu,d.prefer);self.postMessage({type:'ready',model,gpu:onGpu});}catch(err){self.postMessage({type:'initerror',message:String(err&&err.message||err)});}return;}
   if(d.type==='asr'){
     try{
-      const opt=d.long?{language:'french',task:'transcribe',chunk_length_s:30,stride_length_s:5}:{language:'french',task:'transcribe'};
-      let out=await asr(d.audio,opt),text=(out&&out.text||'').trim();
-      /* si la carte graphique rend un texte vide, on recommence avec le processeur */
-      if(!text&&onGpu){if(!cpu)cpu=await pipeline('automatic-speech-recognition','onnx-community/whisper-small',{device:'wasm',dtype:'q8',progress_callback:prog});out=await cpu(d.audio,opt);text=(out&&out.text||'').trim();}
+      let text='';
+      try{const out=await asr(d.audio,opts(model,d.long,d.audio.length/16000));text=(out&&out.text||'').trim();}
+      catch(err){if(!onGpu)throw err;}
+      /* si la carte graphique échoue ou rend un texte vide, on recommence avec le processeur */
+      if(!text&&onGpu)text=await onCpu(d.audio,d.long);
       self.postMessage({type:'text',id:d.id,text});
     }catch(err){self.postMessage({type:'fail',id:d.id,message:String(err&&err.message||err)});}
   }
 };`;
 /* un seul « ouvrier » pour toute la transcription précise (en direct et après coup) */
-var PREFER=(/[?&]whisper=(tiny|small)/.exec(location.search)||[,'turbo'])[1];
+var PREFER_URL=(/[?&]whisper=(tiny|small)/.exec(location.search)||[])[1];
+/* Le modèle suit la mémoire de l'ordinateur (un Chromebook de classe a souvent 4 Go) : Cohere Transcribe (2 Go) à partir de 8 Go, Whisper turbo (0,8 Go) à 4 Go ou en mode léger, Whisper small en dessous.
+   Un onglet qui manque de mémoire plante sans prévenir : on ne tente pas un modèle trop gros. */
+function prefer(){if(PREFER_URL)return PREFER_URL;var mem=navigator.deviceMemory||8;return mem<4?'small':(S.light||mem<8)?'turbo':'max';}
 var wk=null,wkCb={},wkSeq=0,wkReady=null,wkLoad=null,wkInfo=null;
+function mdlSize(){var p=prefer();return p==='max'?'2 Go':p==='small'?'0,3 Go':'0,8 Go';}
 function wkGet(){
   if(!wk){wk=new Worker(URL.createObjectURL(new Blob([WORKER_SRC],{type:'text/javascript'})),{type:'module'});
     wk.onmessage=function(e){var m=e.data;
@@ -891,16 +947,28 @@ function wkGet(){
 function wkInit(onLoad){
   wkLoad=onLoad||wkLoad;if(wkReady)return wkReady;var w=wkGet();
   wkReady=new Promise(function(ok,ko){w._ok=ok;w._ko=ko;});wkReady.catch(function(){wkReady=null;});
-  w.postMessage({type:'init',gpu:true,prefer:PREFER});return wkReady;
+  w.postMessage({type:'init',gpu:true,prefer:wk._pref=prefer()});return wkReady;
 }
+function wkName(){if(!wkInfo)return '';var m=/cohere/.test(wkInfo.model)?'Cohere Transcribe':wkInfo.model.split('/').pop().replace('whisper-','Whisper ');return m+(wkInfo.gpu?' · carte graphique':' · processeur');}   /* le modèle qui tourne vraiment, pour savoir où on en est (Safari, Chromebook…) */
 function wkAsr(audio,long){var id=++wkSeq;return new Promise(function(ok,ko){wkCb[id]={ok:ok,ko:ko};wkGet().postMessage({type:'asr',id:id,audio:audio,long:!!long},[audio.buffer]);});}
 function loadNote(m,files){files[m.file]=[m.loaded,m.total];var L=0,T=0;for(var f in files){L+=files[f][0];T+=files[f][1];}return 'Téléchargement du modèle de transcription : '+Math.round(L/T*100)+' % ('+Math.round(T/1048576)+' Mo, une seule fois)';}
 /* nettoie ce que Whisper invente parfois sur du silence, et les répétitions en boucle */
 function cleanAsr(t){
   t=String(t||'').replace(/\s+/g,' ').trim();
   if(/amara\.org|sous-titr|merci d'avoir regard|abonnez-vous|n'oubliez pas de (vous )?abonner/i.test(t)&&t.length<120)return '';
+  t=t.replace(/(\S+(?: \S+){0,7}?)(?:[ ,.;]+\1){3,}/gi,'$1');   /* une phrase répétée en boucle (« nous, nous, nous… ») : gardée une fois */
   var parts=t.split(/(?<=[.!?…])\s+/),out=[];parts.forEach(function(p){if(!out.length||out[out.length-1].toLowerCase()!==p.toLowerCase())out.push(p);});
   return out.join(' ');
+}
+/* mise au propre du texte : mots doublés, espaces et majuscules à la française, point final */
+function polish(t){
+  t=String(t||'').replace(/\s+/g,' ').trim();if(!t)return t;
+  t=t.replace(/(^|[^\wà-ÿœ'])([a-zà-ÿœ]+)((?: \2)+)(?![\wà-ÿœ'])/gi,function(m,p,w){return /^(le|la|les|un|une|des|de|du|et|à|a|en|on|je|tu|il|elle|ils|elles|que|qui|ce|se|ne|pas|dans|pour|sur|est)$/i.test(w)?p+w:m;});
+  t=t.replace(/([a-zà-ÿœ])([.!?,;])(?=[A-Za-zÀ-ÿ])/g,'$1$2 ');
+  t=t.replace(/([^\s\d])\s?([?!;])(?=\s|$)/g,'$1 $2').replace(/([^\s\d])\s?:(?=\s|$)/g,'$1 :');
+  t=t.replace(/(^|[.!?…]\s+)([a-zà-ÿœ])/g,function(m,p,c){return p+c.toUpperCase();});
+  if(!/[.!?…]$/.test(t))t+='.';
+  return t;
 }
 function hqTranscribe(blob,onStep){
   /* un cours d'une heure : on décode directement en 16 kHz (4 fois moins de mémoire)
@@ -934,18 +1002,18 @@ function hqTranscribe(blob,onStep){
 var LIVE={on:false,proc:null,acc:[],accLen:0,rate:48000,queue:[],busy:false,texts:[],cutLen:[],doneLen:0,n:0,files:{},note:''};
 function liveNote(t){LIVE.note=t;var el=$('t-live');if(el){el.textContent=t;el.hidden=!t;}}
 function liveConsent(){var ok=null;try{ok=localStorage.getItem('dictavox.hq');}catch(e){}if(ok)return true;
-  if(!window.confirm("Mémoclass peut transcrire tes cours avec un modèle de reconnaissance vocale bien plus précis (environ 600 Mo, téléchargé une seule fois ; ensuite tout reste sur ton appareil). Activer ?")){S.hq=false;S.live=false;saveS();paintS();return false;}
+  if(!window.confirm("Mémoclass peut transcrire tes cours avec un modèle de reconnaissance vocale bien plus précis (environ '+mdlSize()+', téléchargé une seule fois ; ensuite tout reste sur ton appareil). Activer ?")){S.hq=false;S.live=false;saveS();paintS();return false;}
   try{localStorage.setItem('dictavox.hq','1');}catch(e){}return true;}
 function liveStart(node){
   LIVE.on=false;LIVE.proc=null;
-  if(!S.live||!(navigator.gpu||PREFER!=='turbo')||!ctx.createScriptProcessor)return;   /* en direct seulement avec une carte graphique */
+  if(!S.live||!(navigator.gpu||PREFER_URL)||!ctx.createScriptProcessor)return;   /* en direct seulement avec une carte graphique */
   if(!liveConsent())return;
   LIVE.on=true;LIVE.rate=ctx.sampleRate;LIVE.acc=[];LIVE.accLen=0;LIVE.queue=[];LIVE.busy=false;LIVE.texts=[];LIVE.cutLen=[];LIVE.doneLen=0;LIVE.n=0;LIVE.files={};
   var sp=ctx.createScriptProcessor(4096,1,1),z=ctx.createGain();z.gain.value=0;
   sp.onaudioprocess=function(e){if(state!=='rec'||!LIVE.on)return;var d=e.inputBuffer.getChannelData(0);LIVE.acc.push(new Float32Array(d));LIVE.accLen+=d.length;if(LIVE.accLen>=LIVE.rate*18)liveCut(false);};
   node.connect(sp);sp.connect(z);z.connect(ctx.destination);LIVE.proc=sp;
   liveNote('Préparation de la transcription précise…');
-  wkInit(function(m){liveNote(loadNote(m,LIVE.files));}).then(function(info){liveNote('Transcription précise en direct ✓');livePump();})
+  wkInit(function(m){liveNote(loadNote(m,LIVE.files));}).then(function(info){liveNote('Transcription précise en direct ✓ · '+wkName());livePump();})
     .catch(function(){LIVE.on=false;liveNote('');});
 }
 function liveCut(last){
@@ -978,7 +1046,7 @@ var hqJobs={},hqErr={};
 function hqRun(c){
   if(hqJobs[c.id])return;delete hqErr[c.id];var job=hqJobs[c.id]={note:'Transcription précise : préparation…',el:null};
   var upd=function(t){job.note=t;if(job.el&&job.el.isConnected)job.el.textContent=t;};
-  hqTranscribe(c.blob,upd).then(function(text){c.transcript=text;c.hq=true;return tx('readwrite',function(st){return st.put(c);});})
+  hqTranscribe(c.blob,upd).then(function(text){c.transcript=polish(text);c.hq=true;c.engine=wkName();finRefresh(c);return tx('readwrite',function(st){return st.put(c);});})
     .then(function(){delete hqJobs[c.id];toast('Transcription précise prête ✓');renderList();})
     .catch(function(err){delete hqJobs[c.id];hqErr[c.id]='Transcription précise impossible : '+(err&&err.message||'erreur')+'. Vérifie ta connexion (téléchargement du modèle).';renderList();});
 }
@@ -986,7 +1054,7 @@ function autoHq(c){
   if(!S.hq||c.hq||c.livePending)return;
   if(!(navigator.gpu||c.duration<20*60000))return;   /* sans carte graphique, un cours long serait trop lent : bouton manuel */
   var ok=null;try{ok=localStorage.getItem('dictavox.hq');}catch(e){}
-  if(!ok){if(!window.confirm("Mémoclass peut affiner la transcription après chaque cours avec un modèle (environ 600 Mo, téléchargé une seule fois, ensuite tout reste sur ton appareil). Activer ?")){S.hq=false;saveS();paintS();return;}try{localStorage.setItem('dictavox.hq','1');}catch(e){}}
+  if(!ok){if(!window.confirm("Mémoclass peut affiner la transcription après chaque cours avec un modèle (environ '+mdlSize()+', téléchargé une seule fois, ensuite tout reste sur ton appareil). Activer ?")){S.hq=false;saveS();paintS();return;}try{localStorage.setItem('dictavox.hq','1');}catch(e){}}
   hqRun(c);
 }
 /* ---------- Mes cours ---------- */
@@ -1001,7 +1069,8 @@ function norm2(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[
 function whenTxt(d){var x=new Date(d);return x.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+' · '+x.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
 function courseBody(c){
   var box=el('div','c-body');
-  var u=URL.createObjectURL(c.blob);urls.push(u);var au=el('audio');au.controls=true;au.preload='metadata';au.src=u;box.appendChild(au);
+  var u=URL.createObjectURL(c.blob);urls.push(u);var pl=el('div','player'),au=el('audio');au.controls=true;au.preload='metadata';au.src=u;pl.appendChild(au);
+  var SP=[1,1.25,1.5,2],sp=el('button','btn','×1');sp.type='button';sp.setAttribute('aria-label','Vitesse de lecture');sp.onclick=function(){var i=(SP.indexOf(au.playbackRate)+1)%SP.length;au.playbackRate=SP[i];sp.textContent='×'+String(SP[i]).replace('.',',');};pl.appendChild(sp);box.appendChild(pl);
   if(c.notes)box.appendChild(el('p','notes',c.notes));
   var act=el('div','actions');
   if(c.transcript){
@@ -1010,15 +1079,19 @@ function courseBody(c){
     fi.onclick=function(){copy("Tu es mon prof particulier. Voici la transcription de mon cours (elle peut contenir des erreurs de reconnaissance vocale : corrige-les quand c'est évident, signale-les quand tu n'es pas sûr).\n\nFais-moi une fiche d'une page : les notions clés, les définitions et formules à savoir, les pièges classiques en contrôle, et un mini-exemple corrigé. Ensuite, propose-moi un quiz de 5 questions, une à la fois.\n\nTranscription :\n"+c.transcript,'Prompt copié ✓ Colle-le dans ChatGPT ou Claude');};
     act.appendChild(fi);
   }
-  var fname=c.title.replace(/[^\wÀ-ÿ -]/g,'').replace(/\s+/g,'-')+'.'+ext(c.mime);
-  /* le fichier audio : un navigateur ne peut pas le « copier » dans le presse-papiers ; on le partage (AirDrop, Messages, Mail, Notes…) ou on l'enregistre */
+  var fname=c.title.replace(/[^\wÀ-ÿ -]/g,'').trim().replace(/\s+/g,'-')+'.'+(c.fext||ext(c.mime));
+  /* le fichier audio : télécharger en un geste, partager (AirDrop, Messages, Mail, Notes…), le glisser ailleurs ; « copier » seulement si le navigateur accepte l'audio dans le presse-papiers (aucun ne le garantit) */
   try{var file=new File([c.blob],fname,{type:c.blob.type});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){var sh=el('button','btn primary','Partager le fichier');sh.type='button';sh.onclick=function(){navigator.share({files:[file],title:c.title}).catch(function(){});};act.appendChild(sh);}}catch(e){}
-  var dl=el('a','btn','Enregistrer le fichier');dl.href=u;dl.download=fname;act.appendChild(dl);
+    if(navigator.canShare&&navigator.canShare({files:[file]})){var sh=el('button','btn','Partager l’audio');sh.type='button';sh.onclick=function(){navigator.share({files:[file],title:c.title}).catch(function(){});};act.appendChild(sh);}}catch(e){}
+  var dl=el('a','btn primary','Télécharger l’audio');dl.href=u;dl.download=fname;dl.draggable=true;dl.title='Tu peux aussi le glisser vers un dossier ou une autre appli';
+  dl.addEventListener('dragstart',function(e){try{e.dataTransfer.setData('DownloadURL',(c.blob.type||'audio/mp4')+':'+fname+':'+u);}catch(_){}});
+  act.insertBefore(dl,act.firstChild);
+  try{if(window.ClipboardItem&&ClipboardItem.supports&&c.blob.type&&ClipboardItem.supports(c.blob.type.split(';')[0])){var ca=el('button','btn','Copier l’audio');ca.type='button';
+    ca.onclick=function(){var it={};it[c.blob.type.split(';')[0]]=c.blob;navigator.clipboard.write([new ClipboardItem(it)]).then(function(){toast('Audio copié ✓');},function(){toast('Copie de l’audio refusée par le navigateur');});};act.insertBefore(ca,dl.nextSibling);}}catch(e){}
   var hqNote=el('p','meta',''),job=hqJobs[c.id];
   if(job){hqNote.textContent=job.note;job.el=hqNote;}
-  else if(c.hq)hqNote.textContent='Transcription précise ✓';
-  else{if(hqErr[c.id])hqNote.textContent=hqErr[c.id];var hq=el('button','btn','Affiner la transcription');hq.type='button';hq.onclick=function(){hqRun(c);renderList();};act.appendChild(hq);}
+  else if(c.hq)hqNote.textContent='Transcription précise ✓'+(c.engine?' · '+c.engine:'');
+  else{if(hqErr[c.id])hqNote.textContent=hqErr[c.id];var hq=el('button','btn',c.transcript?'Affiner la transcription':'Transcrire');hq.type='button';hq.onclick=function(){hqRun(c);renderList();};act.appendChild(hq);}
   var ed=el('button','btn','Modifier');ed.type='button';ed.onclick=function(){openFin(c,false);};act.appendChild(ed);
   var del=el('button','btn danger','Supprimer');del.type='button';
   del.onclick=function(){if(!del.dataset.sure){del.dataset.sure='1';del.textContent='Confirmer la suppression';setTimeout(function(){if(del.isConnected){delete del.dataset.sure;del.textContent='Supprimer';}},3000);return;}
@@ -1066,6 +1139,19 @@ function renderList(){
   }).catch(function(){$('list').innerHTML='<div class="card empty glass"><b>Stockage indisponible</b>Ton navigateur bloque le stockage local (navigation privée ?).</div>';});
 }
 $('lib-q').addEventListener('input',function(){libQ=this.value;renderList();});
+/* importer un audio déjà enregistré (Dictaphone, WhatsApp, vidéo…) : il devient un cours, transcrit sur l'appareil */
+$('imp-btn').addEventListener('click',function(){$('imp-in').click();});
+$('imp-in').addEventListener('change',function(){var fs=[].slice.call(this.files);this.value='';var i=0;(function next(){if(i<fs.length)importAudio(fs[i++],i===fs.length).then(next,next);})();});
+function importAudio(f,last){
+  var name=f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').trim()||'Audio importé',fx=(/\.([a-z0-9]{2,4})$/i.exec(f.name)||[])[1];
+  return f.arrayBuffer().then(function(ab){var AC=window.AudioContext||window.webkitAudioContext,ac=new AC();
+    return new Promise(function(ok,ko){var p=ac.decodeAudioData(ab,ok,ko);if(p&&p.catch)p.catch(ko);}).then(function(b){ac.close().catch(function(){});return b.duration*1000;},function(e){ac.close().catch(function(){});throw e;});
+  }).then(function(ms){
+    var id=String(Date.now()),c={id:id,title:name,date:f.lastModified||Date.now(),duration:ms,mime:f.type||'audio/'+(fx||'mp4'),fext:fx?fx.toLowerCase():'',blob:f.slice(0,f.size,f.type),transcript:'',docs:[],subject:'',notes:'',imported:true};
+    return tx('readwrite',function(st){return st.put(c);}).then(function(){openId=c.id;justAdded=c.id;libSub='';libQ='';$('lib-q').value='';renderList();toast('« '+name+' » importé ✓');
+      if(last){autoHq(c);if(!c.hq&&!hqJobs[c.id])toast('Touche « Transcrire » pour avoir le texte');}});
+  },function(){toast('« '+f.name+' » : format audio non reconnu par ce navigateur');});
+}
 
 /* ---------- onglets ---------- */
 function show(which){
@@ -1274,28 +1360,25 @@ db().then(function(d){
     if(navigator.vibrate)try{navigator.vibrate([20,60,20,60,120]);}catch(e){}
   };
   
-window.mvCelebrate=function(info,done){
-    /* À l'arrêt : Raphaël annonce « Réponse. Cours enregistré. », explose en gouttes dorées, puis un tourbillon plein écran (doré → rouge, les infos tournent vers le centre) cache tout ; « bam » : l'écran devient rouge, « Ton cours est prêt » saute vers toi en 3D et retombe sur des vagues rouges et dorées. Aucun son. */
+window.mvCelebrate=function(info,done,status){
+    /* À l'arrêt : Raphaël annonce « Réponse. Cours enregistré. », explose en gouttes dorées, puis un tourbillon plein écran (doré → rouge, les infos tournent vers le centre) cache tout ; « bam » : l'écran devient rouge et la carte « Ton cours est prêt » jaillit du centre vers toi, recule et se pose, sur des vagues rouges et dorées. Pendant ce temps, le texte est retravaillé (status). Aucun son. */
     var W=innerWidth,H=innerHeight,dpr=Math.min(1.5,devicePixelRatio||1);
     var ov=document.createElement('div');ov.className='skill-ov';ov.setAttribute('aria-hidden','true');
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);document.body.appendChild(ov);
     var g=cv.getContext('2d');g.scale(dpr,dpr);
-    var cx=W/2,cy=H*.4,U=Math.min(W*.8,H*.46),t0=performance.now(),last=t0,gone=false,fired=false,drops=null,vor=null;
-    var BOOM=1.9,BAM=BOOM+4.6,END=BAM+3.8,VD=BAM-BOOM,DIAG=Math.hypot(W,H);
-    var L1='Réponse.',L2='Cours enregistré.',LT='Ton cours est prêt',L3=info||'',GOLD=['255,211,77','255,176,32','255,233,160','255,200,58','255,244,200'];
+    var cx=W/2,cy=H*.4,U=Math.min(W*.8,H*.46),t0=performance.now(),last=t0,gone=false,fired=false,drops=null;
+    var BOOM=1.9,BAM=BOOM+4.6,END=BAM+2.4,VD=BAM-BOOM,DIAG=Math.hypot(W,H);
+    var L1='Réponse.',L2='Cours enregistré.',L3=info||'',GOLD=['255,211,77','255,176,32','255,233,160','255,200,58','255,244,200'];
     oB=0;oV=0;oFlash=0;
-    function close(){if(gone)return;gone=true;if(!fired){fired=true;var tb=$('tab-cours');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');if(done)done();}ov.classList.add('out');setTimeout(function(){ov.remove();},500);}
+    function fire(){if(fired)return;fired=true;var tb=$('tab-cours');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');if(done)done();}
+    function close(){if(gone)return;gone=true;fire();ov.classList.add('out');setTimeout(function(){ov.remove();},500);}
     ov.addEventListener('click',close);
     function ease(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);}
     function cl(x){return Math.max(0,Math.min(1,x));}
-    function burst(){
-      drops=[];var k=U/400;
-      for(var i=0;i<950;i++){var a=Math.random()*Math.PI*2,zone=i%3,rr=zone===0?U*(.38+Math.random()*.1):zone===1?U*(.28+Math.random()*.04):Math.random()*U*.28,sp=(160+Math.random()*680)*k;
-        drops.push({x:cx+Math.cos(a)*rr,y:cy+Math.sin(a)*rr,vx:Math.cos(a)*sp+(Math.random()-.5)*90*k,vy:Math.sin(a)*sp+(Math.random()-.5)*90*k-140*k,s:(1+Math.random()*3.4)*Math.max(1,k*.9),life:.9+Math.random()*.7,age:0,c:GOLD[i%GOLD.length]});}
-    }
-    function mkVortex(){   /* bras de la spirale : chacun descend de l'extérieur de l'écran vers le centre */
-      vor=[];var n=W*H<500000?1100:1700;
-      for(var i=0;i<n;i++)vor.push({a:Math.random()*Math.PI*2,ph:Math.random(),sp:.3+Math.random()*.25,s:(1+Math.random()*2.6)*Math.max(1,U/420),c:GOLD[i%GOLD.length],w:.8+Math.random()*.5});
+    function burst(){   /* une seule gerbe : chaque goutte part du cercle, file vers l'extérieur, puis se met à tourner et se fait aspirer vers le centre */
+      drops=[];var k=U/400,Rm=DIAG*.62;
+      for(var i=0,n=W*H<500000?2200:3200;i<n;i++){var zone=i%3,r0=zone===0?U*(.38+Math.random()*.1):zone===1?U*(.28+Math.random()*.04):Math.random()*U*.28;
+        drops.push({a:Math.random()*Math.PI*2,r0:r0,reach:Rm*(.18+.82*Math.sqrt(Math.random())),arr:3.2+Math.random()*1.3,w:.75+Math.random()*.6,s:(1+Math.random()*3)*Math.max(1,k*.9),c:GOLD[i%GOLD.length],px:null,py:null});}
     }
     function col(c,m,al){var p=c.split(',');return 'rgba('+Math.round(p[0]*(1-m)+255*m)+','+Math.round(p[1]*(1-m)+52*m)+','+Math.round(p[2]*(1-m)+44*m)+','+al+')';}
     function rows(){var y=cy+U*.58,fs=Math.max(20,Math.min(38,W*.055));
@@ -1308,22 +1391,20 @@ window.mvCelebrate=function(info,done){
         var talk=t>.7?.38+.3*Math.sin(t*9)*Math.sin(t*5.3):.05;oV+=(talk-oV)*.3;if(talk>.5)oFlash=Math.max(oFlash,.6);oFlash=Math.max(0,oFlash-dt*3);
         raphaelDraw(g,W,H,cx,cy,U,1,null,t>.7,dt);
       }else if(t<BAM){
-        if(!drops){burst();mkVortex();}
+        if(!drops)burst();
         g.clearRect(0,0,W,H);oSky(g,W,H,1,dt);
         var hz=g.createRadialGradient(cx,cy,0,cx,cy,DIAG*.6);hz.addColorStop(0,'rgba('+Math.round(60+150*m)+',20,'+Math.round(30-10*m)+','+(.25+.4*pv)+')');hz.addColorStop(1,'rgba(8,0,6,'+(.2+.6*pv)+')');g.fillStyle=hz;g.fillRect(0,0,W,H);
         g.globalCompositeOperation='lighter';
         if(ft<.6){g.globalAlpha=1-ft/.6;var gr=U*(.3+ft*1.6);g.drawImage(oSprite,cx-gr,cy-gr,gr*2,gr*2);g.globalAlpha=1;}
-        var grav=900*(U/400);
-        for(var i=0;i<drops.length;i++){var d=drops[i];d.age+=dt;if(d.age>d.life)continue;
-          d.vy+=grav*dt;d.vx*=.985;d.vy*=.985;d.x+=d.vx*dt;d.y+=d.vy*dt;
-          var al=1-d.age/d.life,sp=Math.hypot(d.vx,d.vy),len=d.s*(1.6+sp*.006),an=Math.atan2(d.vy,d.vx);
-          g.save();g.translate(d.x,d.y);g.rotate(an);g.fillStyle='rgba('+d.c+','+al*.9+')';g.beginPath();g.ellipse(0,0,len,d.s,0,0,Math.PI*2);g.fill();g.restore();}
-        var ga=ease((ft-.3)/.9),Rm=DIAG*.62,rot=ft*1.5+ft*ft*.55;   /* le tourbillon prend tout l'écran et accélère */
+        var om=3.4*ease((ft-.3)/1.5)+1.8*ease((ft-1.9)/2.4),ex=Math.exp(-4.2*ft),vk=.045/Math.max(dt,.008);   /* la rotation démarre doucement puis s'emballe */
         g.lineCap='round';
-        for(var i=0;i<vor.length;i++){var v=vor[i],u=(v.ph+ft*v.sp)%1,u2=Math.max(0,u-.03);
-          var r1=Rm*Math.pow(1-u,1.5),r2=Rm*Math.pow(1-u2,1.5),a1=v.a+rot*v.w+(1-r1/Rm)*4.2,a2=v.a+rot*v.w+(1-r2/Rm)*4.2;
-          var al=ga*Math.min(1,u*6)*(1-ease((u-.85)/.15))*.8;if(al<.02)continue;
-          g.strokeStyle=col(v.c,m,al);g.lineWidth=v.s*(.6+.9*(1-u));g.beginPath();g.moveTo(cx+Math.cos(a1)*r1,cy+Math.sin(a1)*r1);g.lineTo(cx+Math.cos(a2)*r2,cy+Math.sin(a2)*r2);g.stroke();}
+        for(var i=0;i<drops.length;i++){var d=drops[i];if(ft>d.arr)continue;
+          var out=d.reach+(d.r0-d.reach)*ex,r=out*(1-Math.pow(cl((ft-.75)/(d.arr-.75)),2.2));
+          d.a+=om*d.w*(1+1.8*(1-r/(d.reach+1)))*dt;   /* plus elle s'approche du centre, plus elle tourne vite */
+          var x=cx+Math.cos(d.a)*r,y=cy+Math.sin(d.a)*r;if(d.px===null){d.px=x;d.py=y;}
+          var lx=(x-d.px)*vk,ly=(y-d.py)*vk,ll=Math.hypot(lx,ly),mx=U*.22;if(ll>mx){lx*=mx/ll;ly*=mx/ll;}d.px=x;d.py=y;
+          var al=Math.min(1,r/(U*.05))*.88;if(al<.02)continue;
+          g.strokeStyle=col(d.c,cl(m+(d.w-1.05)*.35),al);g.lineWidth=d.s*(.65+.6*Math.min(1,r/d.reach));g.beginPath();g.moveTo(x,y);g.lineTo(x-lx-(ll<1?Math.cos(d.a)*d.s:0),y-ly-(ll<1?Math.sin(d.a)*d.s:0));g.stroke();}
         var cg=U*(.15+.5*pv*pv*pv);g.globalAlpha=.25+.7*pv*pv;g.drawImage(oSprite,cx-cg,cy-cg,cg*2,cg*2);g.globalAlpha=1;   /* le cœur se charge avant le « bam » */
         g.globalCompositeOperation='source-over';
         /* les infos tournent vers le centre */
@@ -1335,26 +1416,20 @@ window.mvCelebrate=function(info,done){
             g.globalAlpha=1-ease((p2-.8)/.2);g.shadowColor='rgba(255,170,40,.8)';g.shadowBlur=R[6]?12:0;g.fillStyle=R[2];
             g.save();g.translate(cx+Math.cos(af+rt)*r,cy+Math.sin(af+rt)*r);g.rotate(rt);g.scale(sc,sc);g.fillText(ch,0,0);g.restore();}}
         g.restore();
+        var st=status&&status();if(st){g.save();g.globalAlpha=ease((ft-.6)/.5)*.85;g.font='600 13px Manrope,system-ui,sans-serif';g.textAlign='center';var sw=g.measureText(st).width+28,sy=H-Math.max(28,H*.06);g.fillStyle='rgba(10,4,8,.62)';g.beginPath();if(g.roundRect)g.roundRect(cx-sw/2,sy-15,sw,30,15);else g.rect(cx-sw/2,sy-15,sw,30);g.fill();g.fillStyle='#FFE7C8';g.textBaseline='middle';g.fillText(st,cx,sy+1);g.restore();}   /* ce que l'appli fait sur le texte, en vrai */
       }else{
-        var tt=t-BAM;g.clearRect(0,0,W,H);
+        var tt=t-BAM;fire();g.clearRect(0,0,W,H);
         var bg=g.createRadialGradient(cx,H*.42,0,cx,H*.42,DIAG*.7);bg.addColorStop(0,'#8e1519');bg.addColorStop(.55,'#4a0a10');bg.addColorStop(1,'#140206');g.fillStyle=bg;g.fillRect(0,0,W,H);
         g.globalCompositeOperation='lighter';
         for(var k=0;k<3;k++){var rr=(tt-k*.1)*DIAG*1.5;if(rr<0||rr>DIAG)continue;var al=1-rr/DIAG;g.strokeStyle=k===1?'rgba(255,210,90,'+al*.8+')':'rgba(255,70,50,'+al*.8+')';g.lineWidth=(26-k*7)*al+2;g.beginPath();g.arc(cx,cy,rr,0,Math.PI*2);g.stroke();}   /* onde de choc */
         if(tt>.5)for(var j=0;j<4;j++){var q=((tt-.5)*.45+j/4)%1;g.strokeStyle='rgba('+(j%2?'255,200,70':'255,70,50')+','+(1-q)*.22+')';g.lineWidth=3+8*(1-q);g.beginPath();g.arc(cx,H*.4,q*U*1.5,0,Math.PI*2);g.stroke();}   /* ondulations derrière le texte */
-        var amp=H*(.018+.03*Math.exp(-Math.pow(tt-1.15,2)*8)+.01*Math.min(1,tt));   /* vagues rouges et dorées en bas */
+        var amp=H*(.018+.03*Math.exp(-Math.pow(tt-1.3,2)*10)+.01*Math.min(1,tt));   /* vagues rouges et dorées en bas */
         for(var w=0;w<3;w++){g.fillStyle=w===1?'rgba(255,190,60,.30)':'rgba(255,60,48,.34)';g.beginPath();g.moveTo(0,H);for(var x=0;x<=W;x+=8)g.lineTo(x,H*(.84+w*.045)+Math.sin(x/(W*.16)+tt*(2.2+w*.7)+w*2)*amp*(1+w*.35));g.lineTo(W,H);g.closePath();g.fill();}
         g.globalCompositeOperation='source-over';
-        /* « Cours enregistré » saute vers toi (3D), retombe, se pose */
-        var jt=tt-.15,sc,ty=H*.4;
-        if(jt<0)sc=0;else if(jt<.55)sc=.1+(PK-.1)*ease(jt/.55);else if(jt<1.05){var z=ease((jt-.55)/.5);sc=PK-(PK-1)*z;}else sc=1+.05*Math.exp(-(jt-1.05)*5)*Math.cos((jt-1.05)*16);
-        var fs=Math.max(26,Math.min(54,W*.09));g.font='800 '+Math.round(fs)+'px Manrope,system-ui,sans-serif';var PK=Math.max(1.15,Math.min(1.8,W*.94/Math.max(1,g.measureText(LT).width)));   /* le saut ne dépasse pas l'écran */
-        if(sc>0){g.save();g.translate(cx,ty);g.scale(sc,sc);g.textAlign='center';g.textBaseline='middle';
-          g.shadowColor='rgba(255,170,40,.9)';g.shadowBlur=22*sc;
-          g.font='800 '+Math.round(fs)+'px Manrope,system-ui,sans-serif';g.fillStyle='#FFFFFF';g.fillText(LT,0,0);g.restore();}
-        if(tt<.45){g.fillStyle='rgba(255,255,255,'+(1-tt/.45)+')';g.fillRect(0,0,W,H);}   /* éclair du « bam » */
+        /* la vraie carte « Ton cours est prêt » jaillit du centre (animation CSS .warp sur #fin) */
+        if(tt<.22){g.fillStyle='rgba(255,255,255,'+(1-tt/.22)+')';g.fillRect(0,0,W,H);}   /* éclair du « bam » */
       }
-      ov.style.opacity=String(1-ease((t-(END-.6))/.6));
-      if(t>END-.5&&!fired){fired=true;var tb=$('tab-cours');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');if(done)done();}
+      ov.style.opacity=String(1-ease((t-(END-.7))/.7));
       if(t>END){close();return;}
       requestAnimationFrame(frame);
     }

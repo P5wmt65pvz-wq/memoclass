@@ -1,0 +1,11 @@
+const {chromium}=require('/opt/node22/lib/node_modules/playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium',args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']});
+const p=await (await b.newContext({viewport:{width:390,height:844},permissions:['microphone']})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.addInitScript(()=>{window.webkitSpeechRecognition=window.SpeechRecognition=class{start(){window.__sr=this}stop(){}};});
+await p.goto('http://localhost:8131/index.html');await p.waitForTimeout(600);
+await p.click('#rec');await p.waitForTimeout(500);await p.mouse.click(5,5);await p.waitForTimeout(300);
+const send=async(t,wait)=>{await p.evaluate(t=>{const r=[{isFinal:true,0:{transcript:t}}];window.__sr.onresult({resultIndex:0,results:r});},t);await p.waitForTimeout(wait);};
+for(const t of ["alors aujourd'hui on va parler de la révolution française","en 1789 le roi louis seize convoque les états généraux","la prise de la bastille le 14 juillet marque le début de la révolution","ensuite la monarchie est abolie et la république est proclamée","la révolution française transforme la société le roi perd son pouvoir","la constitution de 1791 crée une monarchie constitutionnelle pour pas pour longtemps"]) await send(t,1800);
+await p.click('#stop');await p.waitForTimeout(3300);await p.screenshot({path:'txt-1.png'});await p.waitForTimeout(5000);
+console.log('titre',await p.inputValue('#f-titre'),'| matière',await p.inputValue('#f-mat'),'| auto',await p.$eval('#f-auto',e=>!e.hidden),'|',await p.textContent('#f-sum'));
+console.log(await p.$eval('#f-txt',e=>e.textContent));console.log('erreurs',errs);await b.close();})();
