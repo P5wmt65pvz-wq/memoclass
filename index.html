@@ -99,7 +99,7 @@ a.btn{text-decoration:none;color:var(--text)}
 .transcript{display:grid;gap:8px}
 .t-act{display:flex;gap:14px}
 .transcript .t-head{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:800}
-.transcript .t-body{max-height:180px;overflow:auto;font-size:14.5px;line-height:1.55;white-space:pre-wrap;background:rgba(0,0,0,.22);border-radius:14px;padding:10px 12px;min-height:56px}
+.transcript .t-body{max-height:180px;overflow:auto;font-size:15.5px;line-height:1.6;white-space:pre-wrap;background:rgba(0,0,0,.22);border-radius:14px;padding:10px 12px;min-height:56px}
 .transcript .interim{color:var(--soft)}
 .transcript .t-note{font-size:12px;color:var(--dim);margin:0}
 .link{background:none;border:0;color:var(--soft);font-size:13px;cursor:pointer;text-decoration:underline}
@@ -123,6 +123,7 @@ dialog{border:1px solid var(--edge);background:rgba(16,19,32,.74);-webkit-backdr
 .fld em{font-style:normal;font-weight:500}
 .fld input,.fld textarea{font:inherit;font-size:15px;font-weight:600;color:var(--text);background:rgba(255,255,255,.06);border:1px solid var(--edge);border-radius:12px;padding:10px 12px;resize:vertical}
 .fld input:focus,.fld textarea:focus{outline:2px solid #FF453A;outline-offset:1px}
+.fin-auto{margin:0;font-size:12.5px;color:var(--soft)}
 .fin-sum{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--soft)}
 .fin-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:4px}
 .fin-btns .btn{justify-content:center}
@@ -242,10 +243,10 @@ body.is-rec .studio .recbadge{display:flex}
 .skill-ov canvas{position:absolute;inset:0;width:100%;height:100%}
 .skill-ov.out{opacity:0}
 /* Pendant l'enregistrement seulement : le ciel bleu de Raphaël (le reste du site garde ses couleurs) */
-body.recmode{background:linear-gradient(180deg,#0A2A82 0%,#1B5CC4 46%,#3A8AE0 100%) fixed,#0B2F8A}
-body.recmode .halo span:nth-child(1){background:radial-gradient(circle,rgba(255,255,255,.45),transparent 62%)}
-body.recmode .halo span:nth-child(2){background:radial-gradient(circle,rgba(255,255,255,.34),transparent 62%)}
-body.recmode .halo span:nth-child(3){background:radial-gradient(circle,rgba(150,210,255,.45),transparent 62%)}
+body.recmode{background:radial-gradient(120% 80% at 50% 38%,#0B3AA8 0%,#06226E 38%,#020B36 78%,#01051C 100%) fixed,#020B36;--soft:#D3E5FF;--dim:#B9D2F4}
+body.recmode .halo span:nth-child(1){background:radial-gradient(circle,rgba(70,120,255,.38),transparent 62%)}
+body.recmode .halo span:nth-child(2){background:radial-gradient(circle,rgba(40,170,255,.24),transparent 62%)}
+body.recmode .halo span:nth-child(3){background:radial-gradient(circle,rgba(120,90,255,.2),transparent 62%)}
 /* Présentation habituelle au repos ; pendant l'enregistrement : la scène de Raphaël, entière et au centre */
 .more,.mini,#oracle{display:none}
 body.recmode header{position:fixed;top:0;left:0;right:0;z-index:25;display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:center;gap:8px;padding:max(10px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-left,0px)) 0;pointer-events:none}
@@ -278,7 +279,12 @@ body.recmode .more{display:flex;justify-self:center;align-items:center;gap:8px;b
 /* la transcription s'ouvre depuis le centre, avec un halo doré, quand on descend */
 body.recmode #v-studio .transcript{order:1;opacity:calc(.1 + var(--p,0)*.9);clip-path:inset(calc((1 - var(--p,0))*46%) 0 0 0 round 24px);transform:translateY(calc((1 - var(--p,0))*90px)) scale(calc(.9 + var(--p,0)*.1));box-shadow:0 0 calc(var(--p,0)*60px) rgba(255,170,40,calc(var(--p,0)*.35)),inset 0 1px 1px rgba(255,255,255,.38)}
 body.recmode #v-studio .drop{order:2}
-body.recmode .transcript .t-body{max-height:none;min-height:42vh;font-size:16px}
+body.recmode #v-studio .glass:not(.studio){background:rgba(3,12,52,.86)}
+body.recmode .transcript .t-body{max-height:none;min-height:42vh;font-size:17.5px;line-height:1.7;color:#fff;background:rgba(0,4,28,.55)}
+body.recmode .transcript .interim{color:#C4D8FF}
+body.recmode .transcript .t-note{font-size:13.5px;color:#C4D8FF}
+body.recmode .transcript .t-head{font-size:16px}
+body.recmode .drop{color:#E4EEFF}
 body.recmode .mini{display:flex;position:fixed;z-index:30;left:50%;top:max(10px,env(safe-area-inset-top,0px));translate:-50% -140%;opacity:0;align-items:center;gap:8px;padding:6px 8px 6px 16px;border-radius:999px;transition:translate .45s cubic-bezier(.2,1.3,.4,1),opacity .3s}
 body.recmode .mini.on{translate:-50% 0;opacity:1}
 .mini i{width:9px;height:9px;border-radius:50%;background:#FF3B30;box-shadow:0 0 10px #FF3B30;animation:blink 1s steps(2) infinite}
@@ -361,6 +367,7 @@ body.recmode .mini.on{translate:-50% 0;opacity:1}
     <h3>Sauvegarde</h3>
     <div class="sw"><span><b>Copier dans mes Fichiers</b><small>Télécharge aussi le fichier audio à chaque arrêt</small></span><input type="checkbox" id="o-files" checked aria-label="Copier dans mes Fichiers"></div>
     <div class="sw"><span><b>Sons de l'animation de départ</b><small>Le micro peut les entendre pendant les premières secondes</small></span><input type="checkbox" id="o-sfx" checked aria-label="Sons de l'animation de départ"></div>
+    <div class="sw"><span><b>Transcription précise automatique</b><small>Affine le texte après chaque cours (modèle de 240 Mo, téléchargé une seule fois)</small></span><input type="checkbox" id="o-hq" checked aria-label="Transcription précise automatique"></div>
     <h3>Traitement audio</h3>
     <div class="sw"><span><b>Voix du prof renforcée</b><small>Coupe le grondement, rapproche une voix lointaine</small></span><input type="checkbox" id="o-boost" checked aria-label="Voix du prof renforcée"></div>
     <div class="sw"><span><b>Suppression du bruit</b><small>Filtre le bruit de fond de la salle</small></span><input type="checkbox" id="o-noise" checked aria-label="Suppression du bruit"></div>
@@ -379,6 +386,7 @@ body.recmode .mini.on{translate:-50% 0;opacity:1}
   <form method="dialog" class="dlg">
     <h2 id="f-title">Ton cours est prêt</h2>
     <p class="fin-sum" id="f-sum"></p>
+    <p class="fin-auto" id="f-auto" hidden>Titre et matière proposés d'après le contenu du cours. Corrige si besoin.</p>
     <label class="fld"><span>Titre</span><input id="f-titre" type="text" maxlength="120" autocomplete="off"></label>
     <label class="fld"><span>Matière</span><input id="f-mat" type="text" maxlength="60" list="f-mats" autocomplete="off" placeholder="Ex : Histoire, Maths, Anglais…"></label>
     <datalist id="f-mats"></datalist>
@@ -444,13 +452,13 @@ var $=function(id){return document.getElementById(id);};
 /* ---------- format ---------- */
 var MIME=['audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm'].filter(function(m){return window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m);})[0]||'';
 /* ---------- réglages ---------- */
-var SKEY='memovox.reglages',S={q:'256',boost:true,noise:true,echo:true,agc:false,files:true,sfx:true,v2:true};
+var SKEY='memovox.reglages',S={q:'256',boost:true,noise:true,echo:true,agc:false,files:true,sfx:true,hq:true,v2:true};
 try{var sv=JSON.parse(localStorage.getItem(SKEY));if(sv){if(!sv.v2&&sv.q==='160')sv.q='256';sv.v2=true;for(var k in S)if(k in sv)S[k]=sv[k];}}catch(e){}
 function saveS(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
 var dlg=$('settings');
 function paintS(){
   [].forEach.call(document.querySelectorAll('input[name=q]'),function(r){r.checked=r.value===S.q;});
-  $('o-files').checked=S.files;$('o-sfx').checked=S.sfx;$('o-boost').checked=S.boost;$('o-noise').checked=S.noise;$('o-echo').checked=S.echo;$('o-agc').checked=S.agc;
+  $('o-files').checked=S.files;$('o-sfx').checked=S.sfx;$('o-hq').checked=S.hq;$('o-boost').checked=S.boost;$('o-noise').checked=S.noise;$('o-echo').checked=S.echo;$('o-agc').checked=S.agc;
   var names={'256':'Qualité maximale','160':'Haute qualité','96':'Qualité standard'};
   var codec=/mp4/.test(MIME)?'AAC':'Opus',mo={'256':115,'160':72,'96':43};
   $('quality-line').textContent=names[S.q]+' · '+codec+' '+S.q+' kbps · 48 kHz'+(S.boost?' · voix du prof renforcée':'');
@@ -459,7 +467,7 @@ function paintS(){
 }
 dlg.addEventListener('change',function(){
   var r=dlg.querySelector('input[name=q]:checked');S.q=r?r.value:'256';
-  S.files=$('o-files').checked;S.sfx=$('o-sfx').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
+  S.files=$('o-files').checked;S.sfx=$('o-sfx').checked;S.hq=$('o-hq').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
 });
 $('open-settings').addEventListener('click',function(){dlg.showModal();});
 /* un clic à côté de la fenêtre (gauche, droite, haut, bas) la ferme */
@@ -570,6 +578,19 @@ function sizeOracle(){
 }
 window.addEventListener('resize',sizeOracle);
 try{if(window.speechSynthesis)speechSynthesis.getVoices();}catch(e){}
+var oStars=[];for(var si=0;si<170;si++)oStars.push({x:Math.random(),y:Math.random(),r:.5+Math.random()*1.5,ph:Math.random()*6.3,sp:.6+Math.random()*2.4});
+var oShoot={t:-1,next:2.5,x:0,y:0,vx:0,vy:0};
+function oSky(og,W,H,br,dt){   /* nuit étoilée : étoiles qui scintillent, étoile filante de temps en temps */
+  og.globalCompositeOperation='lighter';
+  for(var i=0;i<oStars.length;i++){var s=oStars[i],a=(.28+.72*(.5+.5*Math.sin(oT*s.sp+s.ph)))*br,x=s.x*W,y=s.y*H;
+    og.fillStyle='rgba(215,232,255,'+a+')';og.beginPath();og.arc(x,y,s.r,0,TAU2);og.fill();
+    if(s.r>1.5){og.strokeStyle='rgba(215,232,255,'+a*.5+')';og.lineWidth=1;og.beginPath();og.moveTo(x-s.r*3.2,y);og.lineTo(x+s.r*3.2,y);og.moveTo(x,y-s.r*3.2);og.lineTo(x,y+s.r*3.2);og.stroke();}}
+  oShoot.next-=dt;
+  if(oShoot.t<0&&oShoot.next<0){oShoot.t=0;oShoot.next=5+Math.random()*6;oShoot.x=Math.random()*W*.7;oShoot.y=Math.random()*H*.35;oShoot.vx=W*.8;oShoot.vy=H*.3;}
+  if(oShoot.t>=0){oShoot.t+=dt;var px=oShoot.x+oShoot.vx*oShoot.t,py=oShoot.y+oShoot.vy*oShoot.t,k=1-oShoot.t/.9;
+    if(k<=0)oShoot.t=-1;else{var gr=og.createLinearGradient(px-oShoot.vx*.14,py-oShoot.vy*.14,px,py);gr.addColorStop(0,'rgba(200,225,255,0)');gr.addColorStop(1,'rgba(235,245,255,'+k*br+')');og.strokeStyle=gr;og.lineWidth=2;og.beginPath();og.moveTo(px-oShoot.vx*.14,py-oShoot.vy*.14);og.lineTo(px,py);og.stroke();}}
+  og.globalCompositeOperation='source-over';
+}
 function oTick(dt){
   oT+=dt;oB=Math.min(1,oB+dt/1.8);
   /* à ~14 images par seconde les rayons et l'anneau « tremblent », comme dans la scène */
@@ -581,6 +602,7 @@ function raphaelDraw(og,W,H,cx,cy,U,br,fb,rec,dt){
   var far=Math.hypot(W,H);
   var eb=function(a,b){var x=Math.max(0,Math.min(1,(oB-a)/b));return 1-Math.pow(1-x,3);};
   og.clearRect(0,0,W,H);og.globalCompositeOperation='source-over';og.shadowBlur=0;
+  oSky(og,W,H,br,dt);
   var bg=og.createRadialGradient(cx,cy,U*.1,cx,cy,U*.75);bg.addColorStop(0,'rgba(4,20,80,'+.5*br+')');bg.addColorStop(1,'rgba(4,20,80,0)');og.fillStyle=bg;og.fillRect(0,0,W,H);
   var sh=og.createLinearGradient(0,H*.66,0,H);sh.addColorStop(0,'rgba(2,14,60,0)');sh.addColorStop(1,'rgba(2,14,60,'+.55*br+')');og.fillStyle=sh;og.fillRect(0,H*.66,W,H*.34);
   var Rw=U*(.02+.28*eb(0,.75)),Rg=U*(.03+.35*eb(.05,.8)),gh=U*.105*eb(.05,.8),gw=U*.064*eb(.05,.8);
@@ -605,21 +627,21 @@ function raphaelDraw(og,W,H,cx,cy,U,br,fb,rec,dt){
   og.globalCompositeOperation='lighter';
   /* rayons jaunes qui partent du cœur : leur longueur saute au rythme de la voix */
   var NS=oSpk.length,sp=eb(0,.7);og.lineWidth=Math.max(1,U*.0022);
-  for(var j=0;j<NS;j++){var f=j/NS,m=Math.abs(f*2-1),band=fb?fb[3+(m*90|0)]/255:0,L=Rw*Math.min(1,.16+oSpk[j]*(.55+oV*.45)+band*oV*.7)*sp,an=f*TAU2+.2;
+  for(var j=0;j<NS;j++){var f=j/NS,m=Math.abs(f*2-1),band=fb?fb[3+(m*90|0)]/255:0,L=Rw*Math.min(1,.12+oSpk[j]*(.35+oV*.65)+band*oV*.9)*sp,an=f*TAU2+.2;
     og.strokeStyle='rgba(255,'+(214+(j%3)*14)+',70,'+(.55+oV*.4)*br+')';og.beginPath();og.moveTo(cx+Math.cos(an)*U*.01,cy+Math.sin(an)*U*.01);og.lineTo(cx+Math.cos(an)*L,cy+Math.sin(an)*L);og.stroke();}
   og.globalCompositeOperation='source-over';
   /* anneau blanc : une bande épaisse et irrégulière, bords doux, comme dessinée au pinceau lumineux ; elle enfle avec la voix */
-  var NV=22,th=U*(.009+(.013+oV*.02+oFlash*.008)*eb(.1,.7)),oP=[],iP=[];
-  for(var p=0;p<NV;p++){var aa=p/NV*TAU2+.1,base=Rw*(1+oJit[(p*3)%16]*(.008+oV*.035)+oV*.03),ro=base+th*(1+.45*oJit[(p*5+3)%16]),ri=base-th*(1+.45*oJit[(p*7+1)%16]);
+  var NV=22,th=U*(.008+(.011+oV*.03+oFlash*.008)*eb(.1,.7)),oP=[],iP=[];
+  for(var p=0;p<NV;p++){var aa=p/NV*TAU2+.1,base=Rw*(1+oJit[(p*3)%16]*(.005+oV*.07)+oV*.04),ro=base+th*(1+.45*oJit[(p*5+3)%16]),ri=base-th*(1+.45*oJit[(p*7+1)%16]);
     oP.push([cx+Math.cos(aa)*ro,cy+Math.sin(aa)*ro]);iP.push([cx+Math.cos(aa)*ri,cy+Math.sin(aa)*ri]);}
   og.save();og.beginPath();oSmooth(og,oP);oSmooth(og,iP);og.shadowColor='rgba(255,244,200,.95)';og.shadowBlur=U*.035;og.fillStyle='rgba(255,251,238,'+.97*br+')';og.fill('evenodd');og.restore();
   var ig=og.createRadialGradient(cx,cy,Rw*.55,cx,cy,Rw);ig.addColorStop(0,'rgba(255,240,190,0)');ig.addColorStop(1,'rgba(255,240,190,'+.2*br+')');og.fillStyle=ig;og.beginPath();og.arc(cx,cy,Rw,0,TAU2);og.fill();
   /* vagues qui partent de l'anneau quand on parle */
-  if(rec&&oV>.12&&(oRipT-=dt)<=0){oRip.push(0);oRipT=.5-oV*.3;}
+  if(rec&&oV>.2&&(oRipT-=dt)<=0){oRip.push(0);oRipT=.55-oV*.3;}
   og.lineWidth=2;for(var r=oRip.length-1;r>=0;r--){oRip[r]+=dt*(.35+oV*.4);var t=oRip[r];if(t>1){oRip.splice(r,1);continue;}og.strokeStyle='rgba(255,240,190,'+(1-t)*.5*br+')';og.beginPath();og.arc(cx,cy,Rw+(Rg-Rw)*t,0,TAU2);og.stroke();}
   /* cœur lumineux */
   og.globalCompositeOperation='lighter';
-  var cr=U*(.07+oV*.05+oFlash*.03);og.globalAlpha=Math.min(1,.9*br);og.drawImage(oSprite,cx-cr,cy-cr,cr*2,cr*2);og.globalAlpha=1;
+  var cr=U*(.06+oV*.07+oFlash*.03);og.globalAlpha=Math.min(1,.9*br);og.drawImage(oSprite,cx-cr,cy-cr,cr*2,cr*2);og.globalAlpha=1;
   /* étincelles */
   for(var d2=0;d2<oDots.length;d2++){var o2=oDots[d2];o2.d+=dt*(.02+oV*.16)*o2.v;if(o2.d>1){o2.d=0;o2.a=Math.random()*TAU2;}
     var rd=U*(.3+o2.d*.7),al=Math.sin(o2.d*Math.PI)*(.3+oV*.5)*br*eb(.5,.5);og.fillStyle='rgba('+o2.c+','+al+')';og.beginPath();og.arc(cx+Math.cos(o2.a)*rd,cy+Math.sin(o2.a)*rd,o2.s*(1+oV*.6),0,TAU2);og.fill();}
@@ -629,7 +651,7 @@ function oracleFrame(lv,fb){
   if(!document.body.classList.contains('recmode'))return;
   if(!oW||oW!==window.innerWidth||oH!==window.innerHeight)sizeOracle();
   var now=performance.now(),dt=Math.min(.05,(now-oLast)/1000||.016);oLast=now;oTick(dt);
-  var rec=state==='rec',idle=state==='idle',v=rec?lv:0;
+  var rec=state==='rec',idle=state==='idle',v=rec?Math.pow(lv,1.6):0;   /* voix douce : presque rien ; voix forte : bien plus haut */
   oV+=(v-oV)*.35;if(oV-oPrev>.18)oFlash=1;oPrev=oV;oFlash=Math.max(0,oFlash-dt*3);
   var br=idle?.62+.08*Math.sin(oT*1.4):state==='pause'?.75:1;
   raphaelDraw(og,oW,oH,oCx,oCy,Math.min(oW*.9,oH*.56),br,fb,rec,dt);
@@ -712,6 +734,32 @@ function stop(keep){
   if(r.state!=='inactive')r.stop();else r.onstop();
 }
 /* ---------- écran de fin : titre, matière, notes ---------- */
+var SUBJ={
+ 'Histoire':['guerre','révolution','empire','roi','siècle','bataille','république','napoléon','traité','moyen âge','colonisation','dynastie','monarchie','antiquité','rome','grèce','bastille','louis','constitution','nazisme','décolonisation','féodal'],
+ 'Géographie':['territoire','population','région','climat','continent','mondialisation','urbain','métropole','frontière','aménagement','océan','fleuve','démographie','littoral','agricole'],
+ 'Mathématiques':['équation','fonction','dérivée','intégrale','théorème','vecteur','probabilité','triangle','suite','limite','matrice','démonstration','polynôme','logarithme','exponentielle','dérivation','géométrie','algèbre'],
+ 'Physique-Chimie':['énergie','force','vitesse','atome','molécule','réaction','électron','tension','courant','masse','onde','acide','solution','mole','concentration','newton','chimie','physique','lumière'],
+ 'SVT':['cellule','adn','gène','organisme','évolution','écosystème','protéine','espèce','géologie','photosynthèse','immunitaire','neurone','biologie','génétique','tectonique'],
+ 'Français':['roman','poème','auteur','personnage','narrateur','métaphore','théâtre','récit','argumentation','littérature','grammaire','conjugaison','poésie','dissertation','commentaire'],
+ 'Anglais':['anglais','present perfect','past simple','vocabulaire','verbe irrégulier','prétérit','british','traduction'],
+ 'Philosophie':['conscience','liberté','vérité','bonheur','morale','raison','existence','désir','justice','kant','descartes','concept','philosophe','nietzsche','platon'],
+ 'Économie':['marché','inflation','croissance','entreprise','offre','demande','chômage','pib','investissement','consommation','banque','monnaie','économie','prix'],
+ 'Droit':['loi','tribunal','contrat','juridique','jurisprudence','droit','juge','responsabilité','code civil','procès'],
+ 'Informatique':['algorithme','programme','variable','boucle','code','données','réseau','python','serveur','informatique','base de données','logiciel']
+},STOP={};
+'aujourd,maintenant,vraiment,justement,finalement,parce,quelque,quelques,toujours,pourquoi,comment,plusieurs,beaucoup,exemple,exactement,simplement,effectivement,premier,premiere,deuxieme,ensuite,jusqu,autres,chose,choses,faire,faudrait,avoir,etait,etaient,pendant,depuis,avant,apres,encore,pouvoir,voulait,permet,partie,moment,different,differente,possible,important,importante,question,reponse,cours,heure,heures,quelqu,quelle,quelles,notre,votre,voila,quand,alors,celui,ceux,cette,donc,tellement,d.accord,regardez,regarde'.split(',').forEach(function(w){STOP[w]=1;});
+function normT(t){return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function analyse(text){
+  var t=normT(text),all=t.match(/[a-z']{3,}/g)||[];if(all.length<25)return null;
+  var best=null,bs=0;
+  for(var k in SUBJ){var sc=0;SUBJ[k].forEach(function(kw){var m=t.match(new RegExp('\\b'+normT(kw)+'\\w*','g'));if(m)sc+=Math.min(m.length,6);});if(sc>bs){bs=sc;best=k;}}
+  if(bs<3)best=null;
+  var orig={},toks=text.toLowerCase().match(/[a-zàâäçéèêëîïôöùûüœ']{3,}/g)||[];toks.forEach(function(w){var n=normT(w);if(!orig[n])orig[n]=w;});
+  var freq={};all.forEach(function(w){w=w.replace(/^[ldjnsctm]'/,'');if(w.length<6||STOP[w])return;freq[w]=(freq[w]||0)+1;});
+  var top=Object.keys(freq).filter(function(w){return freq[w]>=2;}).sort(function(a,b){return freq[b]-freq[a];}).slice(0,3).map(function(w){return orig[w]||w;});
+  if(!best&&!top.length)return null;
+  return {subject:best||'',title:(best||'Cours')+(top.length?' — '+top.join(', '):'')};
+}
 var finDlg=$('fin'),finCur=null,finNew=false;
 function words(t){return t?t.split(/\s+/).filter(Boolean).length:0;}
 function openFin(c,isNew){
@@ -719,6 +767,7 @@ function openFin(c,isNew){
   $('f-title').textContent=isNew?'Ton cours est prêt':'Modifier le cours';
   $('f-sum').textContent=dur(c.duration)+' · '+(c.blob.size/1048576).toFixed(1)+' Mo'+(c.transcript?' · '+words(c.transcript)+' mots':'')+(c.docs&&c.docs.length?' · '+c.docs.length+' document'+(c.docs.length>1?'s':''):'');
   $('f-titre').value=c.title;$('f-mat').value=c.subject||'';$('f-notes').value=c.notes||'';
+  var an=isNew&&c.transcript&&!c.subject?analyse(c.transcript):null;$('f-auto').hidden=!an;if(an){if(an.subject)$('f-mat').value=an.subject;$('f-titre').value=an.title;}
   $('f-tr').hidden=!c.transcript;$('f-copy').hidden=!c.transcript;$('f-txt').textContent=c.transcript||'';
   allCours().then(function(all){var dl=$('f-mats'),seen={};dl.innerHTML='';all.forEach(function(x){if(x.subject&&!seen[x.subject]){seen[x.subject]=1;var o=document.createElement('option');o.value=x.subject;dl.appendChild(o);}});}).catch(function(){});
   finDlg.returnValue='';if(!finDlg.open)finDlg.showModal();
@@ -731,6 +780,7 @@ finDlg.addEventListener('close',function(){
   (ok?tx('readwrite',function(st){return st.put(c);}):Promise.resolve()).then(function(){
     if(finNew)saveToFiles(c.blob,(c.subject?c.subject+' - ':'')+c.title);
     if(ok)toast(finNew&&S.files?'Cours enregistré ✓ Copie dans tes Téléchargements':'Cours enregistré ✓');renderList();
+    if(finNew)autoHq(c);
   }).catch(function(){toast('Modification non enregistrée');});
 });
 function saveToFiles(blob,title){
@@ -805,6 +855,22 @@ function hqTranscribe(blob,onStep){
   });
 }
 
+/* ---------- transcription précise : se lance toute seule après chaque cours ---------- */
+var hqJobs={},hqErr={};
+function hqRun(c){
+  if(hqJobs[c.id])return;delete hqErr[c.id];var job=hqJobs[c.id]={note:'Transcription précise : préparation…',el:null};
+  var upd=function(t){job.note=t;if(job.el&&job.el.isConnected)job.el.textContent=t;};
+  hqTranscribe(c.blob,upd).then(function(text){c.transcript=text;c.hq=true;return tx('readwrite',function(st){return st.put(c);});})
+    .then(function(){delete hqJobs[c.id];toast('Transcription précise prête ✓');renderList();})
+    .catch(function(err){delete hqJobs[c.id];hqErr[c.id]='Transcription précise impossible : '+(err&&err.message||'erreur')+'. Vérifie ta connexion (téléchargement du modèle).';renderList();});
+}
+function autoHq(c){
+  if(!S.hq||c.hq)return;
+  if(!(navigator.gpu||c.duration<20*60000))return;   /* sans carte graphique, un cours long serait trop lent : bouton manuel */
+  var ok=null;try{ok=localStorage.getItem('dictavox.hq');}catch(e){}
+  if(!ok){if(!window.confirm("Dictavox peut affiner la transcription après chaque cours avec un modèle (240 Mo, téléchargé une seule fois, ensuite tout reste sur ton appareil). Activer ?")){S.hq=false;saveS();paintS();return;}try{localStorage.setItem('dictavox.hq','1');}catch(e){}}
+  hqRun(c);
+}
 /* ---------- Mes cours ---------- */
 var urls=[];
 function copy(text,msg){
@@ -833,14 +899,10 @@ function renderList(){
         fi.onclick=function(){copy("Tu es mon prof particulier. Voici la transcription de mon cours (elle peut contenir des erreurs de reconnaissance vocale : corrige-les quand c'est évident, signale-les quand tu n'es pas sûr).\n\nFais-moi une fiche d'une page : les notions clés, les définitions et formules à savoir, les pièges classiques en contrôle, et un mini-exemple corrigé. Ensuite, propose-moi un quiz de 5 questions, une à la fois.\n\nTranscription :\n"+c.transcript,'Prompt copié ✓ Colle-le dans ChatGPT ou Claude');};
         act.appendChild(fi);
       }
-      var hq=el('button','btn',c.hq?'Retranscrire (Whisper)':'Transcription haute qualité');hq.type='button';
-      var hqNote=el('p','meta','');
-      hq.onclick=function(){hq.disabled=true;hqNote.textContent='Préparation…';
-        hqTranscribe(c.blob,function(t){hqNote.textContent=t;}).then(function(text){
-          c.transcript=text;c.hq=true;return tx('readwrite',function(st){return st.put(c);});
-        }).then(function(){toast('Transcription haute qualité prête ✓');renderList();})
-        .catch(function(err){hq.disabled=false;hqNote.textContent='Échec : '+(err&&err.message||'erreur')+'. Vérifie ta connexion pour le premier téléchargement du modèle.';});};
-      act.appendChild(hq);
+      var hqNote=el('p','meta',''),job=hqJobs[c.id];
+      if(job){hqNote.textContent=job.note;job.el=hqNote;}
+      else if(c.hq)hqNote.textContent='Transcription précise ✓';
+      else{if(hqErr[c.id])hqNote.textContent=hqErr[c.id];var hq=el('button','btn','Affiner la transcription');hq.type='button';hq.onclick=function(){hqRun(c);renderList();};act.appendChild(hq);}
       var ed=el('button','btn','Modifier');ed.type='button';ed.onclick=function(){openFin(c,false);};act.appendChild(ed);
       var del=el('button','btn danger','Supprimer');del.type='button';
       del.onclick=function(){if(!del.dataset.sure){del.dataset.sure='1';del.textContent='Confirmer la suppression';setTimeout(function(){if(del.isConnected){delete del.dataset.sure;del.textContent='Supprimer';}},3000);return;}
@@ -976,41 +1038,38 @@ db().then(function(d){
     }
     var Rb=Math.max(H*.46,W*.4);
     var anchors=[[.3,.58],[.74,.34],[.42,.5],[.22,.72],[.62,.62]];
-    var LIFE=1.5,STAG=.55,T0=5.33,TG=11.4,LISTEND=10.9;
+    var LIFE=1.9,STAG=.7,T0=5.33,TG=11.9;
     function txt(t,x,y,size,col,al,wt,a){g.save();g.globalAlpha=a==null?1:a;g.font=(wt||600)+' '+size+'px Manrope,system-ui,sans-serif';g.textAlign=al||'left';g.textBaseline='middle';g.fillStyle=col;g.fillText(t,x,y);g.restore();}
-    function lineT(i){return T0+i*STAG+.74*LIFE;}
+    function lineT(i){return T0+i*STAG+.8*LIFE;}
     function hudPhase(s){
       var big=[];
       for(var i=0;i<items.length;i++){
         var p=(s-(T0+i*STAG))/LIFE;if(p<0||p>=1)continue;
         var x,y,r,lab=items[i][0],al=1;
-        if(p<.3){var k=eo(p/.3);r=lerp(.03,1,k)*Rb;x=lerp(cx,anchors[i][0]*W,k);y=lerp(cy,anchors[i][1]*H,k);}
-        else if(p<.74){r=Rb*(1+.04*Math.sin((p-.3)*8));x=anchors[i][0]*W;y=anchors[i][1]*H;if(p>.42)lab=items[i][1]?'OK':'—';}
-        else{var k2=ei((p-.74)/.26);r=lerp(Rb,0,k2);x=lerp(anchors[i][0]*W,cx,k2);y=lerp(anchors[i][1]*H,cy,k2);lab=items[i][1]?'OK':'—';al=1-k2*.3;}
+        if(p<.22){var k=eo(p/.22);r=lerp(.03,1,k)*Rb;x=lerp(cx,anchors[i][0]*W,k);y=lerp(cy,anchors[i][1]*H,k);}
+        else if(p<.8){r=Rb*(1+.04*Math.sin((p-.22)*8));x=anchors[i][0]*W;y=anchors[i][1]*H;if(p>.36)lab=items[i][1]?'OK':'—';}
+        else{var k2=ei((p-.8)/.2);r=lerp(Rb,0,k2);x=lerp(anchors[i][0]*W,cx,k2);y=lerp(anchors[i][1]*H,cy,k2);lab=items[i][1]?'OK':'—';al=1-k2*.3;}
         big.push([i,x,y,r,lab,al]);
       }
       big.forEach(function(b){hud(b[1],b[2],b[3],b[4],s*.9+b[0],b[5],'blue',segs[b[0]]);});
       if(s>=5.1&&s<5.45){var sr=Math.max(15,Math.min(26,H*.035));hud(cx-sr*.4,cy,sr*.55,'',s*3,.9,'lav',segs[0]);hud(cx+sr*.6,cy-sr*.4,sr*.4,'',s*3,.9,'lav',segs[1]);}
     }
-    /* résultats : une liste simple, au milieu de l'écran, avec les OK bien lisibles */
+    /* résultats : de fines lignes en bas, qui ne cachent jamais l'animation */
     function recap(s){
-      var F=FS*1.3;
-      var t=s-lineT(0)+.25;if(t<0)return;
-      var pw=Math.min(W*.82,460),lh=F*2.5,ph=items.length*lh+F*3.6,px=cx-pw/2,py=cy-ph/2,a=eo(t/.3)*(s<LISTEND?1:1-cl((s-LISTEND)/.5)*0);
-      g.save();g.globalAlpha=a*.93;g.fillStyle='#fff';g.shadowColor='rgba(20,40,80,.25)';g.shadowBlur=28;rr(px,py,pw,ph,18);g.fill();g.shadowBlur=0;g.restore();
-      g.save();g.globalAlpha=a;g.font='800 '+(F*.62)+'px Manrope,system-ui,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillStyle='#8E8E93';
-      if(g.letterSpacing!==undefined)g.letterSpacing='4px';g.fillText('VÉRIFICATION',cx,py+F*1.5);g.restore();
-      for(var i=0;i<items.length;i++){
-        var u=cl((s-lineT(i))/.35);if(u<=0)continue;var y=py+F*3+i*lh+lh/2,ok=items[i][1],e=eo(u);
-        g.save();g.globalAlpha=a*e;g.translate((1-e)*-24,0);
-        g.fillStyle=ok?'#1fc85a':'#c7c7cc';g.beginPath();g.arc(px+F*1.7,y,F*.55,0,TAU);g.fill();
-        if(ok){g.strokeStyle='#fff';g.lineWidth=F*.16;g.lineCap='round';g.lineJoin='round';g.beginPath();g.moveTo(px+F*1.45,y);g.lineTo(px+F*1.65,y+F*.2);g.lineTo(px+F*2,y-F*.2);g.stroke();}
-        g.restore();
-        txt(items[i][0],px+F*3,y,F*1.1,'#1C1C1E','left',700,a*e);
-        txt(ok?'OK':'—',px+pw-F*1.5,y,F*1.25,ok?'#14a84a':'#8E8E93','right',800,a*e);
-      }
-      /* « Enregistrement lancé » une fois la liste complète */
-      var ul=cl((s-lineT(items.length-1)-.5)/.4);if(ul>0)txt('Enregistrement lancé',cx,py+ph+F*1.9,F*1.1,'#1C1C1E','center',800,ul*a);
+      var fs=Math.max(11,Math.min(15,W*.033)),gap=fs*1.3;
+      g.save();g.font='700 '+fs+'px Manrope,system-ui,sans-serif';g.textBaseline='middle';g.textAlign='left';
+      var wd=items.map(function(it){return fs*1.4+g.measureText(it[0]).width+fs*.5+g.measureText(it[1]?'OK':'—').width;});
+      var rows=[[]],cur=0;wd.forEach(function(w,i){if(cur&&cur+gap+w>W*.9){rows.push([]);cur=0;}rows[rows.length-1].push(i);cur+=(cur?gap:0)+w;});
+      rows.forEach(function(row,ri){
+        var tot=0;row.forEach(function(i,k){tot+=wd[i]+(k?gap:0);});
+        var y=H-(rows.length-ri)*fs*2.2-fs*1.9,x=cx-tot/2;
+        row.forEach(function(i){var u=cl((s-lineT(i))/.35),ok=items[i][1];
+          if(u>0){g.globalAlpha=eo(u);g.fillStyle=ok?'#1fc85a':'#c7c7cc';g.beginPath();g.arc(x+fs*.6,y,fs*.5,0,TAU);g.fill();
+            if(ok){g.strokeStyle='#fff';g.lineWidth=fs*.14;g.lineCap='round';g.lineJoin='round';g.beginPath();g.moveTo(x+fs*.38,y);g.lineTo(x+fs*.56,y+fs*.18);g.lineTo(x+fs*.84,y-fs*.2);g.stroke();}
+            g.fillStyle='#1C1C1E';g.fillText(items[i][0],x+fs*1.4,y);g.fillStyle=ok?'#14a84a':'#8E8E93';g.fillText(ok?'OK':'—',x+fs*1.4+g.measureText(items[i][0]).width+fs*.5,y);}
+          x+=wd[i]+gap;});
+      });
+      g.restore();
     }
 
     /* ---- bienvenue + tunnel + éclats ---- */
@@ -1127,7 +1186,15 @@ window.mvCelebrate=function(info){
     var cx=W/2,cy=H*.38,U=Math.min(W*.8,H*.46),t0=performance.now(),last=t0,gone=false;
     var L1='Réponse.',L2='Cours enregistré.',L3=info||'';
     oB=0;oV=0;oFlash=0;
-    function close(){if(gone)return;gone=true;ov.classList.add('out');setTimeout(function(){ov.remove();},500);}
+    /* un son discret : un souffle doux, puis une seule note claire quand la phrase est écrite */
+    var AC2=window.AudioContext||window.webkitAudioContext,ac=null;
+    if(S.sfx&&AC2){try{ac=new AC2();if(ac.resume)ac.resume();var mg=ac.createGain();mg.gain.value=.5;mg.connect(ac.destination);var t=ac.currentTime+.05;
+      var nb=ac.createBuffer(1,ac.sampleRate,ac.sampleRate),nd=nb.getChannelData(0);for(var q=0;q<nd.length;q++)nd[q]=Math.random()*2-1;
+      var ns=ac.createBufferSource();ns.buffer=nb;ns.loop=true;var bp=ac.createBiquadFilter();bp.type='bandpass';bp.Q.value=.8;bp.frequency.setValueAtTime(300,t);bp.frequency.exponentialRampToValueAtTime(2800,t+.9);
+      var ng=ac.createGain();ng.gain.setValueAtTime(.0001,t);ng.gain.exponentialRampToValueAtTime(.12,t+.6);ng.gain.exponentialRampToValueAtTime(.0001,t+1.1);ns.connect(bp);bp.connect(ng);ng.connect(mg);ns.start(t);ns.stop(t+1.2);
+      [[659.25,.1],[1318.5,.03]].forEach(function(n){var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=n[0];g.gain.setValueAtTime(.0001,t+2.9);g.gain.exponentialRampToValueAtTime(n[1],t+2.91);g.gain.exponentialRampToValueAtTime(.0001,t+4.4);o.connect(g);g.connect(mg);o.start(t+2.9);o.stop(t+4.5);});
+    }catch(e){ac=null;}}
+    function close(){if(gone)return;gone=true;ov.classList.add('out');setTimeout(function(){ov.remove();if(ac)try{ac.close();}catch(e){}},600);}
     ov.addEventListener('click',close);
     function typed(txt,t,start,cps){var n=Math.max(0,Math.min(txt.length,Math.floor((t-start)*cps)));return txt.slice(0,n)+((n<txt.length&&n>0)?'▍':'');}
     function frame(now){
