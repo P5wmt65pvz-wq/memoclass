@@ -7,5 +7,5 @@ await p.click('#rec');await p.waitForTimeout(500);await p.mouse.click(5,5);await
 const send=async(t,wait)=>{await p.evaluate(t=>{const r=[{isFinal:true,0:{transcript:t}}];window.__sr.onresult({resultIndex:0,results:r});},t);await p.waitForTimeout(wait);};
 await send('bonjour à tous',500);await send("aujourd'hui on parle",400);await send('de la révolution',2000);await send('la prise de la bastille',100);
 console.log(JSON.stringify(await p.textContent('#t-body')));
-await p.click('#stop');await p.waitForTimeout(3600);await p.fill('#f-titre','t');await p.click('#fin .btn.primary');await p.waitForTimeout(500);await p.click('#tab-cours');await p.waitForTimeout(400);
+await p.click('#stop');await p.waitForTimeout(7600);await p.fill('#f-titre','t');await p.click('#fin .btn.primary');await p.waitForTimeout(500);await p.click('#tab-cours');await p.waitForTimeout(400);
 console.log(JSON.stringify(await p.$eval('.course details .txt',e=>e.textContent)),errs);await b.close();})();

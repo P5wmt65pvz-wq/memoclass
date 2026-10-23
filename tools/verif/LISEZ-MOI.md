@@ -12,5 +12,11 @@ Chaque script ouvre le site avec un faux micro et affiche `erreurs []` s'il n'y 
 - `srt.cjs` : ponctuation de la transcription en direct (fausse reconnaissance vocale)
 - `ct.cjs` : le bouton de départ est centré (390, 1366, 1920 px)
 - `a11y.cjs` : étiquettes et débordements
+- `imp.cjs <fichier audio>` : importer un audio dans Mes cours, vitesse, téléchargement, puis transcription automatique (`?whisper=tiny`)
+- `txt.cjs` : fausse dictée d'un cours d'histoire → titre et matière trouvés pendant l'animation de fin
+- `live.cjs <tiny|small> <fichier.wav>` : vraie voix branchée à la place du micro (`--use-file-for-fake-audio-capture`), transcription en direct de bout en bout ; texte final dans `live-out.txt`
+- `tremble.cjs` : moment où la carte « Ton cours est prêt » retombe et fait trembler la page
+
+Mesure de la qualité (taux d'erreur par mot sur FLEURS fr) : voir `CLAUDE.md`. Chromium peut simuler une carte graphique avec `--enable-unsafe-webgpu --use-webgpu-adapter=swiftshader` (lent, sans shader-f16).
 
 Safari n'est pas disponible dans cet environnement : éviter le CSS qui dépend du navigateur.

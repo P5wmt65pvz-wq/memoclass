@@ -8,7 +8,7 @@ await p.mouse.move(640,300);await p.waitForTimeout(100);
 const r=await p.$eval('#open-settings',e=>{const r=e.getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2]});
 await p.click('#rec');await p.waitForTimeout(500);await p.mouse.click(10,10);await p.waitForTimeout(3500);
 console.log('badge',await p.textContent('.recbadge'));
-await p.click('#stop');await p.waitForTimeout(3600);
+await p.click('#stop');await p.waitForTimeout(7600);   // l'animation de fin dure ~6,5 s avant la carte
 console.log('fin ouvert',await p.$eval('#fin',d=>d.open),await p.textContent('#f-sum'));
 await p.screenshot({path:'fin-1.png'});
 await p.fill('#f-titre','Révolution française');await p.fill('#f-mat','Histoire');await p.fill('#f-notes','Contrôle mardi');
