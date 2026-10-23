@@ -1,0 +1,11 @@
+const {chromium}=require('/opt/node22/lib/node_modules/playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium',args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']});
+const p=await (await b.newContext({viewport:{width:1280,height:800},permissions:['microphone']})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.addInitScript(()=>{window.webkitSpeechRecognition=window.SpeechRecognition=class{start(){window.__sr=this}stop(){}};});
+await p.goto('http://localhost:8131/index.html');await p.waitForTimeout(600);
+await p.click('#rec');await p.waitForTimeout(500);await p.mouse.click(5,5);await p.waitForTimeout(300);
+const send=async(t,wait)=>{await p.evaluate(t=>{const r=[{isFinal:true,0:{transcript:t}}];window.__sr.onresult({resultIndex:0,results:r});},t);await p.waitForTimeout(wait);};
+await send('bonjour à tous',500);await send("aujourd'hui on parle",400);await send('de la révolution',2000);await send('la prise de la bastille',100);
+console.log(JSON.stringify(await p.textContent('#t-body')));
+await p.click('#stop');await p.waitForTimeout(3600);await p.fill('#f-titre','t');await p.click('#fin .btn.primary');await p.waitForTimeout(500);await p.click('#tab-cours');await p.waitForTimeout(400);
+console.log(JSON.stringify(await p.$eval('.course details .txt',e=>e.textContent)),errs);await b.close();})();

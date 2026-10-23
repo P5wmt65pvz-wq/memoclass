@@ -1,0 +1,16 @@
+const {chromium}=require('/opt/node22/lib/node_modules/playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium',args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']});
+const p=await (await b.newContext({viewport:{width:390,height:844},permissions:['microphone'],acceptDownloads:true})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>m.type()==='error'&&errs.push(m.text()));p.on('dialog',d=>d.dismiss());
+let dl=0;p.on('download',()=>dl++);
+await p.goto('http://localhost:8131/index.html');await p.waitForTimeout(600);
+const mk=async(title,subj)=>{await p.evaluate(async([t,s])=>{const bl=new Blob([new Uint8Array(2000)],{type:'audio/webm'});await new Promise(ok=>{const r=indexedDB.open('memovox',2);r.onsuccess=()=>{const tx=r.result.transaction('cours','readwrite');tx.objectStore('cours').put({id:String(Math.random()),title:t,subject:s,date:Date.now()-Math.random()*1e9,duration:600000,mime:'audio/webm',blob:bl,transcript:'texte '+t,docs:[]});tx.oncomplete=ok;};});},[title,subj]);};
+await mk('Révolution française','Histoire');await mk('Guerre froide','Histoire');await mk('Dérivées','Mathématiques');await mk('Cours sans nom','');
+await p.reload();await p.waitForTimeout(500);await p.click('#tab-cours');await p.waitForTimeout(600);
+console.log('puces',await p.$$eval('.chip-btn',x=>x.map(e=>e.textContent)));
+console.log('groupes',await p.$$eval('.grp',x=>x.map(e=>e.textContent)));
+await p.screenshot({path:'lib-1.png'});
+await p.click('.chip-btn:has-text("Mathématiques")');await p.waitForTimeout(300);console.log('filtre',await p.$$eval('.course h2',x=>x.map(e=>e.textContent)));
+await p.click('.chip-btn:has-text("Tout")');await p.fill('#lib-q','guerre');await p.waitForTimeout(300);console.log('recherche',await p.$$eval('.course h2',x=>x.map(e=>e.textContent)));
+await p.fill('#lib-q','');await p.waitForTimeout(300);
+console.log('boutons ouverts',await p.$$eval('.course.open .actions .btn',x=>x.map(e=>e.textContent)),'téléchargements auto',dl);
+console.log('erreurs',errs);await b.close();})();
