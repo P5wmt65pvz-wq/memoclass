@@ -1275,14 +1275,14 @@ db().then(function(d){
   };
   
 window.mvCelebrate=function(info,done){
-    /* À l'arrêt : Raphaël annonce « Réponse. Cours enregistré. », explose en gouttes dorées, puis un tourbillon plein écran (doré → rouge, les infos tournent vers le centre) cache tout ; « bam » : l'écran devient rouge, « Cours enregistré » saute vers toi en 3D et retombe sur des vagues rouges et dorées, avec un loup et un slime dessinés en canvas. Aucun son. */
+    /* À l'arrêt : Raphaël annonce « Réponse. Cours enregistré. », explose en gouttes dorées, puis un tourbillon plein écran (doré → rouge, les infos tournent vers le centre) cache tout ; « bam » : l'écran devient rouge, « Ton cours est prêt » saute vers toi en 3D et retombe sur des vagues rouges et dorées. Aucun son. */
     var W=innerWidth,H=innerHeight,dpr=Math.min(1.5,devicePixelRatio||1);
     var ov=document.createElement('div');ov.className='skill-ov';ov.setAttribute('aria-hidden','true');
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);document.body.appendChild(ov);
     var g=cv.getContext('2d');g.scale(dpr,dpr);
     var cx=W/2,cy=H*.4,U=Math.min(W*.8,H*.46),t0=performance.now(),last=t0,gone=false,fired=false,drops=null,vor=null;
     var BOOM=1.9,BAM=BOOM+4.6,END=BAM+3.8,VD=BAM-BOOM,DIAG=Math.hypot(W,H);
-    var L1='Réponse.',L2='Cours enregistré.',L3=info||'',GOLD=['255,211,77','255,176,32','255,233,160','255,200,58','255,244,200'];
+    var L1='Réponse.',L2='Cours enregistré.',LT='Ton cours est prêt',L3=info||'',GOLD=['255,211,77','255,176,32','255,233,160','255,200,58','255,244,200'];
     oB=0;oV=0;oFlash=0;
     function close(){if(gone)return;gone=true;if(!fired){fired=true;var tb=$('tab-cours');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');if(done)done();}ov.classList.add('out');setTimeout(function(){ov.remove();},500);}
     ov.addEventListener('click',close);
@@ -1300,32 +1300,6 @@ window.mvCelebrate=function(info,done){
     function col(c,m,al){var p=c.split(',');return 'rgba('+Math.round(p[0]*(1-m)+255*m)+','+Math.round(p[1]*(1-m)+52*m)+','+Math.round(p[2]*(1-m)+44*m)+','+al+')';}
     function rows(){var y=cy+U*.58,fs=Math.max(20,Math.min(38,W*.055));
       return [[L1,'700 '+Math.round(fs*.7)+'px Manrope,system-ui,sans-serif','#FFC94A',y,.6,14,1],[L2,'800 '+Math.round(fs*1.2)+'px Manrope,system-ui,sans-serif','#FFFFFF',y+fs*1.5,1.0,18,1],[L3,'600 '+Math.round(fs*.62)+'px ui-monospace,Menlo,monospace','#BFE0FF',y+fs*2.9,1.6,30,0]];}
-    function drawSlime(x,y,r,tt){   /* Rimuru : blob bleu clair qui rebondit mollement (écrasement à l'atterrissage, étirement en l'air, ondulation du bord) */
-      var p=(tt*1.15)%1,air=Math.sin(Math.PI*p),land=Math.pow(1-air,6),sy=1+.2*air-.28*land+.04*Math.sin(tt*14),sx=1/sy;
-      var yy=y-air*r*1.5;g.save();g.translate(x,yy);g.scale(sx,sy);
-      g.beginPath();for(var i=0;i<=40;i++){var a=i/40*Math.PI*2,top=Math.max(0,-Math.sin(a));var rad=r*(1+.045*Math.sin(a*3+tt*9)+.03*Math.sin(a*5-tt*13)*(1+land*2));var px=Math.cos(a)*rad*1.08,py=Math.sin(a)*rad*.92-top*top*top*r*.28+(Math.sin(a)>0?r*.06:0);i?g.lineTo(px,py):g.moveTo(px,py);}
-      g.closePath();var gr=g.createRadialGradient(-r*.3,-r*.4,r*.1,0,0,r*1.2);gr.addColorStop(0,'#c8f1ff');gr.addColorStop(.55,'#5cc0f5');gr.addColorStop(1,'#1e78c4');g.fillStyle=gr;g.shadowColor='rgba(90,190,255,.55)';g.shadowBlur=r*.5;g.fill();g.shadowBlur=0;
-      g.fillStyle='rgba(255,255,255,.55)';g.beginPath();g.ellipse(-r*.38,-r*.5,r*.22,r*.12,-.6,0,Math.PI*2);g.fill();
-      g.fillStyle='#10243f';g.beginPath();g.ellipse(-r*.3,-r*.05,r*.09,r*.14,0,0,Math.PI*2);g.ellipse(r*.3,-r*.05,r*.09,r*.14,0,0,Math.PI*2);g.fill();
-      g.fillStyle='#fff';g.beginPath();g.arc(-r*.32,-r*.1,r*.03,0,Math.PI*2);g.arc(r*.28,-r*.1,r*.03,0,Math.PI*2);g.fill();
-      g.strokeStyle='#10243f';g.lineWidth=Math.max(1.5,r*.05);g.lineCap='round';g.beginPath();g.arc(0,r*.08,r*.17,.15*Math.PI,.85*Math.PI);g.stroke();g.restore();
-      g.fillStyle='rgba(0,0,0,'+(.28-.18*air)+')';g.beginPath();g.ellipse(x,y+r*.82,r*(1-.35*air),r*.12,0,0,Math.PI*2);g.fill();
-    }
-    function drawWolf(x,y,k,tt){   /* Ranga : loup noir-bleu assis, regard doré, queue qui bat */
-      g.save();g.translate(x,y);g.scale(k,k);var br=Math.sin(tt*3)*1.2,tw=Math.sin(tt*5.5)*.28;
-      g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(0,2,46,7,0,0,Math.PI*2);g.fill();
-      g.strokeStyle='#18264a';g.lineWidth=11;g.lineCap='round';g.beginPath();g.moveTo(-26,-12);g.quadraticCurveTo(-62,-18+tw*30,-58,-58+tw*40);g.stroke();   /* queue */
-      var bg=g.createLinearGradient(0,-80,0,0);bg.addColorStop(0,'#2c3f73');bg.addColorStop(1,'#101a36');g.fillStyle=bg;
-      g.beginPath();g.moveTo(-34,0);g.quadraticCurveTo(-40,-55,-12,-78+br);g.quadraticCurveTo(14,-86+br,26,-62);g.quadraticCurveTo(34,-30,30,0);g.closePath();g.fill();   /* corps */
-      g.fillStyle='#6e86c4';g.beginPath();g.ellipse(14,-34,9,22,.1,0,Math.PI*2);g.fill();   /* poitrail */
-      g.fillStyle=bg;g.beginPath();g.ellipse(14,-92+br,24,21,0,0,Math.PI*2);g.fill();   /* tête */
-      g.beginPath();g.moveTo(30,-96+br);g.lineTo(56,-90+br);g.quadraticCurveTo(60,-80+br,48,-78+br);g.lineTo(28,-80+br);g.closePath();g.fill();   /* museau */
-      g.beginPath();g.moveTo(-2,-106+br);g.lineTo(-6,-132+br);g.lineTo(14,-110+br);g.closePath();g.fill();g.beginPath();g.moveTo(14,-110+br);g.lineTo(22,-136+br);g.lineTo(32,-108+br);g.closePath();g.fill();   /* oreilles */
-      g.fillStyle='#ffd24a';g.shadowColor='#ffb020';g.shadowBlur=8;g.beginPath();g.ellipse(24,-96+br,4.2,3,-.2,0,Math.PI*2);g.fill();g.shadowBlur=0;
-      g.fillStyle='#0a0f20';g.beginPath();g.arc(55,-88+br,3,0,Math.PI*2);g.fill();
-      g.strokeStyle='#7fa8ff';g.lineWidth=2;g.beginPath();g.moveTo(12,-108+br);g.lineTo(16,-100+br);g.stroke();
-      g.restore();
-    }
     function frame(now){
       if(!ov.isConnected)return;
       var t=(now-t0)/1000,dt=Math.min(.05,(now-last)/1000);last=now;oTick(dt);
@@ -1373,15 +1347,10 @@ window.mvCelebrate=function(info,done){
         /* « Cours enregistré » saute vers toi (3D), retombe, se pose */
         var jt=tt-.15,sc,ty=H*.4;
         if(jt<0)sc=0;else if(jt<.55)sc=.1+(PK-.1)*ease(jt/.55);else if(jt<1.05){var z=ease((jt-.55)/.5);sc=PK-(PK-1)*z;}else sc=1+.05*Math.exp(-(jt-1.05)*5)*Math.cos((jt-1.05)*16);
-        var fs=Math.max(26,Math.min(54,W*.09));g.font='800 '+Math.round(fs)+'px Manrope,system-ui,sans-serif';var PK=Math.max(1.15,Math.min(1.8,W*.94/Math.max(1,g.measureText(L2).width)));   /* le saut ne dépasse pas l'écran */
+        var fs=Math.max(26,Math.min(54,W*.09));g.font='800 '+Math.round(fs)+'px Manrope,system-ui,sans-serif';var PK=Math.max(1.15,Math.min(1.8,W*.94/Math.max(1,g.measureText(LT).width)));   /* le saut ne dépasse pas l'écran */
         if(sc>0){g.save();g.translate(cx,ty);g.scale(sc,sc);g.textAlign='center';g.textBaseline='middle';
           g.shadowColor='rgba(255,170,40,.9)';g.shadowBlur=22*sc;
-          g.font='700 '+Math.round(fs*.55)+'px Manrope,system-ui,sans-serif';g.fillStyle='#FFC94A';g.fillText(L1,0,-fs*1.1);
-          g.font='800 '+Math.round(fs)+'px Manrope,system-ui,sans-serif';g.fillStyle='#FFFFFF';g.fillText(L2,0,0);
-          g.shadowBlur=0;g.font='600 '+Math.round(fs*.42)+'px ui-monospace,Menlo,monospace';g.fillStyle='#FFD9D0';g.fillText(L3,0,fs*1.0);g.restore();}
-        /* Ranga et Rimuru entrent par les côtés */
-        var ent=ease((tt-.9)/.6),gy=H*.8,rs=Math.min(W*.13,H*.075);
-        if(ent>0){drawWolf(W*.3-(1-ent)*W*.5,gy,Math.min(1.3,W/330),tt);drawSlime(W*.7+(1-ent)*W*.5,gy-rs*.85,rs,tt);}
+          g.font='800 '+Math.round(fs)+'px Manrope,system-ui,sans-serif';g.fillStyle='#FFFFFF';g.fillText(LT,0,0);g.restore();}
         if(tt<.45){g.fillStyle='rgba(255,255,255,'+(1-tt/.45)+')';g.fillRect(0,0,W,H);}   /* éclair du « bam » */
       }
       ov.style.opacity=String(1-ease((t-(END-.6))/.6));
