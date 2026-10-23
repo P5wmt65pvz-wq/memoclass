@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dictavox — enregistreur vocal et dictaphone en ligne pour cours</title>
-<meta name="description" content="Dictavox : enregistreur vocal et dictaphone en ligne, gratuit et sans compte. Enregistre tes cours en haute qualité, avec transcription en direct, et garde tes fichiers sur ton appareil.">
+<title>Mémoclass — enregistreur vocal et dictaphone en ligne pour cours</title>
+<meta name="description" content="Mémoclass : enregistreur vocal et dictaphone en ligne, gratuit et sans compte. Enregistre tes cours en haute qualité, avec transcription en direct, et garde tes fichiers sur ton appareil.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0A0A0C">
 <link rel="apple-touch-icon" href="icone-180.png">
@@ -324,7 +324,7 @@ body.recmode .mini.on{translate:-50% 0;opacity:1}
   <header>
     <div class="head glass">
       <div class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7A70"/><stop offset="1" stop-color="#E0241B"/></linearGradient><linearGradient id="mh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#mg)"/><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#mh)"/><g fill="#FFFFFF"><rect x="13" y="26" width="5" height="12" rx="2.5" opacity=".75"/><rect x="21" y="18" width="5" height="28" rx="2.5"/><rect x="29.5" y="28" width="5" height="16" rx="2.5" opacity=".9"/><rect x="38" y="18" width="5" height="28" rx="2.5"/><rect x="46" y="26" width="5" height="12" rx="2.5" opacity=".75"/></g></svg>
-        <div><b>Dictavox</b><small>Enregistreur vocal</small></div></div>
+        <div><b>Mémoclass</b><small>Enregistreur vocal</small></div></div>
       <button class="icon-btn glass" id="open-settings" aria-label="Réglages audio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
     <div class="tabs glass" role="tablist">
@@ -816,7 +816,7 @@ finDlg.addEventListener('close',function(){
 });
 function saveToFiles(blob,title){
   if(!S.files)return;
-  try{var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='Dictavox-'+title.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w -]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-')+'.'+ext(blob.type);document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},60000);}catch(e){}
+  try{var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='Mémoclass-'+title.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w -]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-')+'.'+ext(blob.type);document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},60000);}catch(e){}
 }
 $('mini-p').addEventListener('click',function(){recBtn.click();});$('mini-s').addEventListener('click',function(){stopBtn.click();});
 $('more').addEventListener('click',function(){$('transcript').scrollIntoView({behavior:'smooth',block:'start'});});
@@ -899,7 +899,7 @@ function autoHq(c){
   if(!S.hq||c.hq)return;
   if(!(navigator.gpu||c.duration<20*60000))return;   /* sans carte graphique, un cours long serait trop lent : bouton manuel */
   var ok=null;try{ok=localStorage.getItem('dictavox.hq');}catch(e){}
-  if(!ok){if(!window.confirm("Dictavox peut affiner la transcription après chaque cours avec un modèle (240 Mo, téléchargé une seule fois, ensuite tout reste sur ton appareil). Activer ?")){S.hq=false;saveS();paintS();return;}try{localStorage.setItem('dictavox.hq','1');}catch(e){}}
+  if(!ok){if(!window.confirm("Mémoclass peut affiner la transcription après chaque cours avec un modèle (240 Mo, téléchargé une seule fois, ensuite tout reste sur ton appareil). Activer ?")){S.hq=false;saveS();paintS();return;}try{localStorage.setItem('dictavox.hq','1');}catch(e){}}
   hqRun(c);
 }
 /* ---------- Mes cours ---------- */
@@ -1030,7 +1030,7 @@ db().then(function(d){
        9 s fenêtres bleues · 14 s « Bienvenue dans … » · 16,4 s tunnel bleu · 18,5 s éclair · 19 s éclats bleus */
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){if(window.mvBloom)mvBloom();return;}
     var W=innerWidth,H=innerHeight,dpr=Math.min(1.5,devicePixelRatio||1),cx=W/2,cy=H/2,R=Math.hypot(W,H)*.6,TAU=Math.PI*2;
-    var APP=(document.querySelector('.logo b')||{}).textContent||'Dictavox';
+    var APP=(document.querySelector('.logo b')||{}).textContent||'Mémoclass';
     var ov=document.createElement('div');ov.className='link-ov';ov.setAttribute('aria-hidden','true');
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);
     document.body.appendChild(ov);ov.style.pointerEvents='auto';

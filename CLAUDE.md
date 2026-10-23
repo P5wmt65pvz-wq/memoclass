@@ -1,4 +1,4 @@
-# Dictavox — enregistreur vocal de cours (site statique)
+# Mémoclass — enregistreur vocal de cours (site statique)
 
 Site GitHub Pages (`https://p5wmt65pvz-wq.github.io/memovox/`), un seul fichier `index.html`, sans serveur : tout reste dans le navigateur. Propriétaire : Adrien (utilise surtout un **Mac / Safari** ; Chromebook en second). Parle français, réponses courtes.
 

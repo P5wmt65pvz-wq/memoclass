@@ -1,4 +1,4 @@
-# Dictavox
+# Mémoclass
 
 Enregistre tes cours en haute qualité, avec la voix du prof renforcée, la transcription en direct et tes documents au même endroit.
 
