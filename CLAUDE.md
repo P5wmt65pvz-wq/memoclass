@@ -12,7 +12,7 @@ Site GitHub Pages (`https://p5wmt65pvz-wq.github.io/memoclass/`), un seul fichie
 ## Où est quoi dans `index.html`
 - Réglages `S` (clé `memovox.reglages`), IndexedDB `memovox` (`cours`, `brouillon`) : ne pas renommer ces clés.
 - `raphaelDraw` / `oracleFrame` / `oSky` : la scène de Raphaël (voix → `lv`), aussi utilisée par `mvCelebrate`.
-- `mvStartFx` : animation de départ « Link Start » (canvas) + partition sonore synthétisée (`score`).
+- `mvStartFx` : animation de départ « Link Start » (canvas). Pendant qu'elle tourne, `body.linkfx` garde la pastille d'enregistrement (`.mini` : point rouge, chrono, pause, stop) visible en haut, sur fond sombre.
 - `mvFxStart` / `mvFxEnd` : bandes-son synthétisées calées sur les deux animations (réglage « Sons des animations » = `S.sfx`) ; `mvFxUnlock()` est appelé pendant les clics Enregistrer / Arrêter (Safari et Chrome exigent un geste).
 - `mvCelebrate(info, done, status)` : animation de fin. `status()` = ce que l'appli fait vraiment sur le texte (affiché en bas). La carte `#fin` arrive avec la classe `.warp` (CSS), retombe avec `.shake` et fait s'effondrer la page (`body.thud`, ~25 px, 1,15 s) avec des éclats dessinés sur le canvas ; une fois posée elle prend `.landed` (sinon l'animation d'ouverture normale se rejouait : petit rebond).
 - `analyse` : titre et matière proposés d'après le contenu (mots-clés, expressions de deux mots). `polish` : mise au propre du texte (mots doublés, typographie française). `finFill` / `finRefresh` : la carte se remet à jour quand le texte précis arrive, sans écraser ce qu'Adrien a modifié.

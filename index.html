@@ -329,6 +329,7 @@ body.recmode .transcript .t-head{font-size:16px}
 body.recmode .drop{color:#E4EEFF}
 body.recmode .mini{display:flex;position:fixed;z-index:30;left:50%;top:max(10px,env(safe-area-inset-top,0px));translate:-50% -140%;opacity:0;align-items:center;gap:8px;padding:6px 8px 6px 16px;border-radius:999px;transition:translate .45s cubic-bezier(.2,1.3,.4,1),opacity .3s}
 body.recmode .mini.on{translate:-50% 0;opacity:1}
+body.recmode.linkfx .mini{z-index:31;translate:-50% 0;opacity:1;background:rgba(14,14,18,.82);color:#fff;border-color:rgba(255,255,255,.18)}   /* pendant « Link Start », la pastille reste visible : on voit que l'enregistrement tourne */
 .mini i{width:9px;height:9px;border-radius:50%;background:#FF3B30;box-shadow:0 0 10px #FF3B30;animation:blink 1s steps(2) infinite}
 .mini.paused i{animation:none;background:var(--warn);box-shadow:none}
 .mini b{font-family:var(--mono);font-size:17px;font-variant-numeric:tabular-nums;min-width:4.6em;text-align:left}
@@ -1278,7 +1279,7 @@ db().then(function(d){
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){if(window.mvBloom)mvBloom();return;}
     var W=innerWidth,H=innerHeight,dpr=Math.min(1.5,devicePixelRatio||1),cx=W/2,cy=H/2,R=Math.hypot(W,H)*.6,TAU=Math.PI*2;
     var APP=(document.querySelector('.logo b')||{}).textContent||'Mémoclass';
-    var ov=document.createElement('div');ov.className='link-ov';ov.setAttribute('aria-hidden','true');
+    var ov=document.createElement('div');ov.className='link-ov';ov.setAttribute('aria-hidden','true');document.body.classList.add('linkfx');
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);
     document.body.appendChild(ov);ov.style.pointerEvents='auto';
     var g=cv.getContext('2d');g.scale(dpr,dpr);
@@ -1396,7 +1397,7 @@ db().then(function(d){
 
     var t0=performance.now(),skip=false,fading=false;
         ov.addEventListener('click',function(){skip=true;});
-    function end(){quiet();if(!fading&&window.mvBloom)mvBloom();cv.width=cv.height=0;bgDark.width=bgLight.width=bgGrey.width=0;}
+    function end(){quiet();document.body.classList.remove('linkfx');if(!fading&&window.mvBloom)mvBloom();cv.width=cv.height=0;bgDark.width=bgLight.width=bgGrey.width=0;}
     function frame(now){
       var raw=(now-t0)/1000,s=raw<TG?raw:raw-TG+14;
       if(skip||s>=19.9){end();ov.remove();return;}
