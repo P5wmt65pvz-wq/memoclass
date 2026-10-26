@@ -1,0 +1,11 @@
+const {chromium}=require('/opt/node22/lib/node_modules/playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium',args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream','--autoplay-policy=no-user-gesture-required']});
+const p=await (await b.newContext({viewport:{width:390,height:844},permissions:['microphone']})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>m.type()==='error'&&errs.push(m.text()));
+await p.goto('http://localhost:8131/index.html');await p.waitForTimeout(700);
+await p.click('#rec');await p.waitForTimeout(400);await p.mouse.click(5,5);await p.waitForTimeout(2500);
+await p.click('#stop');
+const log=await p.evaluate(()=>new Promise(ok=>{const out=[],f=document.getElementById('fin');let t0=null;(function k(){if(f.open&&t0===null)t0=performance.now();if(t0!==null){const t=(performance.now()-t0)/1000,r=f.getBoundingClientRect(),bs=getComputedStyle(document.body);out.push([t,Math.round(r.top*10)/10,Math.round(r.width*10)/10,bs.translate,bs.rotate,f.className]);if(t>4.5)return ok(out);}requestAnimationFrame(k);})();}));
+let shake=log.filter(x=>x[3]!=='none');console.log('tremblement de',shake[0]&&shake[0][0].toFixed(2),'à',shake.length&&shake[shake.length-1][0].toFixed(2),'s ; max',Math.max(...shake.map(x=>Math.max(...x[3].split(' ').map(v=>Math.abs(parseFloat(v)))))),'px');
+const settled=log.filter(x=>x[0]>2.2),tops=settled.map(x=>x[1]),ws=settled.map(x=>x[2]);
+console.log('après 2,2 s : haut de la carte',Math.min(...tops),'→',Math.max(...tops),'· largeur',Math.min(...ws),'→',Math.max(...ws),'· classes',[...new Set(settled.map(x=>x[5]))].join(','));
+console.log('erreurs',errs);await b.close();})();
