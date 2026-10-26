@@ -145,6 +145,10 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
 .sw input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .sw input:checked{background:var(--ice)}
 .sw input:checked::after{transform:translateX(18px)}
+.sw input[type=range]{width:118px;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--red) var(--v,70%),rgba(255,255,255,.18) var(--v,70%));box-shadow:none}   /* curseur de volume */
+.sw input[type=range]::after{content:none}
+.sw input[type=range]::-webkit-slider-thumb{appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.45);cursor:pointer}
+.sw input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.45);cursor:pointer}
 .tip{font-size:12.5px;color:var(--soft);background:rgba(0,0,0,.2);border-radius:14px;padding:10px 12px;margin:2px 0}
 .foot{text-align:center;font-size:12px;color:var(--dim);line-height:1.5;margin:0}
 .foot a{color:var(--soft)}
@@ -413,6 +417,7 @@ body.recmode.linkfx .mini{z-index:31;translate:-50% 0;opacity:1;background:rgba(
     <h3>Sauvegarde</h3>
     <div class="sw"><span><b>Copier dans mes Fichiers</b><small>Télécharge aussi le fichier audio à chaque arrêt</small></span><input type="checkbox" id="o-files" checked aria-label="Copier dans mes Fichiers"></div>
     <div class="sw"><span><b>Sons des animations</b><small>Voix « Link Start ! » et effets, à volume doux (le micro peut entendre le départ)</small></span><input type="checkbox" id="o-sfx" checked aria-label="Sons des animations"></div>
+    <label class="sw"><span><b>Volume des animations</b><small>Glisse vers la gauche pour plus doux</small></span><input type="range" id="o-fxv" min="0" max="1" step="0.05" value="0.7" aria-label="Volume des sons des animations"></label>
     <div class="sw"><span><b>Transcription précise automatique</b><small>Affine le texte après chaque cours (environ 2 Go, ou 0,8 Go en mode léger, téléchargé une seule fois)</small></span><input type="checkbox" id="o-hq" checked aria-label="Transcription précise automatique"></div>
     <div class="sw"><span><b>Transcription précise en direct</b><small>Pendant le cours, avec la carte graphique de ton ordinateur (Mac récent, Chrome)</small></span><input type="checkbox" id="o-live" checked aria-label="Transcription précise en direct"></div>
     <div class="sw"><span><b>Mode léger</b><small>Modèle Whisper (0,8 Go) au lieu de Cohere Transcribe (2 Go) : un peu moins précis, plus rapide à télécharger</small></span><input type="checkbox" id="o-light" aria-label="Mode léger"></div>
@@ -500,13 +505,13 @@ var $=function(id){return document.getElementById(id);};
 /* ---------- format ---------- */
 var MIME=['audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/webm']   /* M4A d'abord : le fichier s'ouvre partout (QuickTime, Musique, iPhone…) au lieu d'un .webm que le Mac envoie vers un autre navigateur */.filter(function(m){return window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m);})[0]||'';
 /* ---------- réglages ---------- */
-var SKEY='memovox.reglages',S={q:'256',boost:true,noise:true,echo:true,agc:false,files:false,sfx:true,hq:true,live:true,light:false,v2:true,v3:true};
+var SKEY='memovox.reglages',S={q:'256',boost:true,noise:true,echo:true,agc:false,files:false,sfx:true,fxv:.7,hq:true,live:true,light:false,v2:true,v3:true};
 try{var sv=JSON.parse(localStorage.getItem(SKEY));if(sv){if(!sv.v2&&sv.q==='160')sv.q='256';sv.v2=true;if(!sv.v3){sv.files=false;sv.v3=true;}   /* plus de copie dans Téléchargements par défaut */for(var k in S)if(k in sv)S[k]=sv[k];}}catch(e){}
 function saveS(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
 var dlg=$('settings');
 function paintS(){
   [].forEach.call(document.querySelectorAll('input[name=q]'),function(r){r.checked=r.value===S.q;});
-  $('o-files').checked=S.files;$('o-sfx').checked=S.sfx;$('o-hq').checked=S.hq;$('o-live').checked=S.live;$('o-light').checked=S.light;$('o-boost').checked=S.boost;$('o-noise').checked=S.noise;$('o-echo').checked=S.echo;$('o-agc').checked=S.agc;
+  $('o-files').checked=S.files;$('o-sfx').checked=S.sfx;$('o-fxv').value=S.fxv;$('o-fxv').style.setProperty('--v',Math.round(S.fxv*100)+'%');$('o-hq').checked=S.hq;$('o-live').checked=S.live;$('o-light').checked=S.light;$('o-boost').checked=S.boost;$('o-noise').checked=S.noise;$('o-echo').checked=S.echo;$('o-agc').checked=S.agc;
   var names={'256':'Qualité maximale','160':'Haute qualité','96':'Qualité standard'};
   var codec=/mp4/.test(MIME)?'AAC':'Opus',mo={'256':115,'160':72,'96':43};
   $('quality-line').textContent=names[S.q]+' · '+codec+' '+S.q+' kbps · 48 kHz'+(S.boost?' · voix du prof renforcée':'');
@@ -515,9 +520,10 @@ function paintS(){
 }
 dlg.addEventListener('change',function(){
   var r=dlg.querySelector('input[name=q]:checked');S.q=r?r.value:'256';
-  S.files=$('o-files').checked;S.sfx=$('o-sfx').checked;S.hq=$('o-hq').checked;S.live=$('o-live').checked;S.light=$('o-light').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
+  S.files=$('o-files').checked;S.sfx=$('o-sfx').checked;S.fxv=parseFloat($('o-fxv').value);S.hq=$('o-hq').checked;S.live=$('o-live').checked;S.light=$('o-light').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
 });
 $('open-settings').addEventListener('click',function(){dlg.showModal();});
+$('o-fxv').addEventListener('input',function(){this.style.setProperty('--v',Math.round(this.value*100)+'%');});
 dlg.addEventListener('change',function(){if(wk&&wk._pref!==prefer()&&!LIVE.on&&!Object.keys(hqJobs).length){wk.terminate();wk=null;wkReady=null;wkInfo=null;}});   /* changement de modèle : on repart de zéro */
 /* un clic à côté de la fenêtre (gauche, droite, haut, bas) la ferme */
 dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close();});
@@ -1212,7 +1218,7 @@ db().then(function(d){
   function fxKit(ac,T,vol){   /* petites briques de synthèse ; T = instant 0 de l'animation */
     var out=ac.createGain(),comp=ac.createDynamicsCompressor();
     comp.threshold.value=-20;comp.knee.value=10;comp.ratio.value=4;comp.attack.value=.004;comp.release.value=.25;
-    out.gain.value=.42*(vol||1);out.connect(comp);comp.connect(ac.destination);
+    out.gain.value=.42*(vol||1)*4*(S.fxv==null?.7:S.fxv);   /* réglage « Volume des animations » : 0,7 par défaut = environ +9 dB par rapport à la première version, trop discrète sur un Chromebook */out.connect(comp);comp.connect(ac.destination);
     var nb=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),nd=nb.getChannelData(0);for(var i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
     function panner(p){if(ac.createStereoPanner){var n=ac.createStereoPanner();n.pan.value=p||0;n.connect(out);return n;}return out;}
     function env(gn,t,a,peak,d,sus){gn.gain.setValueAtTime(0,T+t);gn.gain.linearRampToValueAtTime(peak,T+t+a);if(sus)gn.gain.setValueAtTime(peak,T+t+a+sus);gn.gain.exponentialRampToValueAtTime(.0001,T+t+a+(sus||0)+d);}
