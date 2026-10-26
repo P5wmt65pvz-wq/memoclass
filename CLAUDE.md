@@ -6,14 +6,15 @@ Site GitHub Pages (`https://p5wmt65pvz-wq.github.io/memoclass/`), un seul fichie
 - **Une image ou une vidéo qu'Adrien envoie est un cahier des charges à reproduire à l'identique** (pas « à ma sauce »). La regarder en entier, relever forme / taille / position / couleurs / timing, dire en une ligne ce qu'on va reproduire, puis construire une seule fois.
 - **Périmètre strict** : ne changer que ce qui est demandé ; ne jamais retoucher ce qu'il a validé. Le site garde son thème rouge / noir ; seul l'écran d'enregistrement (Raphaël) est bleu nuit étoilé.
 - Ses messages sont dictés : lister sa demande point par point avant d'agir, ne rien oublier.
-- Sons : très légers, graves, jamais de jingle. Aucun téléchargement automatique dans Téléchargements (réglage désactivé par défaut).
+- Sons : très légers, graves, jamais de jingle, volume calme (Chromebook en classe). Tout est synthétisé (`fxKit`, `mvFxStart`, `mvFxEnd`) : le son de référence envoyé par Adrien (enregistrement de l'anime : voix « Link Start », souffle, nappe en la majeur) ne doit pas être intégré, seulement imité. Aucun téléchargement automatique dans Téléchargements (réglage désactivé par défaut).
 - Vérifier avec `tools/verif/` (voir `LISEZ-MOI.md`) aux tailles téléphone et ordinateur avant de pousser. Ne jamais mettre d'identifiant de modèle dans un commit.
 
 ## Où est quoi dans `index.html`
 - Réglages `S` (clé `memovox.reglages`), IndexedDB `memovox` (`cours`, `brouillon`) : ne pas renommer ces clés.
 - `raphaelDraw` / `oracleFrame` / `oSky` : la scène de Raphaël (voix → `lv`), aussi utilisée par `mvCelebrate`.
 - `mvStartFx` : animation de départ « Link Start » (canvas) + partition sonore synthétisée (`score`).
-- `mvCelebrate(info, done, status)` : animation de fin. `status()` = ce que l'appli fait vraiment sur le texte (affiché en bas). La carte `#fin` arrive avec la classe `.warp` (CSS) et fait trembler la page (`body.thud`).
+- `mvFxStart` / `mvFxEnd` : bandes-son synthétisées calées sur les deux animations (réglage « Sons des animations » = `S.sfx`) ; `mvFxUnlock()` est appelé pendant les clics Enregistrer / Arrêter (Safari et Chrome exigent un geste).
+- `mvCelebrate(info, done, status)` : animation de fin. `status()` = ce que l'appli fait vraiment sur le texte (affiché en bas). La carte `#fin` arrive avec la classe `.warp` (CSS), retombe avec `.shake` et fait s'effondrer la page (`body.thud`, ~25 px, 1,15 s) avec des éclats dessinés sur le canvas ; une fois posée elle prend `.landed` (sinon l'animation d'ouverture normale se rejouait : petit rebond).
 - `analyse` : titre et matière proposés d'après le contenu (mots-clés, expressions de deux mots). `polish` : mise au propre du texte (mots doublés, typographie française). `finFill` / `finRefresh` : la carte se remet à jour quand le texte précis arrive, sans écraser ce qu'Adrien a modifié.
 - `WORKER_SRC` (transformers.js 4.3.1) : Cohere Transcribe sur carte graphique si l'ordinateur a au moins 8 Go de mémoire (`prefer()`), sinon Whisper large-v3-turbo (réglage « Mode léger » `S.light`), puis Whisper small ; sans carte graphique, Whisper small (wasm). `wkName()` = modèle réellement utilisé (affiché dans le direct et dans Mes cours). `cleanAsr` coupe les boucles de répétition.
 - `hqRun` / `autoHq` : transcription précise automatique (lancée dès l'arrêt, pendant l'animation, si déjà acceptée) ; `importAudio` : importer un audio ; `renderList` / `courseBody` : Mes cours (puces par matière, recherche, lecteur avec vitesse, Télécharger / Partager l'audio).

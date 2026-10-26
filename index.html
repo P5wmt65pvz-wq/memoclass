@@ -269,14 +269,18 @@ dialog[open]{animation:dlgin .4s cubic-bezier(.2,1,.3,1)}
 @keyframes warp{0%{transform:perspective(900px) scale(.04) rotate(-300deg);opacity:0;filter:blur(10px);animation-timing-function:cubic-bezier(.2,.8,.3,1)}
  48%{transform:perspective(900px) translateZ(170px) rotateX(8deg);opacity:1;filter:blur(0);animation-timing-function:linear}
  60%{transform:perspective(900px) translateZ(178px) rotateX(9deg);animation-timing-function:cubic-bezier(.7,0,1,.5)}
- 78%{transform:perspective(900px) translateZ(-16px) scale(1.025,.965)}
- 87%{transform:perspective(900px) translateZ(3px) scale(.995,1.01)}
+ 78%{transform:perspective(900px) translateZ(-22px) scale(1.04,.94)}
+ 86%{transform:perspective(900px) translateZ(4px) scale(.99,1.015)}
+ 93%{transform:perspective(900px) translateZ(-1px) scale(1.003,.997)}
  100%{transform:none;opacity:1}}
-body.thud{animation:thud .5s linear}   /* l'impact fait trembler le site */
-@keyframes thud{0%{translate:0 0}12%{translate:-8px 6px}26%{translate:7px -5px}40%{translate:-5px 4px}55%{translate:4px -2px}72%{translate:-2px 1px}100%{translate:0 0}}
+body.thud{animation:thud 1.15s cubic-bezier(.2,.6,.35,1)}   /* l'impact : le site encaisse comme un énorme poids qui s'effondre */
+@keyframes thud{0%{translate:0 0;rotate:0deg}5%{translate:-18px 26px;rotate:-.9deg}12%{translate:16px -12px;rotate:.8deg}20%{translate:-14px 14px;rotate:-.6deg}30%{translate:11px -8px;rotate:.45deg}42%{translate:-8px 6px;rotate:-.3deg}56%{translate:5px -3px;rotate:.18deg}72%{translate:-2px 2px;rotate:-.06deg}86%{translate:1px 0;rotate:0deg}100%{translate:0 0;rotate:0deg}}
+#fin.warp.shake{animation:warp 1.5s .08s both,warpglow 2.2s ease-out both,cardthud .95s cubic-bezier(.2,.6,.35,1)}   /* la carte encaisse aussi le choc */
+@keyframes cardthud{0%{translate:0 0;rotate:0deg}6%{translate:-9px 12px;rotate:-.5deg}14%{translate:8px -6px;rotate:.45deg}24%{translate:-6px 6px;rotate:-.3deg}36%{translate:4px -3px;rotate:.18deg}52%{translate:-2px 2px;rotate:-.08deg}72%{translate:1px 0;rotate:0deg}100%{translate:0 0;rotate:0deg}}
+#fin.landed{animation:none}   /* posée : on ne rejoue pas l'ouverture normale (c'était le petit rebond à la fin) */
 @keyframes warpglow{0%,30%{box-shadow:0 0 0 2px rgba(255,205,90,.9),0 0 70px rgba(255,70,50,.75),0 0 140px rgba(255,190,60,.45)}100%{box-shadow:0 0 0 0 rgba(255,205,90,0),0 0 0 rgba(255,70,50,0)}}
-#fin.warp::backdrop{animation:bdin 1.6s ease-in both}
-@keyframes bdin{0%,55%{opacity:0}}
+#fin.warp::backdrop{animation:bdin 2.8s ease-in both}
+@keyframes bdin{0%,62%{opacity:0}}   /* le fond s'assombrit après l'impact, pour voir la page trembler */
 @media (prefers-reduced-motion:reduce){#fin.warp,#fin.warp::backdrop,body.thud{animation:none}}
 .skill-ov canvas{position:absolute;inset:0;width:100%;height:100%}
 .skill-ov.out{opacity:0}
@@ -407,7 +411,7 @@ body.recmode .mini.on{translate:-50% 0;opacity:1}
     <label class="opt"><input type="radio" name="q" value="96"><span><b>Qualité standard</b><small>Environ 43 Mo par heure · pour garder de la place</small></span></label>
     <h3>Sauvegarde</h3>
     <div class="sw"><span><b>Copier dans mes Fichiers</b><small>Télécharge aussi le fichier audio à chaque arrêt</small></span><input type="checkbox" id="o-files" checked aria-label="Copier dans mes Fichiers"></div>
-    <div class="sw"><span><b>Voix « Link Start ! »</b><small>La voix de ton ordinateur le dit au départ (le micro peut l'entendre)</small></span><input type="checkbox" id="o-sfx" checked aria-label="Voix Link Start"></div>
+    <div class="sw"><span><b>Sons des animations</b><small>Voix « Link Start ! » et effets, à volume doux (le micro peut entendre le départ)</small></span><input type="checkbox" id="o-sfx" checked aria-label="Sons des animations"></div>
     <div class="sw"><span><b>Transcription précise automatique</b><small>Affine le texte après chaque cours (environ 2 Go, ou 0,8 Go en mode léger, téléchargé une seule fois)</small></span><input type="checkbox" id="o-hq" checked aria-label="Transcription précise automatique"></div>
     <div class="sw"><span><b>Transcription précise en direct</b><small>Pendant le cours, avec la carte graphique de ton ordinateur (Mac récent, Chrome)</small></span><input type="checkbox" id="o-live" checked aria-label="Transcription précise en direct"></div>
     <div class="sw"><span><b>Mode léger</b><small>Modèle Whisper (0,8 Go) au lieu de Cohere Transcribe (2 Go) : un peu moins précis, plus rapide à télécharger</small></span><input type="checkbox" id="o-light" aria-label="Mode léger"></div>
@@ -839,7 +843,7 @@ function words(t){return t?t.split(/\s+/).filter(Boolean).length:0;}
 var finAuto=null;   /* titre / matière proposés automatiquement, tant que la personne n'y a pas touché */
 function openFin(c,isNew,warp){
   finCur=c;finNew=isNew;finDlg.classList.toggle('warp',!!warp);
-  if(warp)setTimeout(function(){var b=document.body;b.classList.remove('thud');void b.offsetWidth;b.classList.add('thud');setTimeout(function(){b.classList.remove('thud');},600);if(navigator.vibrate)try{navigator.vibrate(35);}catch(e){}},1250);   /* moment où la carte touche la page */
+  if(warp)setTimeout(function(){var b=document.body;b.classList.remove('thud');void b.offsetWidth;b.classList.add('thud');if(finDlg.classList.contains('warp'))finDlg.classList.add('shake');setTimeout(function(){b.classList.remove('thud');},1250);if(navigator.vibrate)try{navigator.vibrate([70,40,40,40,20]);}catch(e){}},1250);   /* moment où la carte touche la page */
   $('f-title').textContent=isNew?'Ton cours est prêt':'Modifier le cours';
   $('f-titre').value=c.title;$('f-mat').value=c.subject||'';$('f-notes').value=c.notes||'';
   finAuto=null;$('f-auto').hidden=true;finFill(c);
@@ -857,7 +861,8 @@ function finFill(c){   /* (re)remplit la carte avec le meilleur texte disponible
   finAuto={title:ti.value,subject:ma.value};$('f-auto').hidden=false;
 }
 function finRefresh(c){if(finCur===c&&finDlg.open)finFill(c);}
-finDlg.addEventListener('animationend',function(e){if(e.animationName==='warpglow')finDlg.classList.remove('warp');});
+finDlg.addEventListener('animationend',function(e){if(e.animationName==='warpglow'){finDlg.classList.add('landed');finDlg.classList.remove('warp','shake');}});
+finDlg.addEventListener('close',function(){finDlg.classList.remove('landed','shake');});
 $('f-copy').addEventListener('click',function(){if(finCur&&finCur.transcript)copy(finCur.transcript,'Texte copié ✓ Colle-le dans Claude');});
 ['f-titre','f-mat'].forEach(function(i){$(i).addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();finDlg.close('ok');}});});
 finDlg.addEventListener('close',function(){
@@ -875,8 +880,8 @@ function saveToFiles(blob,title){
 }
 $('mini-p').addEventListener('click',function(){recBtn.click();});$('mini-s').addEventListener('click',function(){stopBtn.click();});
 $('more').addEventListener('click',function(){$('transcript').scrollIntoView({behavior:'smooth',block:'start'});});
-recBtn.addEventListener('click',function(){if(state==='idle')start();else if(state==='rec')pause();else resume();});
-stopBtn.addEventListener('click',function(){stop(true);});
+recBtn.addEventListener('click',function(){if(window.mvFxUnlock&&S.sfx)mvFxUnlock();if(state==='idle')start();else if(state==='rec')pause();else resume();});
+stopBtn.addEventListener('click',function(){if(window.mvFxUnlock&&S.sfx)mvFxUnlock();stop(true);});
 cancelBtn.addEventListener('click',function(){
   if(cancelBtn.dataset.sure){delete cancelBtn.dataset.sure;cancelBtn.lastChild.textContent='Annuler';stop(false);}
   else{cancelBtn.dataset.sure='1';cancelBtn.lastChild.textContent='Toucher encore pour jeter';setTimeout(function(){delete cancelBtn.dataset.sure;cancelBtn.lastChild.textContent='Annuler';},3000);}
@@ -1196,6 +1201,75 @@ db().then(function(d){
     },{passive:true});
     document.documentElement.addEventListener('pointerleave',function(){if(cur){cur.classList.remove('jw');cur=null;}});
   }
+  /* ---------- sons des animations : tout est synthétisé (aucun son de l'anime, droits d'auteur), volume doux ----------
+     Calé sur les images. Niveau visé : environ 30 dB sous le maximum en moyenne, pics sous -10 dB, pour un haut-parleur de Chromebook. */
+  var FXC=null;
+  window.mvFxUnlock=function(){   /* appelé pendant un clic : Safari et Chrome n'autorisent le son qu'après un geste */
+    try{if(!FXC){var AC=window.AudioContext||window.webkitAudioContext;if(AC)FXC=new AC();}if(FXC&&FXC.state==='suspended')FXC.resume().catch(function(){});}catch(e){FXC=null;}
+    return FXC;
+  };
+  function fxKit(ac,T,vol){   /* petites briques de synthèse ; T = instant 0 de l'animation */
+    var out=ac.createGain(),comp=ac.createDynamicsCompressor();
+    comp.threshold.value=-20;comp.knee.value=10;comp.ratio.value=4;comp.attack.value=.004;comp.release.value=.25;
+    out.gain.value=.42*(vol||1);out.connect(comp);comp.connect(ac.destination);
+    var nb=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),nd=nb.getChannelData(0);for(var i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    function panner(p){if(ac.createStereoPanner){var n=ac.createStereoPanner();n.pan.value=p||0;n.connect(out);return n;}return out;}
+    function env(gn,t,a,peak,d,sus){gn.gain.setValueAtTime(0,T+t);gn.gain.linearRampToValueAtTime(peak,T+t+a);if(sus)gn.gain.setValueAtTime(peak,T+t+a+sus);gn.gain.exponentialRampToValueAtTime(.0001,T+t+a+(sus||0)+d);}
+    var K={out:out,
+      tone:function(f,t,dur,o){o=o||{};var os=ac.createOscillator(),gn=ac.createGain();os.type=o.type||'sine';os.frequency.setValueAtTime(f,T+t);
+        if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,T+t+(o.glide||dur));
+        if(o.vib){var l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=o.vib[0];lg.gain.value=o.vib[1];l.connect(lg);lg.connect(os.frequency);l.start(T+t);l.stop(T+t+dur+.05);}
+        env(gn,t,o.att||.01,o.gain||.03,o.dec||dur,o.sus);os.connect(gn);
+        if(o.lp){var f2=ac.createBiquadFilter();f2.type='lowpass';f2.frequency.value=o.lp;gn.connect(f2);f2.connect(panner(o.pan));}else gn.connect(panner(o.pan));
+        os.start(T+t);os.stop(T+t+(o.att||.01)+(o.sus||0)+(o.dec||dur)+.05);return os;},
+      noise:function(t,dur,o){o=o||{};var src=ac.createBufferSource(),fl=ac.createBiquadFilter(),gn=ac.createGain();src.buffer=nb;src.loop=true;
+        fl.type=o.type||'bandpass';fl.Q.value=o.q||1;fl.frequency.setValueAtTime(o.f0||800,T+t);if(o.f1)fl.frequency.exponentialRampToValueAtTime(o.f1,T+t+dur);
+        if(o.wob){var l=ac.createOscillator(),lg=ac.createGain();l.frequency.setValueAtTime(o.wob[0],T+t);l.frequency.linearRampToValueAtTime(o.wob[1],T+t+dur);lg.gain.value=o.wob[2];l.connect(lg);lg.connect(fl.frequency);l.start(T+t);l.stop(T+t+dur+.1);K.spin=l;}
+        env(gn,t,o.att||.02,o.gain||.03,o.dec||dur,o.sus);src.connect(fl);fl.connect(gn);
+        var pn=panner(o.pan);if(o.spin&&pn.pan){var l2=ac.createOscillator(),lg2=ac.createGain();l2.frequency.setValueAtTime(o.wob[0],T+t);l2.frequency.linearRampToValueAtTime(o.wob[1],T+t+dur);lg2.gain.value=o.spin;l2.connect(lg2);lg2.connect(pn.pan);l2.start(T+t);l2.stop(T+t+dur+.1);}
+        gn.connect(pn);src.start(T+t,Math.random());src.stop(T+t+(o.att||.02)+(o.sus||0)+(o.dec||dur)+.1);},
+      thud:function(t,g,f0,f1,dur){K.tone(f0,t,dur,{to:f1,glide:dur*.6,gain:g,att:.004,dec:dur});K.tone(f0*2,t,dur*.6,{to:f1*2,glide:dur*.5,gain:g*.55,att:.004,dec:dur*.6});},   /* l'harmonique se fait entendre sur un petit haut-parleur */
+      stop:function(){try{var n=ac.currentTime;out.gain.cancelScheduledValues(n);out.gain.setValueAtTime(out.gain.value,n);out.gain.linearRampToValueAtTime(0,n+.25);setTimeout(function(){try{out.disconnect();}catch(e){}},400);}catch(e){}}};
+    return K;
+  }
+  window.mvFxStart=function(ac,T){   /* « Link Start » (temps réels de l'animation, en secondes) */
+    var K=fxKit(ac,T,3.2);
+    K.tone(220,.1,1.4,{gain:.012,att:.6,dec:.9});K.tone(330,.1,1.4,{gain:.008,att:.6,dec:.9});   /* nappe grave sous la voix */
+    K.noise(1.3,.8,{f0:400,f1:2600,q:1.2,gain:.03,att:.5,dec:.4});   /* montée vers le blanc */
+    K.noise(2,3.3,{type:'lowpass',f0:280,f1:1300,q:.7,gain:.05,att:.6,sus:1.6,dec:1.1});   /* souffle de la gerbe */
+    K.tone(587,2.1,3,{gain:.01,att:.8,sus:1,dec:1.2,vib:[5,6]});K.tone(622,2.1,3,{gain:.007,att:.8,sus:1,dec:1.2,vib:[4,5]});
+    for(var i=0;i<7;i++)K.tone(800+Math.random()*300,2.6+i*.36,.6,{to:2600+Math.random()*1200,gain:.006,att:.05,dec:.55,pan:Math.random()*1.4-.7});   /* sifflements qui montent */
+    K.noise(4.7,.4,{type:'highpass',f0:1500,f1:7000,gain:.03,att:.15,dec:.25});   /* éclair */
+    var N=[440,554.4,659.3,740,880];   /* les cercles bleus : une note chacun, gamme de la majeur, son « numérique » doux */
+    for(var j=0;j<5;j++){var t=5.33+j*.7;
+      K.tone(N[j]*.5,t,.4,{to:N[j],glide:.09,type:'triangle',gain:.045,att:.008,dec:.38,vib:[19,7],lp:2400,pan:(j-2)*.25});
+      K.tone(N[j]*2,t+.03,.3,{gain:.008,att:.005,dec:.28,pan:(j-2)*.25});
+      K.tone(2637,t+.68,.05,{gain:.012,att:.002,dec:.05});   /* « OK » */
+      K.tone(N[j],t+1.52,.18,{to:N[j]*.5,type:'triangle',gain:.015,att:.01,dec:.17,lp:1800});}   /* il se range */
+    [440,554.4,659.3,880].forEach(function(f,k){K.tone(f,10.53+k*.03,1.3,{gain:.016,att:.01,dec:1.3});});   /* tout passe au vert */
+    K.noise(11.13,.75,{f0:2200,f1:250,q:1.5,gain:.035,att:.05,dec:.7});K.tone(220,11.15,.5,{to:110,gain:.02,dec:.5});   /* ils tombent */
+    [220,330,659.3,1661].forEach(function(f,k){K.tone(f,11.9,2.6,{type:'sawtooth',lp:1800,gain:.008-k*.001,att:1,sus:.9,dec:.8,vib:[.3+k*.1,f*.004]});});   /* « Bienvenue » : la nappe lumineuse */
+    [277.2,415.3,830.6].forEach(function(f){K.tone(f,14.3,2.5,{to:f*1.5,glide:2.4,type:'sawtooth',lp:2400,gain:.008,att:.4,sus:1.4,dec:.6});});   /* tunnel : la nappe monte */
+    K.noise(14.3,2.5,{f0:300,f1:4200,q:1.1,gain:.06,att:1.6,dec:.9});
+    for(var c=0;c<6;c++)K.noise(14.4+c*.22+Math.random()*.1,.06,{type:'highpass',f0:2500,gain:.02,att:.003,dec:.06,pan:Math.random()*1.6-.8});   /* crépitements de l'éclair bleu */
+    [1760,2217,2637].forEach(function(f){K.tone(f,16.1,.9,{gain:.008,att:.6,dec:.9});});   /* éclair blanc puis fondu */
+    return K;
+  };
+  window.mvFxEnd=function(ac,T){   /* fin de cours : tourbillon (calé sur BOOM = 1,9 s, BAM = 6,5 s, carte qui retombe à BAM + 1,25 s) */
+    var K=fxKit(ac,T),B=1.9,M=6.5,C=M+1.25;
+    K.tone(196,.1,1.8,{gain:.01,att:.5,dec:1.3});K.tone(293.7,.1,1.8,{gain:.006,att:.5,dec:1.3});   /* Raphaël parle */
+    K.thud(B,.16,130,48,.7);K.noise(B,.55,{type:'lowpass',f0:2000,f1:300,gain:.1,att:.005,dec:.55});K.noise(B,.45,{type:'highpass',f0:5500,gain:.015,att:.005,dec:.45});   /* explosion */
+    K.noise(B+.1,M-B-.15,{f0:350,f1:1900,q:2.4,gain:.055,att:1,sus:2.6,dec:.7,wob:[.5,6.5,260],spin:.75});   /* le tourbillon : il tourne de plus en plus vite et passe d'une oreille à l'autre */
+    [110,138.6,164.8].forEach(function(f,k){K.tone(f,B+.2,2.1,{type:'sawtooth',lp:900,gain:.007,att:.8,sus:.8,dec:.5,to:f*1.12,glide:2.1});});   /* doré : la majeur */
+    [123.5,146.8,185].forEach(function(f){K.tone(f,B+2.1,2.4,{type:'sawtooth',lp:1100,gain:.007,att:.5,sus:1.3,dec:.6,to:f*1.5,glide:2.4});});   /* rouge : plus sombre, et ça monte */
+    K.noise(M-.6,.6,{f0:700,f1:6000,q:.8,gain:.035,att:.55,dec:.05});   /* aspiré vers le centre */
+    K.thud(M,.2,95,36,1);K.noise(M,.8,{type:'lowpass',f0:2600,f1:200,gain:.12,att:.004,dec:.8});K.tone(220,M,1.2,{gain:.012,dec:1.2});K.tone(330,M,1.2,{gain:.008,dec:1.2});   /* « bam » */
+    K.noise(M+.1,.65,{f0:400,f1:2600,q:1.3,gain:.045,att:.55,dec:.1});   /* la carte vient vers toi */
+    K.noise(C-.3,.3,{f0:2600,f1:300,q:1.3,gain:.05,att:.25,dec:.05});   /* elle retombe */
+    K.thud(C,.24,70,30,1.3);K.noise(C,1.5,{type:'lowpass',f0:220,f1:90,gain:.1,att:.01,dec:1.5});   /* l'impact : tout s'effondre */
+    for(var i=0;i<22;i++){var t=C+.02+Math.pow(i/22,1.6)*1.1;K.noise(t,.07,{f0:300+Math.random()*1300,q:3,gain:.03*(1-i/26),att:.003,dec:.07,pan:Math.random()*1.4-.7});}   /* gravats */
+    return K;
+  };
   window.mvStartFx=function(){
     /* Séquence « Link Start » refaite seconde par seconde d'après la vidéo de référence (22 s) :
        0 s noir + sous-titre · 1,3 s fondu blanc · 2 s petite gerbe qui envahit l'écran · 5,3 s cercles de contrôle
@@ -1317,7 +1391,8 @@ db().then(function(d){
         var u=new SpeechSynthesisUtterance(ja?'リンク スタート！':'Link start!');if(ja||en)u.voice=ja||en;u.lang=ja?ja.lang:'en-US';u.pitch=.6;u.rate=.8;u.volume=.8;
         setTimeout(function(){try{ss.cancel();ss.speak(u);}catch(e){}},delay*1000);}catch(e){}}
     if(S.sfx)say(.45);
-    function quiet(){try{window.speechSynthesis&&speechSynthesis.cancel();}catch(e){}}
+    var snd=null;try{var fac=S.sfx&&window.mvFxUnlock();if(fac)snd=mvFxStart(fac,fac.currentTime+.05);}catch(e){}
+    function quiet(){try{window.speechSynthesis&&speechSynthesis.cancel();}catch(e){}if(snd){snd.stop();snd=null;}}
 
     var t0=performance.now(),skip=false,fading=false;
         ov.addEventListener('click',function(){skip=true;});
@@ -1366,12 +1441,13 @@ window.mvCelebrate=function(info,done,status){
     var ov=document.createElement('div');ov.className='skill-ov';ov.setAttribute('aria-hidden','true');
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);document.body.appendChild(ov);
     var g=cv.getContext('2d');g.scale(dpr,dpr);
-    var cx=W/2,cy=H*.4,U=Math.min(W*.8,H*.46),t0=performance.now(),last=t0,gone=false,fired=false,drops=null;
-    var BOOM=1.9,BAM=BOOM+4.6,END=BAM+2.4,VD=BAM-BOOM,DIAG=Math.hypot(W,H);
+    var cx=W/2,cy=H*.4,U=Math.min(W*.8,H*.46),t0=performance.now(),last=t0,gone=false,fired=false,drops=null,debris=null;
+    var BOOM=1.9,BAM=BOOM+4.6,END=BAM+2.8,VD=BAM-BOOM,DIAG=Math.hypot(W,H);
     var L1='Réponse.',L2='Cours enregistré.',L3=info||'',GOLD=['255,211,77','255,176,32','255,233,160','255,200,58','255,244,200'];
     oB=0;oV=0;oFlash=0;
     function fire(){if(fired)return;fired=true;var tb=$('tab-cours');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');if(done)done();}
-    function close(){if(gone)return;gone=true;fire();ov.classList.add('out');setTimeout(function(){ov.remove();},500);}
+    var snd=null;try{var fac=S.sfx&&window.mvFxUnlock();if(fac)snd=mvFxEnd(fac,fac.currentTime+.05);}catch(e){}
+    function close(){if(gone)return;gone=true;fire();if(snd)snd.stop();ov.classList.add('out');setTimeout(function(){ov.remove();},500);}
     ov.addEventListener('click',close);
     function ease(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);}
     function cl(x){return Math.max(0,Math.min(1,x));}
@@ -1427,6 +1503,13 @@ window.mvCelebrate=function(info,done,status){
         for(var w=0;w<3;w++){g.fillStyle=w===1?'rgba(255,190,60,.30)':'rgba(255,60,48,.34)';g.beginPath();g.moveTo(0,H);for(var x=0;x<=W;x+=8)g.lineTo(x,H*(.84+w*.045)+Math.sin(x/(W*.16)+tt*(2.2+w*.7)+w*2)*amp*(1+w*.35));g.lineTo(W,H);g.closePath();g.fill();}
         g.globalCompositeOperation='source-over';
         /* la vraie carte « Ton cours est prêt » jaillit du centre (animation CSS .warp sur #fin) */
+        if(tt>1.25){   /* la carte s'écrase : des éclats tombent de ses bords */
+          if(!debris){debris=[];var rc=$('fin').getBoundingClientRect(),DC=['#5a0d12','#8e1519','#c4262c','#FFC94A','#2a0508'];
+            for(var i=0;i<120;i++){var side=i%6===0;debris.push({x:side?(i%12?rc.left:rc.right):rc.left+Math.random()*rc.width,y:side?rc.top+Math.random()*rc.height:rc.bottom-Math.random()*6,vx:(Math.random()-.5)*(side?420:300),vy:-60-Math.random()*360,s:2+Math.random()*5,r:Math.random()*6,vr:(Math.random()-.5)*14,c:DC[i%DC.length]});}}
+          var da=1-cl((tt-1.25-.7)/1);
+          for(var i=0;i<debris.length;i++){var d=debris[i];d.vy+=1500*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;d.r+=d.vr*dt;
+            if(da>0&&d.y<H+10){g.save();g.globalAlpha=da;g.translate(d.x,d.y);g.rotate(d.r);g.fillStyle=d.c;g.fillRect(-d.s/2,-d.s/2,d.s,d.s*.7);g.restore();}}
+        }
         if(tt<.22){g.fillStyle='rgba(255,255,255,'+(1-tt/.22)+')';g.fillRect(0,0,W,H);}   /* éclair du « bam » */
       }
       ov.style.opacity=String(1-ease((t-(END-.7))/.7));
