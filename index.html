@@ -39,7 +39,7 @@ body.is-rec .halo span{animation-play-state:paused}
   box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -1px 1px rgba(255,255,255,.08),inset 0 0 24px rgba(255,255,255,.04),0 14px 36px -18px rgba(0,0,0,.85)}
 /* Liquid Glass : liseré spéculaire (lumière en haut à gauche, rebond en bas à droite) */
 .glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;z-index:1;
-  background:linear-gradient(140deg,rgba(255,255,255,.78),rgba(220,228,255,.14) 28%,rgba(255,255,255,0) 55%,rgba(200,190,255,.10) 78%,rgba(215,230,255,.38));
+  background:linear-gradient(var(--la,140deg),rgba(255,255,255,.78),rgba(220,228,255,.14) 28%,rgba(255,255,255,0) 55%,rgba(200,190,255,.10) 78%,rgba(215,230,255,.38));   /* --la : la lumière suit la souris */
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 /* reflet doux dans le haut du verre */
 .glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
@@ -335,6 +335,31 @@ p,.tip,.consent,.notes,small{text-wrap:pretty}
 }
 @media (max-width:600px) and (prefers-reduced-motion:reduce){#settings,#settings[open]{transform:none;transition:opacity .15s,overlay .15s allow-discrete,display .15s allow-discrete}@starting-style{#settings[open]{opacity:0;transform:none}}body.sheet .wrap{transform:none}}
 @media (prefers-reduced-motion:reduce){.tab-ind,.course .c-wrap,body:not(.recmode) header::before,.head,.logo small,.icon-btn{transition:none}}
+/* ---------- Verre liquide, encore plus (idées de liquid-glass-js et d'Apple, faites en CSS : marche aussi sur Safari) ---------- */
+/* reflet de surface qui suit la lumière, en plus du liseré */
+.glass::after{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,0) 38%),radial-gradient(120% 60% at var(--lx,15%) var(--ly,0%),rgba(255,255,255,.075),transparent 60%)}
+/* lumière qui jaillit sous le doigt */
+.glow{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;overflow:hidden;opacity:0;transition:opacity .5s ease}
+.glow::before{content:"";position:absolute;left:var(--px,50%);top:var(--py,50%);width:220%;aspect-ratio:1;translate:-50% -50%;scale:.35;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.5),rgba(255,235,230,.2) 28%,transparent 60%);transition:scale .6s var(--ease-out)}
+.lit>.glow{opacity:1;transition:opacity .08s ease}
+.lit>.glow::before{scale:1;transition:scale .35s var(--ease-out)}
+.btn,.chip-btn{position:relative}
+.btn>.glow,.chip-btn>.glow{mix-blend-mode:screen}
+/* la pastille des onglets s'étire comme une goutte pendant qu'elle glisse */
+.tab-ind.stretch{animation:goutte .42s cubic-bezier(.32,.72,0,1)}
+@keyframes goutte{0%{scale:1 1}35%{scale:1.16 .9}70%{scale:.98 1.03}100%{scale:1 1}}
+/* interrupteurs et curseur : la bille devient une lentille de verre quand on appuie (comme iOS 26) */
+.sw input::after{transition:transform .2s,scale .25s var(--ease-out),background .2s,box-shadow .2s}
+.sw input:active::after{scale:1.45 1.2;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.95),rgba(255,255,255,.55) 45%,rgba(255,255,255,.25));
+  box-shadow:0 2px 10px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.9),inset 0 -2px 4px rgba(0,0,0,.12)}
+.sw input[type=range]::-webkit-slider-thumb{transition:scale .25s var(--ease-out),background .2s}
+.sw input[type=range]:active::-webkit-slider-thumb{scale:1.4 1.25;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.95),rgba(255,255,255,.5) 45%,rgba(255,255,255,.22));box-shadow:0 2px 10px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.9)}
+/* la feuille des Réglages en verre liquide */
+#settings.glass{position:fixed;background:linear-gradient(160deg,rgba(40,40,46,.78),rgba(16,16,20,.82) 55%,rgba(40,12,10,.8))}
+#settings.glass::after{z-index:0}
+@media (prefers-reduced-motion:reduce){.tab-ind.stretch{animation:none}.glow::before,.lit>.glow::before{transition:none;scale:1}.sw input:active::after,.sw input[type=range]:active::-webkit-slider-thumb{scale:1}}
+@media (prefers-reduced-transparency:reduce){#settings.glass{background:#141417}.glow{display:none}}
 </style>
 </head>
 <body>
@@ -403,7 +428,7 @@ p,.tip,.consent,.notes,small{text-wrap:pretty}
   <p class="foot">Tes enregistrements et documents restent sur cet appareil, dans ton navigateur. <span id="foot-stt"></span><br><a href="mentions-legales.html">Mentions légales et confidentialité</a></p>
 </div>
 
-<dialog id="settings" aria-labelledby="s-title">
+<dialog id="settings" class="glass" aria-labelledby="s-title">
   <form method="dialog" class="dlg">
     <div class="grab" aria-hidden="true"></div>
     <h2 id="s-title">Réglages audio</h2>
@@ -1196,7 +1221,8 @@ function show(which){
 }
 function tabInd(anim){   /* la pastille blanche glisse sous l'onglet choisi */
   var ind=document.querySelector('.tab-ind'),t=document.querySelector('.tab[aria-selected="true"]');if(!ind||!t||!t.offsetWidth)return;
-  ind.classList.toggle('still',!anim);ind.style.width=t.offsetWidth+'px';ind.style.transform='translateX('+t.offsetLeft+'px)';
+  var from=ind.style.transform;ind.classList.toggle('still',!anim);ind.style.width=t.offsetWidth+'px';ind.style.transform='translateX('+t.offsetLeft+'px)';
+  if(anim&&from&&from!==ind.style.transform){ind.classList.remove('stretch');void ind.offsetWidth;ind.classList.add('stretch');}
 }
 tabInd(false);addEventListener('resize',function(){tabInd(false);});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){tabInd(false);});
@@ -1226,6 +1252,22 @@ db().then(function(d){
     t.classList.add('press','down');
   });
   ['pointerup','pointercancel','pointerleave'].forEach(function(n){document.addEventListener(n,function(){[].forEach.call(document.querySelectorAll('.press.down'),function(x){x.classList.remove('down');});},true);});
+  /* lumière sous le doigt (verre liquide) */
+  var GL='.glass:not(.studio):not(.course):not(.card):not(#settings),.btn,.chip-btn';
+  document.addEventListener('pointerdown',function(e){
+    if(calm||!e.target.closest)return;var t=e.target.closest(GL);if(!t||t.disabled)return;
+    var g=t.querySelector(':scope>.glow');if(!g){g=document.createElement('span');g.className='glow';g.setAttribute('aria-hidden','true');t.insertBefore(g,t.firstChild);}
+    var r=t.getBoundingClientRect();g.style.setProperty('--px',(e.clientX-r.left)+'px');g.style.setProperty('--py',(e.clientY-r.top)+'px');
+    t.classList.add('lit');
+  });
+  ['pointerup','pointercancel'].forEach(function(n){document.addEventListener(n,function(){[].forEach.call(document.querySelectorAll('.lit'),function(x){x.classList.remove('lit');});},true);});
+  /* le reflet du verre suit la souris, comme une lumière qu'on déplace (ordinateur seulement) */
+  if(!calm&&matchMedia('(hover: hover) and (pointer: fine)').matches){
+    var lq=0,lxy=[0,0],RS=document.documentElement.style;
+    document.addEventListener('pointermove',function(e){lxy=[e.clientX,e.clientY];if(lq)return;lq=requestAnimationFrame(function(){lq=0;
+      var x=lxy[0]/innerWidth,y=lxy[1]/innerHeight,a=Math.atan2(y-.5,x-.5)*180/Math.PI+90;
+      RS.setProperty('--la',(a+180).toFixed(1)+'deg');RS.setProperty('--lx',(x*100).toFixed(1)+'%');RS.setProperty('--ly',(y*40).toFixed(1)+'%');});},{passive:true});
+  }
   var rec=document.getElementById('rec');
   /* Bouton « verre liquide » : au survol il rebondit un tout petit peu, sans bouger de place */
   if(!calm&&matchMedia('(hover: hover) and (pointer: fine)').matches){   /* pas sur écran tactile : un toucher y déclenche un faux survol */
