@@ -18,6 +18,7 @@ Chaque script ouvre le site avec un faux micro et affiche `erreurs []` s'il n'y 
 - `tremble.cjs` : moment où la carte « Ton cours est prêt » retombe et fait trembler la page
 - `rebond.cjs` : amplitude du tremblement et carte immobile une fois posée (plus de petit rebond)
 - `pastille.cjs` : la pastille d'enregistrement (point rouge + chrono) reste visible par-dessus l'animation « Link Start », puis redevient normale
+- `logo.cjs` : logo en métal liquide bien placé (téléphone et ordinateur), réaction à l'appui, fenêtre Réglages qui se referme en fondu, logo dessiné et appui en fondu avec « réduire les animations » (capture `logo-<largeur>.png`)
 - `son.cjs` : rend hors ligne les deux bandes-son (début et fin), mesure pic et moyenne par seconde, écrit `son-debut.wav` et `son-fin.wav` (viser : pics sous -10 dB, moyenne vers -36 dB)
 
 Mesure de la qualité (taux d'erreur par mot sur FLEURS fr) : voir `CLAUDE.md`. Chromium peut simuler une carte graphique avec `--enable-unsafe-webgpu --use-webgpu-adapter=swiftshader` (lent, sans shader-f16).
