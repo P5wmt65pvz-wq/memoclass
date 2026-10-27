@@ -18,8 +18,9 @@ Chaque script ouvre le site avec un faux micro et affiche `erreurs []` s'il n'y 
 - `tremble.cjs` : moment où la carte « Ton cours est prêt » retombe et fait trembler la page
 - `rebond.cjs` : amplitude du tremblement et carte immobile une fois posée (plus de petit rebond)
 - `pastille.cjs` : la pastille d'enregistrement (point rouge + chrono) reste visible par-dessus l'animation « Link Start », puis redevient normale
-- `logo.cjs` : logo en métal liquide bien placé (téléphone et ordinateur), réaction à l'appui, fenêtre Réglages qui se referme en fondu, logo dessiné et appui en fondu avec « réduire les animations » (capture `logo-<largeur>.png`)
+- `logo.cjs` : logo en métal liquide bien placé (téléphone et ordinateur), réaction à l'appui, fenêtre Réglages qui se referme en fondu, logo dessiné et appui en fondu avec « réduire les animations » (capture `test-logo-<largeur>.png` ; ne pas effacer `logo-metal.png`, c'est le vrai logo)
 - `apple.cjs` : barre du haut collée et compacte au défilement, pastille des onglets qui glisse, cartes de Mes cours qui s'ouvrent et se referment, Réglages en feuille du bas sur téléphone (fermeture en la tirant, retour si on tire peu) et centrés sur ordinateur (captures `apple-*.png`)
+- `verre.cjs` : panneau « Verre liquide » (teinte minimale par défaut, curseurs en direct, 🎲, valeurs d'origine, réglage gardé après rechargement) et cartes de Mes cours en cascade
 - `son.cjs` : rend hors ligne les deux bandes-son (début et fin), mesure pic et moyenne par seconde, écrit `son-debut.wav` et `son-fin.wav` (viser : pics sous -10 dB, moyenne vers -36 dB)
 
 Mesure de la qualité (taux d'erreur par mot sur FLEURS fr) : voir `CLAUDE.md`. Chromium peut simuler une carte graphique avec `--enable-unsafe-webgpu --use-webgpu-adapter=swiftshader` (lent, sans shader-f16).
