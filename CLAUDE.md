@@ -47,3 +47,6 @@ Vidéos de référence (Google Drive, partage par lien ; télécharger avec `htt
 - Raphaël (cercle doré, vers 21 s ; petit cercle de 23 à 30 s) : `122419Njo2kh19h1olN5Du_9EbI5T5MCj`
 - Raphaël de nuit (ciel étoilé, apparition du cercle vers 8 s) : `1UrgXyu45joiC21FHS2qzMf5lVDFtBEJQ`
 Ces vidéos sont sans son. Ne jamais intégrer d'images ni de sons de l'anime dans le site (droits d'auteur) : reproduire avec du dessin canvas.
+
+## Dossier `guide-z50ii/` (27/10/2026)
+Site indépendant : le guide gratuit du Nikon Z50II, hébergé ici faute de dépôt dédié (en ligne sur `/memoclass/guide-z50ii/`). Il ne partage rien avec Mémoclass ; sa source de travail est dans le dépôt BOS (`Output/guide-z50ii/`). Ne pas le modifier depuis une tâche Mémoclass.
