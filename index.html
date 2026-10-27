@@ -50,6 +50,9 @@ header{display:grid;gap:14px}
 .head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 8px 8px 12px;border-radius:22px}
 .logo{display:flex;align-items:center;gap:11px}
 .logo svg.mark{width:34px;height:34px;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.logo{position:relative}
+.logo .lm{position:absolute;z-index:1;left:0;top:50%;width:34px;height:34px;margin-top:-17px;opacity:0;transition:opacity .6s;pointer-events:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.logo.metal .lm{opacity:1}
 .logo b{display:block;font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase}
 .logo small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--soft)}
 .icon-btn{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;cursor:pointer}
@@ -1528,6 +1531,35 @@ window.mvCelebrate=function(info,done,status){
   };
 })();
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
+})();
+</script>
+<script>
+/* Logo en métal liquide (Paper Shaders, Apache-2.0) : seulement si WebGL 2 et sans « réduire les animations » ; sinon le logo dessiné reste. */
+(function(){
+  var logo=document.querySelector('.logo'),mark=logo&&logo.querySelector('svg.mark');
+  if(!mark||!window.matchMedia||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  try{if(!document.createElement('canvas').getContext('webgl2'))return;}catch(e){return;}
+  var V=(new URLSearchParams(location.search).get('metal'))||'c';
+  var bars='<rect x="13" y="26" width="5" height="12" rx="2.5"/><rect x="21" y="18" width="5" height="28" rx="2.5"/><rect x="29.5" y="28" width="5" height="16" rx="2.5"/><rect x="38" y="18" width="5" height="28" rx="2.5"/><rect x="46" y="26" width="5" height="12" rx="2.5"/>';
+  var shape=V==='b'?'<rect width="64" height="64" fill="none"/><g fill="#000">'+bars+'</g>'
+    :'<mask id="k"><rect width="64" height="64" fill="#fff"/><g fill="#000">'+bars+'</g></mask><rect x="2" y="2" width="60" height="60" rx="18" fill="#000" mask="url(#k)"/>';
+  var src='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512">'+shape+'</svg>');
+  import('https://cdn.jsdelivr.net/npm/@paper-design/shaders@0.0.82/dist/index.js').then(function(P){
+    return P.toProcessedLiquidMetal(src).then(function(r){
+      return new Promise(function(ok,ko){var im=new Image();im.onload=function(){ok([P,im]);};im.onerror=ko;im.src=URL.createObjectURL(r.pngBlob);});
+    });
+  }).then(function(a){
+    var P=a[0],im=a[1],box=document.createElement('div');box.className='lm';logo.insertBefore(box,mark);
+    var o=P.defaultObjectSizing,c=P.getShaderColorFromString;
+    new P.ShaderMount(box,P.liquidMetalFragmentShader,{
+      u_colorBack:c('#00000000'),u_colorTint:c(V==='a'?'#FF3B30':'#ffffff'),u_image:im,u_isImage:true,
+      u_contour:.4,u_distortion:.07,u_softness:.1,u_repetition:2,u_shiftRed:.3,u_shiftBlue:.3,u_angle:70,u_shape:0,
+      u_fit:P.ShaderFitOptions.contain,u_scale:1,u_rotation:o.rotation,u_offsetX:o.offsetX,u_offsetY:o.offsetY,
+      u_originX:o.originX,u_originY:o.originY,u_worldWidth:o.worldWidth,u_worldHeight:o.worldHeight
+    },undefined,1,0,2,undefined,['u_image']);
+    if(V==='b'){var g=mark.querySelector('g');if(g)g.style.opacity='0';}
+    requestAnimationFrame(function(){logo.classList.add('metal');if(V!=='b')mark.style.opacity='0';});
+  }).catch(function(e){console.error('metal',e&&e.message||e);});
 })();
 </script>
 </body>
