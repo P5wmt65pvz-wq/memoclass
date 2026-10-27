@@ -22,7 +22,7 @@ const URL='http://localhost:8131/index.html';
     await p.evaluate(()=>document.getElementById('settings').close());
     await p.waitForTimeout(40);
     const mid=await p.evaluate(()=>{const d=document.getElementById('settings');return [getComputedStyle(d).display,+getComputedStyle(d).opacity];});
-    await p.waitForTimeout(1500);
+    await p.waitForTimeout(3500);   // avec la carte graphique simulée, une image peut prendre 1 s
     const end=await p.evaluate(()=>getComputedStyle(document.getElementById('settings')).display);
     console.log(w,'fermeture : pendant',mid,'après',end);
     if(mid[0]==='none')errs.push(w+': pas de sortie animée '+mid);if(end!=='none')errs.push(w+': fenêtre pas refermée');

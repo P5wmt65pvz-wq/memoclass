@@ -61,7 +61,13 @@ header{display:grid;gap:14px}
 .icon-btn svg{width:19px;height:19px}
 .tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;justify-self:start}
 .tab{display:flex;align-items:center;gap:7px;border:0;background:transparent;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer;color:var(--soft);transition:background .25s,color .25s}
-.tab[aria-selected="true"]{background:linear-gradient(135deg,#FFFFFF,#F2F2F7);color:var(--ink-on);box-shadow:0 6px 18px -10px rgba(255,255,255,.6)}
+.tab[aria-selected="true"]{color:var(--ink-on)}
+/* Onglets façon iPhone : une seule pastille blanche qui glisse d'un onglet à l'autre */
+.tab-ind{position:absolute!important;z-index:1!important;top:4px;left:0;height:calc(100% - 8px);width:0;border-radius:999px;pointer-events:none;
+  background:linear-gradient(135deg,#FFFFFF,#F2F2F7);box-shadow:0 6px 18px -10px rgba(255,255,255,.6),inset 0 -1px 1px rgba(0,0,0,.06);
+  transition:transform .42s cubic-bezier(.32,.72,0,1),width .42s cubic-bezier(.32,.72,0,1)}
+.tab-ind.still{transition:none}
+.tabs>.tab{z-index:2}
 .tab svg{width:16px;height:16px}
 .card{border-radius:24px;padding:20px}
 .studio{display:grid;gap:14px;text-align:center}
@@ -203,7 +209,10 @@ body.is-rec .studio .recbadge{display:flex}
 .course .c-left h2{margin:0;font-size:17px;line-height:1.25}
 .course .chev{font-size:22px;color:var(--soft);transition:rotate .25s}
 .course.open .chev{rotate:180deg}
-.course .c-body{display:grid;gap:12px;margin-top:14px}
+.course .c-wrap{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .34s var(--ease-out),opacity .2s ease}   /* la carte s'ouvre et se referme en douceur (avant : le contenu restait affiché à la fermeture) */
+.course.open .c-wrap{grid-template-rows:1fr;opacity:1;transition:grid-template-rows .4s var(--ease-out),opacity .3s ease .05s}
+.course .c-body{display:grid;gap:12px;min-height:0;overflow:hidden}
+.course .c-body>:first-child{margin-top:14px}
 .course.fresh{animation:fresh 2.4s ease}
 @keyframes fresh{0%,60%{box-shadow:0 0 0 2px rgba(255,200,80,.85),0 0 34px rgba(255,190,60,.6)}100%{box-shadow:none}}
 /* Animation de fin : Raphaël annonce que le cours est acquis */
@@ -293,6 +302,39 @@ body.recmode.linkfx .mini{z-index:31;translate:-50% 0;opacity:1;background:rgba(
 @media (prefers-reduced-transparency:reduce){.glass,.btn,.toast.glass,dialog,.mini,.lib-bar input{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.glass{background:#1C1C1F}.btn{background:#2A2A2E}dialog,.toast.glass{background:#141417}.glass::before,.glass::after{display:none}dialog::backdrop{background:rgba(0,0,0,.7);-webkit-backdrop-filter:none;backdrop-filter:none}}
 /* « Augmenter le contraste » : bords nets, texte secondaire plus clair */
 @media (prefers-contrast:more){:root{--soft:#E5E5EA;--dim:#C7C7CC;--edge:rgba(255,255,255,.55)}.glass,.btn,dialog,.chip-btn,.opt,.sw{border-color:rgba(255,255,255,.55)}}
+/* ---------- barre du haut façon Apple : elle reste en place, le contenu passe flouté dessous ---------- */
+body:not(.recmode) header{position:sticky;top:max(8px,env(safe-area-inset-top,0px));z-index:6}
+body:not(.recmode) header::before{content:"";position:absolute;z-index:-1;left:50%;width:100vw;margin-left:-50vw;top:calc(-1*max(16px,env(safe-area-inset-top,0px)) - 8px);bottom:-34px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(10,10,12,.86),rgba(10,10,12,.72) calc(100% - 34px),rgba(10,10,12,0));-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);
+  -webkit-mask:linear-gradient(#000 calc(100% - 34px),transparent);mask:linear-gradient(#000 calc(100% - 34px),transparent);opacity:0;transition:opacity .3s ease}   /* fondu doux vers le contenu, pas de trait net (règle Apple) */
+body.scrolled:not(.recmode) header::before{opacity:1}
+.head,.logo small,.logo b,.icon-btn{transition:padding .3s var(--ease-out),opacity .2s ease,max-height .3s var(--ease-out),font-size .3s var(--ease-out),width .3s var(--ease-out),height .3s var(--ease-out)}
+.logo small{max-height:14px;overflow:hidden}
+body.scrolled:not(.recmode) .head{padding-top:5px;padding-bottom:5px}
+body.scrolled:not(.recmode) .logo small{max-height:0;opacity:0}
+body.scrolled:not(.recmode) .head .icon-btn{width:36px;height:36px}
+/* ---------- typographie ---------- */
+h1,h2,h3,.dlg h2{text-wrap:balance}
+p,.tip,.consent,.notes,small{text-wrap:pretty}
+.course .c-left h2{letter-spacing:-.012em}
+.dlg h2{font-size:20px;letter-spacing:-.02em}
+.timer{font-feature-settings:"tnum"}
+/* ---------- Réglages : feuille qui monte du bas sur téléphone (comme iOS), fenêtre centrée sur ordinateur ---------- */
+.grab{display:none}
+@media (max-width:600px){
+  #settings{margin:auto 0 0;width:100%;max-width:100%;max-height:min(88dvh,calc(100dvh - 24px));border-radius:28px 28px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);
+    transform:translateY(100%);opacity:1;transition:transform .26s cubic-bezier(.32,.72,0,1),overlay .26s allow-discrete,display .26s allow-discrete}
+  #settings[open]{transform:translateY(var(--dy,0px));transition-duration:.46s}
+  @starting-style{#settings[open]{transform:translateY(100%)}}
+  #settings.drag{transition:none}
+  #settings .grab{display:block;position:sticky;top:0;z-index:3;height:30px;margin:0 0 -14px;cursor:grab;touch-action:none}
+  #settings .grab::after{content:"";position:absolute;left:50%;top:9px;width:38px;height:5px;margin-left:-19px;border-radius:9px;background:rgba(255,255,255,.35)}
+  #settings h2{touch-action:none}
+  body.sheet .wrap{transform:scale(.94);border-radius:22px;transition:transform .46s cubic-bezier(.32,.72,0,1)}   /* le site recule derrière la feuille */
+  body:not(.sheet) .wrap{transition:transform .3s cubic-bezier(.32,.72,0,1)}
+}
+@media (max-width:600px) and (prefers-reduced-motion:reduce){#settings,#settings[open]{transform:none;transition:opacity .15s,overlay .15s allow-discrete,display .15s allow-discrete}@starting-style{#settings[open]{opacity:0;transform:none}}body.sheet .wrap{transform:none}}
+@media (prefers-reduced-motion:reduce){.tab-ind,.course .c-wrap,body:not(.recmode) header::before,.head,.logo small,.icon-btn{transition:none}}
 </style>
 </head>
 <body>
@@ -306,7 +348,7 @@ body.recmode.linkfx .mini{z-index:31;translate:-50% 0;opacity:1;background:rgba(
         <div><b>Mémoclass</b><small>Enregistreur vocal</small></div></div>
       <button class="icon-btn glass" id="open-settings" aria-label="Réglages audio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
-    <div class="tabs glass" role="tablist">
+    <div class="tabs glass" role="tablist"><span class="tab-ind still" aria-hidden="true"></span>
       <button class="tab" role="tab" id="tab-studio" aria-selected="true" aria-controls="v-studio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span class="tx">Studio</span></button>
       <button class="tab" role="tab" id="tab-cours" aria-selected="false" aria-controls="v-cours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="tx">Mes cours</span></button>
     </div>
@@ -363,6 +405,7 @@ body.recmode.linkfx .mini{z-index:31;translate:-50% 0;opacity:1;background:rgba(
 
 <dialog id="settings" aria-labelledby="s-title">
   <form method="dialog" class="dlg">
+    <div class="grab" aria-hidden="true"></div>
     <h2 id="s-title">Réglages audio</h2>
     <h3>Qualité d'enregistrement</h3>
     <label class="opt"><input type="radio" name="q" value="256" checked><span><b>Qualité maximale</b><small>Recommandé · environ 115 Mo par heure de cours</small></span></label>
@@ -448,7 +491,7 @@ body.recmode.linkfx .mini{z-index:31;translate:-50% 0;opacity:1;background:rgba(
     im.onload=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){el.style.webkitBackdropFilter=v;el.style.backdropFilter=v;});});};im.src=url;
   }
   function all(){[].forEach.call(document.querySelectorAll('.glass'),apply);}
-  var ro=new ResizeObserver(function(es){es.forEach(function(e){apply(e.target);});});
+  var ro=new ResizeObserver(function(es){es.forEach(function(e){var t=e.target;clearTimeout(t._lgT);t._lgT=setTimeout(function(){apply(t);},140);});});
   function watch(){[].forEach.call(document.querySelectorAll('.glass'),function(el){if(!el.dataset.lgw){el.dataset.lgw=1;ro.observe(el);}});all();}
   var pend=0;new MutationObserver(function(ms){if(pend)return;for(var i=0;i<ms.length;i++){for(var j=0;j<ms[i].addedNodes.length;j++){var nd=ms[i].addedNodes[j];if(nd.nodeType===1&&(nd.classList.contains('glass')||nd.querySelector&&nd.querySelector('.glass'))){pend=requestAnimationFrame(function(){pend=0;watch();});return;}}}}).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('load',watch);watch();
@@ -476,7 +519,30 @@ dlg.addEventListener('change',function(){
   var r=dlg.querySelector('input[name=q]:checked');S.q=r?r.value:'256';
   S.files=$('o-files').checked;S.sfx=$('o-sfx').checked;S.fxv=parseFloat($('o-fxv').value);S.hq=$('o-hq').checked;S.live=$('o-live').checked;S.light=$('o-light').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
 });
-$('open-settings').addEventListener('click',function(){dlg.showModal();});
+$('open-settings').addEventListener('click',function(){dlg.style.removeProperty('--dy');dlg.showModal();document.body.classList.add('sheet');});
+dlg.addEventListener('close',function(){document.body.classList.remove('sheet');});
+/* téléphone : on ferme la feuille en la tirant vers le bas par sa poignée ou son titre ; elle suit le doigt 1:1,
+   résiste vers le haut (élastique), et se ferme si on la lance assez vite ou assez loin (règles d'Apple) */
+(function(){
+  var narrow=matchMedia('(max-width:600px)'),y0=0,t0=0,dy=0,hist=[],on=false,moved=false;
+  function rubber(o,d){return o*d*.55/(d+.55*Math.abs(o));}
+  dlg.addEventListener('pointerdown',function(e){
+    if(!narrow.matches||!e.target.closest('.grab,#s-title')||e.button>0)return;
+    on=true;y0=e.clientY;t0=e.timeStamp;dy=0;hist=[[e.timeStamp,e.clientY]];dlg.classList.add('drag');try{dlg.setPointerCapture(e.pointerId);}catch(x){}
+  });
+  dlg.addEventListener('pointermove',function(e){
+    if(!on)return;var d=e.clientY-y0;dy=d>0?d:rubber(d,dlg.offsetHeight);dlg.style.setProperty('--dy',dy+'px');
+    hist.push([e.timeStamp,e.clientY]);if(hist.length>6)hist.shift();
+  });
+  function end(e){
+    if(!on)return;on=false;dlg.classList.remove('drag');moved=Math.abs(dy)>3;setTimeout(function(){moved=false;},400);
+    var a=hist[0],b=hist[hist.length-1],v=b&&a&&b[0]>a[0]?(b[1]-a[1])/(b[0]-a[0]):0;   /* px/ms sur les derniers mouvements */
+    if(dy>20&&(v>.11||dy>dlg.offsetHeight*.25)){dlg.style.setProperty('--dy',dy+'px');requestAnimationFrame(function(){dlg.style.removeProperty('--dy');dlg.close();});}
+    else dlg.style.removeProperty('--dy');   /* revient en place */
+  }
+  dlg.addEventListener('pointerup',end);dlg.addEventListener('pointercancel',end);
+  dlg.addEventListener('click',function(e){if(moved){moved=false;e.stopImmediatePropagation();}},true);   /* le lâcher d'un glissement n'est pas un clic à côté */
+})();
 $('o-fxv').addEventListener('input',function(){this.style.setProperty('--v',Math.round(this.value*100)+'%');});
 dlg.addEventListener('change',function(){if(wk&&wk._pref!==prefer()&&!LIVE.on&&!Object.keys(hqJobs).length){wk.terminate();wk=null;wkReady=null;wkInfo=null;}});   /* changement de modèle : on repart de zéro */
 /* un clic à côté de la fenêtre (gauche, droite, haut, bas) la ferme */
@@ -1095,9 +1161,11 @@ function renderList(){
         left.appendChild(el('h2',null,c.title));
         left.appendChild(el('div','meta',whenTxt(c.date)+' · '+dur(c.duration)+' · '+(c.blob.size/1048576).toFixed(1)+' Mo'+(c.hq?' · précis ✓':'')));
         row.appendChild(left);row.appendChild(el('span','chev','⌄'));card.appendChild(row);
-        var body=null;function fill(){if(!body){body=courseBody(c);card.appendChild(body);}}
-        if(c.id===openId)fill();
-        row.onclick=function(){var op=card.classList.toggle('open');row.setAttribute('aria-expanded',String(op));if(op){fill();openId=c.id;}else openId=0;};
+        var body=null,wrap=el('div','c-wrap');card.appendChild(wrap);
+        function fill(){if(!body){body=courseBody(c);wrap.appendChild(body);}}
+        if(c.id===openId)fill();else wrap.inert=true;   /* refermée : ses boutons ne prennent pas le focus */
+        row.onclick=function(){var op=!card.classList.contains('open');if(op){fill();void wrap.offsetHeight;}
+          card.classList.toggle('open',op);wrap.inert=!op;row.setAttribute('aria-expanded',String(op));openId=op?c.id:0;};
         list.appendChild(card);
         if(c.id===justAdded){justAdded=null;setTimeout(function(){try{card.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}},400);}
       });
@@ -1123,8 +1191,17 @@ function importAudio(f,last){
 function show(which){
   var st=which==='studio';document.body.classList.toggle('v-cours',!st);window.scrollTo(0,0);$('v-studio').hidden=!st;$('v-cours').hidden=st;
   $('tab-studio').setAttribute('aria-selected',String(st));$('tab-cours').setAttribute('aria-selected',String(!st));
+  tabInd(true);
   if(!st)renderList();else sizeCanvas();
 }
+function tabInd(anim){   /* la pastille blanche glisse sous l'onglet choisi */
+  var ind=document.querySelector('.tab-ind'),t=document.querySelector('.tab[aria-selected="true"]');if(!ind||!t||!t.offsetWidth)return;
+  ind.classList.toggle('still',!anim);ind.style.width=t.offsetWidth+'px';ind.style.transform='translateX('+t.offsetLeft+'px)';
+}
+tabInd(false);addEventListener('resize',function(){tabInd(false);});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){tabInd(false);});
+/* barre du haut : plus compacte dès qu'on fait défiler */
+(function(){var on=false;function f(){var v=scrollY>6;if(v!==on){on=v;document.body.classList.toggle('scrolled',v);}}addEventListener('scroll',f,{passive:true});f();})();
 $('tab-studio').addEventListener('click',function(){show('studio');});
 $('tab-cours').addEventListener('click',function(){show('cours');});
 setUI();
