@@ -539,7 +539,7 @@ body.recmode .halo i{display:none}
   var LG=window.LG=window.LG||{edge:1,rim:1,corner:.4,ripple:.2,warp:false,blur:4};
   function map(w,h,r,bezel){
     var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d'),im=g.createImageData(w,h),D=im.data;
-    var hw=w/2,hh=h/2;r=Math.min(r,hw,hh);bezel*=LG.rim;
+    var hw=w/2,hh=h/2,mn=Math.min(w,h);r=Math.min(r,hw,hh);bezel*=LG.rim;
     for(var y=0;y<h;y++)for(var x=0;x<w;x++){
       var px=x+.5-hw,py=y+.5-hh,ax=Math.abs(px),ay=Math.abs(py),qx=ax-(hw-r),qy=ay-(hh-r),d,nx=0,ny=0,crn=0;
       if(qx>0&&qy>0){var L=Math.hypot(qx,qy)||1;d=r-L;nx=qx/L*Math.sign(px);ny=qy/L*Math.sign(py);crn=1;}
@@ -547,32 +547,29 @@ body.recmode .halo i{display:none}
       var i=(y*w+x)*4,dx=0,dy=0;
       if(d<bezel&&d>-1){var t=Math.max(0,d)/bezel,m=Math.pow(1-t,2.4)*(1+crn*LG.corner);   /* bord qui courbe la lumière, plus fort dans les coins */
         var rp=Math.sin(Math.max(0,d)*.9)*LG.ripple*(1-t);   /* ondulation le long du bord */
-        dx=nx*m-ny*rp;dy=ny*m+nx*rp;}
+        dx=-nx*m-ny*rp;dy=-ny*m+nx*rp;}   /* vers l'intérieur : le bord courbe ce qui est sous le verre (aller chercher dehors faisait un bloc à bord net) */
       if(LG.warp){dx-=px/hw*.35;dy-=py/hh*.35;}   /* effet loupe : le centre grossit ce qui passe derrière */
-      dx=Math.max(-1,Math.min(1,dx));dy=Math.max(-1,Math.min(1,dy));
+      dx=Math.max(-1,Math.min(1,dx))*mn/w;dy=Math.max(-1,Math.min(1,dy))*mn/h;   /* même déplacement en pixels dans les deux sens (le filtre compte en fraction de largeur et de hauteur) */
       D[i]=128+dx*127;D[i+1]=128+dy*127;D[i+2]=128;D[i+3]=255;}
     g.putImageData(im,0,0);return c.toDataURL();
   }
   function apply(el){
+    if(el.classList.contains('head'))return;   /* le logo animé (WebGL) dans la barre du haut casse le filtre de Chrome (bloc rouge à bord net) : verre dépoli simple ici */
     var r=el.getBoundingClientRect(),w=Math.round(r.width),h=Math.round(r.height);if(w<8||h<8)return;
     var key=w+'x'+h;if(el.dataset.lg===key)return;el.dataset.lg=key;
     var rad=parseFloat(getComputedStyle(el).borderTopLeftRadius)||0,big=w*h>60000;
     var id=el.dataset.lgid||('lg'+(n++));el.dataset.lgid=id;
     var old=document.getElementById(id);if(old)old.remove();
     var f=document.createElementNS(NS,'filter');f.id=id;
-    f.setAttribute('x','0');f.setAttribute('y','0');f.setAttribute('width','1');f.setAttribute('height','1');
+    f.setAttribute('x','-0.5');f.setAttribute('y','-0.5');f.setAttribute('width','2');f.setAttribute('height','2');   /* région large : avec une région juste à la taille, Chrome coupait le haut et la gauche du verre (bord net) */
     f.setAttribute('primitiveUnits','objectBoundingBox');f.setAttribute('color-interpolation-filters','sRGB');
-    var bl=(big?1.75:.5)*LG.blur,sc=(big?55:34)*LG.edge/((w+h)/2);
-    var url=map(w,h,rad,Math.min(big?26:16,Math.min(w,h)/2));
+    var bz=Math.min(big?26:16,Math.min(w,h)/2),K=bz*LG.rim*.45*LG.edge;   /* K = déplacement maximal en pixels, plus petit que le bord : l'image ne se replie pas (sinon : bloc à bord net) */
+    var bl=(big?1.75:.5)*LG.blur,sc=2*K/Math.min(w,h);
+    var url=map(w,h,rad,bz);
     var head='<feGaussianBlur in="SourceGraphic" stdDeviation="'+(bl/w)+' '+(bl/h)+'" result="b"/>'+
       '<feImage href="'+url+'" x="0" y="0" width="1" height="1" preserveAspectRatio="none" color-interpolation-filters="sRGB" result="m"/>';
-    function dm(k,res){return '<feDisplacementMap in="b" in2="m" scale="'+(sc*k)+'" xChannelSelector="R" yChannelSelector="G" color-interpolation-filters="sRGB" result="'+res+'"/>';}
-    /* petits éléments : le bord disperse la lumière comme une vraie lentille (rouge, vert et bleu dévient un peu différemment) */
-    f.innerHTML=big?head+dm(1,'o'):head+dm(1.08,'dr')+dm(1,'dg')+dm(.92,'db')+
-      '<feColorMatrix in="dr" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>'+
-      '<feColorMatrix in="dg" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>'+
-      '<feColorMatrix in="db" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="bb"/>'+
-      '<feBlend in="r" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="bb" mode="screen"/>';
+    /* (bords irisés rouge / vert / bleu essayés le 27/10 : Chrome les peint avec une bande à bord net, retirés) */
+    f.innerHTML=head+'<feDisplacementMap in="b" in2="m" scale="'+sc+'" xChannelSelector="R" yChannelSelector="G" color-interpolation-filters="sRGB"/>';
     defs.appendChild(f);
     var v='url(#'+id+') saturate(165%) brightness(1.12)',im=new Image();
     /* n'activer la réfraction qu'une fois la carte chargée, sinon Chrome peint un bord décalé */

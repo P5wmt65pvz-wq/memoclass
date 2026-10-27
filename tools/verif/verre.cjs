@@ -20,10 +20,10 @@ const URL=process.argv[2]||'http://localhost:8131/index.html';
     const t1=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--lg-t1').trim());
     console.log(tag,'teinte max',t1);if(t1!=='0.412')errs.push(tag+': teinte pas appliquée '+t1);
     // effet loupe + ondulation : le verre est recalculé (Chrome)
-    const before=await p.evaluate(()=>document.querySelector('.head').style.backdropFilter);
+    const before=await p.evaluate(()=>document.querySelector('.tabs').style.backdropFilter);
     await p.evaluate(()=>{const i=document.getElementById('lg-ripple');i.value=.9;i.dispatchEvent(new Event('input',{bubbles:true}));const k=document.getElementById('lg-warp');k.checked=true;k.dispatchEvent(new Event('change',{bubbles:true}));});
     await p.waitForTimeout(900);
-    const lg=await p.evaluate(()=>[window.LG.ripple,window.LG.warp,document.querySelector('.head').dataset.lg]);
+    const lg=await p.evaluate(()=>[window.LG.ripple,window.LG.warp,document.querySelector('.tabs').dataset.lg]);
     console.log(tag,'ondulation/loupe',lg,'verre avant',before.slice(0,30));if(lg[0]!==.9||lg[1]!==true||!lg[2])errs.push(tag+': réfraction pas recalculée '+lg);
     await p.screenshot({path:'verre-'+tag+'-reglages.png'});
     // 🎲
