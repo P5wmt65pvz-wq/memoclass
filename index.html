@@ -39,7 +39,7 @@ body.is-rec .halo span{animation-play-state:paused}
   box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -1px 1px rgba(255,255,255,.08),inset 0 0 24px rgba(255,255,255,.04),0 14px 36px -18px rgba(0,0,0,.85)}
 /* Liquid Glass : liseré spéculaire (lumière en haut à gauche, rebond en bas à droite) */
 .glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;z-index:1;
-  background:linear-gradient(var(--la,140deg),rgba(255,255,255,.78),rgba(220,228,255,.14) 28%,rgba(255,255,255,0) 55%,rgba(200,190,255,.10) 78%,rgba(215,230,255,.38));   /* --la : la lumière suit la souris */
+  background:linear-gradient(calc(var(--la,140deg) + var(--spin,0deg)),rgba(255,255,255,.78),rgba(220,228,255,.14) 28%,rgba(255,255,255,0) 55%,rgba(200,190,255,.10) 78%,rgba(215,230,255,.38));   /* --la : la lumière suit la souris */
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 /* reflet doux dans le haut du verre */
 .glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
@@ -374,12 +374,39 @@ main.enter>:nth-child(2){animation-delay:40ms}main.enter>:nth-child(3){animation
 .toast.glass.on{animation:tin .42s var(--ease-out)}
 @keyframes tin{0%{scale:.86 .7;filter:blur(6px);opacity:.4}60%{scale:1.02 .98;filter:blur(0);opacity:1}100%{scale:1 1}}
 @media (prefers-reduced-motion:reduce){main.enter>*,.rise,.toast.glass.on{animation:none}}
+/* ===================== Liquid Glass façon iOS 26 ===================== */
+@property --spin{syntax:'<angle>';inherits:false;initial-value:0deg}
+:root{--spring:linear(0,.009,.035 2.1%,.141 4.4%,.723 12.9%,.938 16.7%,1.017 20.3%,1.061 24.1%,1.072 27.3%,1.065 31%,1.016 41.2%,.996 48.9%,.992 55.6%,1.001 77.4%,1)}   /* vrai ressort (léger dépassement), pour ce qu'on lance du doigt */
+/* petites lueurs qui flottent derrière le verre : on voit le verre les courber et les adoucir */
+.halo i{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);border-radius:50%;opacity:.75;
+  background:radial-gradient(circle,rgba(255,214,190,.6),rgba(255,95,70,.22) 42%,transparent 70%);animation:bokeh var(--t) ease-in-out var(--dl) infinite alternate}
+@keyframes bokeh{to{translate:var(--mx) var(--my)}}
+body.is-rec .halo i{animation-play-state:paused}
+body.recmode .halo i{display:none}
+/* un reflet fait le tour du verre quand il apparaît */
+.glint::before{animation:glint 1.1s var(--ease-out)}
+@keyframes glint{from{--spin:-360deg}to{--spin:0deg}}
+/* onglets : on attrape la pastille, elle devient une loupe de verre qui grossit ce qu'il y a dessous */
+.tabs{touch-action:pan-y}
+.tabs.drag .tab-ind{z-index:3!important;transition:scale .3s var(--ease-out),background .25s,box-shadow .25s;scale:1.12 1.24;background:rgba(255,255,255,.1);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6),inset 0 1.5px 2px rgba(255,255,255,.75),inset 0 -2px 6px rgba(255,255,255,.15),0 12px 28px -8px rgba(0,0,0,.65);
+  -webkit-backdrop-filter:brightness(1.18) saturate(1.5);backdrop-filter:var(--lens,brightness(1.18)) saturate(1.5)}
+.tabs.drag .tab{color:#fff}
+.tab-ind.spring{transition:transform .7s var(--spring),width .55s var(--spring),scale .45s var(--spring),background .3s,box-shadow .3s}
+/* boutons en verre élastiques : ils s'étirent vers le doigt, puis reviennent comme un ressort */
+.stretchy{transition:translate .6s var(--spring),scale .6s var(--spring),transform .16s var(--ease-out),background-color .25s,color .25s,border-color .2s,opacity .16s,width .3s var(--ease-out),height .3s var(--ease-out)}   /* reprend aussi les transitions d'appui (.press) et de la barre compacte */
+.stretchy.pull{transition:translate .08s linear,scale .08s linear,transform .08s var(--ease-out),opacity .08s,background-color .25s,color .25s}
+@media (prefers-reduced-motion:reduce){.halo i,.glint::before{animation:none}.tabs.drag .tab-ind{scale:1}}
 </style>
 </head>
 <body>
 <svg id="lg-defs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs></defs></svg>
 <canvas id="oracle" aria-hidden="true"></canvas>
-<div class="halo" aria-hidden="true"><span></span><span></span><span></span></div>
+<div class="halo" aria-hidden="true"><span></span><span></span><span></span>
+  <i style="--x:12%;--y:18%;--s:90px;--t:19s;--dl:-3s;--mx:22vw;--my:9vh"></i><i style="--x:70%;--y:12%;--s:60px;--t:23s;--dl:-9s;--mx:-18vw;--my:14vh"></i>
+  <i style="--x:40%;--y:46%;--s:120px;--t:27s;--dl:-14s;--mx:16vw;--my:-12vh"></i><i style="--x:82%;--y:58%;--s:70px;--t:21s;--dl:-6s;--mx:-24vw;--my:-8vh"></i>
+  <i style="--x:20%;--y:72%;--s:100px;--t:25s;--dl:-11s;--mx:20vw;--my:-16vh"></i><i style="--x:58%;--y:86%;--s:54px;--t:17s;--dl:-2s;--mx:-12vw;--my:-20vh"></i>
+  <i style="--x:6%;--y:44%;--s:46px;--t:15s;--dl:-8s;--mx:30vw;--my:6vh"></i><i style="--x:90%;--y:32%;--s:84px;--t:29s;--dl:-17s;--mx:-28vw;--my:18vh"></i></div>
 <div class="wrap">
   <header>
     <div class="head glass">
@@ -512,7 +539,7 @@ main.enter>:nth-child(2){animation-delay:40ms}main.enter>:nth-child(3){animation
   var LG=window.LG=window.LG||{edge:1,rim:1,corner:.4,ripple:.2,warp:false,blur:4};
   function map(w,h,r,bezel){
     var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d'),im=g.createImageData(w,h),D=im.data;
-    var hw=w/2,hh=h/2;r=Math.min(r,hw,hh);bezel*=LG.rim;
+    var hw=w/2,hh=h/2,mn=Math.min(w,h);r=Math.min(r,hw,hh);bezel*=LG.rim;
     for(var y=0;y<h;y++)for(var x=0;x<w;x++){
       var px=x+.5-hw,py=y+.5-hh,ax=Math.abs(px),ay=Math.abs(py),qx=ax-(hw-r),qy=ay-(hh-r),d,nx=0,ny=0,crn=0;
       if(qx>0&&qy>0){var L=Math.hypot(qx,qy)||1;d=r-L;nx=qx/L*Math.sign(px);ny=qy/L*Math.sign(py);crn=1;}
@@ -520,26 +547,29 @@ main.enter>:nth-child(2){animation-delay:40ms}main.enter>:nth-child(3){animation
       var i=(y*w+x)*4,dx=0,dy=0;
       if(d<bezel&&d>-1){var t=Math.max(0,d)/bezel,m=Math.pow(1-t,2.4)*(1+crn*LG.corner);   /* bord qui courbe la lumière, plus fort dans les coins */
         var rp=Math.sin(Math.max(0,d)*.9)*LG.ripple*(1-t);   /* ondulation le long du bord */
-        dx=nx*m-ny*rp;dy=ny*m+nx*rp;}
+        dx=-nx*m-ny*rp;dy=-ny*m+nx*rp;}   /* vers l'intérieur : le bord courbe ce qui est sous le verre (aller chercher dehors faisait un bloc à bord net) */
       if(LG.warp){dx-=px/hw*.35;dy-=py/hh*.35;}   /* effet loupe : le centre grossit ce qui passe derrière */
-      dx=Math.max(-1,Math.min(1,dx));dy=Math.max(-1,Math.min(1,dy));
+      dx=Math.max(-1,Math.min(1,dx))*mn/w;dy=Math.max(-1,Math.min(1,dy))*mn/h;   /* même déplacement en pixels dans les deux sens (le filtre compte en fraction de largeur et de hauteur) */
       D[i]=128+dx*127;D[i+1]=128+dy*127;D[i+2]=128;D[i+3]=255;}
     g.putImageData(im,0,0);return c.toDataURL();
   }
   function apply(el){
+    if(el.classList.contains('head'))return;   /* le logo animé (WebGL) dans la barre du haut casse le filtre de Chrome (bloc rouge à bord net) : verre dépoli simple ici */
     var r=el.getBoundingClientRect(),w=Math.round(r.width),h=Math.round(r.height);if(w<8||h<8)return;
     var key=w+'x'+h;if(el.dataset.lg===key)return;el.dataset.lg=key;
     var rad=parseFloat(getComputedStyle(el).borderTopLeftRadius)||0,big=w*h>60000;
     var id=el.dataset.lgid||('lg'+(n++));el.dataset.lgid=id;
     var old=document.getElementById(id);if(old)old.remove();
     var f=document.createElementNS(NS,'filter');f.id=id;
-    f.setAttribute('x','0');f.setAttribute('y','0');f.setAttribute('width','1');f.setAttribute('height','1');
+    f.setAttribute('x','-0.5');f.setAttribute('y','-0.5');f.setAttribute('width','2');f.setAttribute('height','2');   /* région large : avec une région juste à la taille, Chrome coupait le haut et la gauche du verre (bord net) */
     f.setAttribute('primitiveUnits','objectBoundingBox');f.setAttribute('color-interpolation-filters','sRGB');
-    var bl=(big?1.75:.5)*LG.blur,sc=(big?55:34)*LG.edge/((w+h)/2);
-    var url=map(w,h,rad,Math.min(big?26:16,Math.min(w,h)/2));
-    f.innerHTML='<feGaussianBlur in="SourceGraphic" stdDeviation="'+(bl/w)+' '+(bl/h)+'" result="b"/>'+
-      '<feImage href="'+url+'" x="0" y="0" width="1" height="1" preserveAspectRatio="none" color-interpolation-filters="sRGB" result="m"/>'+
-      '<feDisplacementMap in="b" in2="m" scale="'+sc+'" xChannelSelector="R" yChannelSelector="G" color-interpolation-filters="sRGB"/>';
+    var bz=Math.min(big?26:16,Math.min(w,h)/2),K=bz*LG.rim*.45*LG.edge;   /* K = déplacement maximal en pixels, plus petit que le bord : l'image ne se replie pas (sinon : bloc à bord net) */
+    var bl=(big?1.75:.5)*LG.blur,sc=2*K/Math.min(w,h);
+    var url=map(w,h,rad,bz);
+    var head='<feGaussianBlur in="SourceGraphic" stdDeviation="'+(bl/w)+' '+(bl/h)+'" result="b"/>'+
+      '<feImage href="'+url+'" x="0" y="0" width="1" height="1" preserveAspectRatio="none" color-interpolation-filters="sRGB" result="m"/>';
+    /* (bords irisés rouge / vert / bleu essayés le 27/10 : Chrome les peint avec une bande à bord net, retirés) */
+    f.innerHTML=head+'<feDisplacementMap in="b" in2="m" scale="'+sc+'" xChannelSelector="R" yChannelSelector="G" color-interpolation-filters="sRGB"/>';
     defs.appendChild(f);
     var v='url(#'+id+') saturate(165%) brightness(1.12)',im=new Image();
     /* n'activer la réfraction qu'une fois la carte chargée, sinon Chrome peint un bord décalé */
@@ -586,7 +616,20 @@ dlg.addEventListener('change',function(){
   var r=dlg.querySelector('input[name=q]:checked');S.q=r?r.value:'256';
   S.files=$('o-files').checked;S.sfx=$('o-sfx').checked;S.fxv=parseFloat($('o-fxv').value);S.hq=$('o-hq').checked;S.live=$('o-live').checked;S.light=$('o-light').checked;S.boost=$('o-boost').checked;S.noise=$('o-noise').checked;S.echo=$('o-echo').checked;S.agc=$('o-agc').checked;saveS();paintS();
 });
-$('open-settings').addEventListener('click',function(){dlg.style.removeProperty('--dy');dlg.showModal();document.body.classList.add('sheet');});
+$('open-settings').addEventListener('click',function(){
+  dlg.style.removeProperty('--dy');dlg.showModal();document.body.classList.add('sheet');
+  dlg.classList.remove('glint');void dlg.offsetWidth;dlg.classList.add('glint');
+  /* ordinateur : la fenêtre sort du bouton ⚙️ en se déployant, comme une goutte de verre (iOS 26) */
+  if(!matchMedia('(max-width:600px)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&dlg.animate){
+    var g=this.getBoundingClientRect(),d=dlg.getBoundingClientRect();
+    if(d.width&&d.height){
+      var tx=(g.left+g.width/2)-(d.left+d.width/2),ty=(g.top+g.height/2)-(d.top+d.height/2);
+      dlg.animate([{transform:'translate('+tx+'px,'+ty+'px) scale('+(g.width/d.width)+','+(g.height/d.height)+')',borderRadius:'40%',opacity:.4},
+        {opacity:1,offset:.35},{transform:'none',borderRadius:'26px',opacity:1}],{duration:560,easing:'cubic-bezier(.32,.72,0,1)'});
+      var form=dlg.querySelector('.dlg');if(form)form.animate([{opacity:0,filter:'blur(6px)'},{opacity:0,filter:'blur(6px)',offset:.3},{opacity:1,filter:'blur(0)'}],{duration:560,easing:'ease-out'});
+    }
+  }
+});
 dlg.addEventListener('close',function(){document.body.classList.remove('sheet');});
 /* téléphone : on ferme la feuille en la tirant vers le bas par sa poignée ou son titre ; elle suit le doigt 1:1,
    résiste vers le haut (élastique), et se ferme si on la lance assez vite ou assez loin (règles d'Apple) */
@@ -627,7 +670,7 @@ paintS();
 function ext(m){return /webm/.test(m)?'webm':/ogg/.test(m)?'ogg':/mp4|m4a/.test(m)?'m4a':/mpeg|mp3/.test(m)?'mp3':/wav/.test(m)?'wav':/aac/.test(m)?'aac':/flac/.test(m)?'flac':'audio';}
 
 /* ---------- toast ---------- */
-var tt;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on');},3200);}
+var tt;function toast(m){var t=$('toast');t.textContent=m;t.classList.remove('glint');void t.offsetWidth;t.classList.add('on','glint');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on');},3200);}
 
 /* ---------- base locale (IndexedDB) ---------- */
 var dbp=null;
@@ -1277,6 +1320,64 @@ function tabInd(anim){   /* la pastille blanche glisse sous l'onglet choisi */
   if(anim&&from&&from!==ind.style.transform){ind.classList.remove('stretch');void ind.offsetWidth;ind.classList.add('stretch');}
 }
 tabInd(false);addEventListener('resize',function(){tabInd(false);});
+/* ---------- onglets façon iOS 26 : on attrape la pastille au doigt ----------
+   Elle grossit et devient une loupe de verre (sur Chrome : elle grossit vraiment les mots dessous),
+   suit le doigt 1:1, résiste au bout (élastique), puis se pose sur l'onglet visé (vitesse projetée) avec un ressort. */
+(function(){
+  var tabs=document.querySelector('.tabs'),ind=document.querySelector('.tab-ind');if(!tabs||!ind)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(window.chrome){   /* loupe : filtre de déplacement qui tire vers le centre */
+    var c=document.createElement('canvas'),W=128,H=48;c.width=W;c.height=H;var g=c.getContext('2d'),im=g.createImageData(W,H),D=im.data;
+    for(var y=0;y<H;y++)for(var x=0;x<W;x++){var u=(x+.5)/W*2-1,v=(y+.5)/H*2-1,e=Math.max(Math.abs(u),Math.abs(v)),k=1-Math.pow(e,4)*.6,i=(y*W+x)*4;
+      D[i]=128-u*k*110;D[i+1]=128-v*k*110;D[i+2]=128;D[i+3]=255;}
+    g.putImageData(im,0,0);
+    var defs=document.querySelector('#lg-defs defs');
+    if(defs){var f=document.createElementNS('http://www.w3.org/2000/svg','filter');f.id='lens';f.setAttribute('x','0');f.setAttribute('y','0');f.setAttribute('width','1');f.setAttribute('height','1');
+      f.setAttribute('primitiveUnits','objectBoundingBox');f.setAttribute('color-interpolation-filters','sRGB');
+      f.innerHTML='<feImage href="'+c.toDataURL()+'" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale=".42" xChannelSelector="R" yChannelSelector="G"/>';
+      defs.appendChild(f);tabs.style.setProperty('--lens','url(#lens) brightness(1.15)');}
+  }
+  var on=false,moved=false,x0=0,b0=0,cur=0,hist=[],block=false;
+  function L(){return [].slice.call(tabs.querySelectorAll('.tab'));}
+  function rub(o){return o*60*.55/(60+.55*o);}
+  tabs.addEventListener('pointerdown',function(e){
+    if(e.button>0)return;var t=e.target.closest('.tab');if(!t||t.getAttribute('aria-selected')!=='true')return;   /* on saisit la pastille là où elle est */
+    on=true;moved=false;x0=e.clientX;b0=t.offsetLeft;cur=b0;hist=[[e.timeStamp,e.clientX]];
+  });
+  tabs.addEventListener('pointermove',function(e){
+    if(!on)return;var dx=e.clientX-x0;
+    if(!moved){if(Math.abs(dx)<6)return;moved=true;ind.classList.remove('spring','stretch','still');tabs.classList.add('drag');try{tabs.setPointerCapture(e.pointerId);}catch(_){}}
+    var l=L(),min=l[0].offsetLeft,last=l[l.length-1],max=last.offsetLeft+last.offsetWidth-ind.offsetWidth,x=b0+dx;
+    if(x<min)x=min-rub(min-x);if(x>max)x=max+rub(x-max);
+    cur=x;ind.style.transform='translateX('+x+'px)';hist.push([e.timeStamp,e.clientX]);if(hist.length>6)hist.shift();
+  });
+  function end(){
+    if(!on)return;on=false;if(!moved)return;
+    var a=hist[0],b=hist[hist.length-1],v=b&&a&&b[0]>a[0]?(b[1]-a[1])/(b[0]-a[0]):0,proj=cur+ind.offsetWidth/2+v*140;   /* là où le geste emmène la pastille */
+    var best=null,bd=1e9;L().forEach(function(t){var d=Math.abs(t.offsetLeft+t.offsetWidth/2-proj);if(d<bd){bd=d;best=t;}});
+    tabs.classList.remove('drag');ind.classList.add('spring');
+    if(best&&best.getAttribute('aria-selected')!=='true')best.click();else tabInd(true);
+    ind.classList.remove('stretch');block=true;setTimeout(function(){block=false;},350);setTimeout(function(){ind.classList.remove('spring');},800);
+  }
+  tabs.addEventListener('pointerup',end);tabs.addEventListener('pointercancel',end);
+  tabs.addEventListener('click',function(e){if(block&&e.isTrusted){e.stopImmediatePropagation();e.preventDefault();}},true);   /* le lâcher n'est pas un clic */
+})();
+/* ---------- boutons en verre élastiques : ils s'étirent vers le doigt pendant l'appui ---------- */
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var el=null,cx=0,cy=0;
+  document.addEventListener('pointerdown',function(e){
+    var t=e.target.closest&&e.target.closest('.btn,.icon-btn,.chip-btn');if(!t||t.disabled)return;
+    var r=t.getBoundingClientRect();el=t;cx=r.left+r.width/2;cy=r.top+r.height/2;t.classList.add('stretchy','pull');
+  });
+  document.addEventListener('pointermove',function(e){
+    if(!el)return;var dx=e.clientX-cx,dy=e.clientY-cy,ax=Math.min(Math.abs(dx),80),ay=Math.min(Math.abs(dy),80);
+    el.style.translate=(Math.sign(dx)*ax*.1).toFixed(1)+'px '+(Math.sign(dy)*ay*.1).toFixed(1)+'px';
+    el.style.scale=(1+ax/900-ay/1800).toFixed(3)+' '+(1+ay/900-ax/1800).toFixed(3);   /* s'allonge dans le sens du doigt, s'affine dans l'autre */
+  },{passive:true});
+  function rel(){if(!el)return;var t=el;el=null;t.classList.remove('pull');t.style.translate='';t.style.scale='';}   /* revient avec le ressort */
+  document.addEventListener('pointerup',rel,true);document.addEventListener('pointercancel',rel,true);
+})();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){tabInd(false);});
 /* barre du haut : plus compacte dès qu'on fait défiler */
 (function(){var on=false;function f(){var v=scrollY>6;if(v!==on){on=v;document.body.classList.toggle('scrolled',v);}}addEventListener('scroll',f,{passive:true});f();})();
