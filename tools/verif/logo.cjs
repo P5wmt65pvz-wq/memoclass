@@ -10,7 +10,7 @@ const URL='http://localhost:8131/index.html';
     await p.goto(URL);
     await p.waitForFunction("document.querySelector('.logo').classList.contains('metal')",null,{timeout:40000}).catch(()=>errs.push(w+': logo métal absent'));
     const r=await p.evaluate(()=>{const a=document.querySelector('.logo .lm').getBoundingClientRect(),m=document.querySelector('.logo svg.mark').getBoundingClientRect();return [Math.round(a.x-m.x),Math.round(a.y-m.y),Math.round(a.width),Math.round(a.height)];});
-    console.log(w,'logo métal décalage/taille',r);await p.locator('.logo').screenshot({path:'logo-'+w+'.png'});if(r.join()!=='0,0,34,34')errs.push(w+': logo métal mal placé '+r);
+    console.log(w,'logo métal décalage/taille',r);await p.locator('.logo').screenshot({path:'test-logo-'+w+'.png'});if(r.join()!=='0,0,34,34')errs.push(w+': logo métal mal placé '+r);
     // appui : rétrécit dès l'appui
     const bt=p.locator('#open-settings');const bb=await bt.boundingBox();
     await p.mouse.move(bb.x+bb.width/2,bb.y+bb.height/2);await p.mouse.down();await p.waitForTimeout(400);   // carte graphique simulée : les images sont lentes

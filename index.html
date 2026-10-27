@@ -35,7 +35,7 @@ body.is-rec .halo span{animation-play-state:paused}
 .halo span:nth-child(2){width:60vmax;height:60vmax;right:-30vmax;bottom:-28vmax;background:radial-gradient(circle,rgba(255,120,70,.50),transparent 62%);animation-duration:32s}
 .halo span:nth-child(3){width:45vmax;height:45vmax;right:-14vmax;top:24vmax;background:radial-gradient(circle,rgba(200,30,20,.35),transparent 62%);animation-duration:38s}
 @keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(8vmax,6vmax) scale(1.15)}100%{transform:translate(-4vmax,10vmax) scale(1.05)}}
-.glass{position:relative;isolation:isolate;background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.04) 60%);border:1px solid rgba(255,255,255,.08);-webkit-backdrop-filter:blur(16px) saturate(180%) brightness(1.06);backdrop-filter:blur(16px) saturate(180%) brightness(1.06);
+.glass{position:relative;isolation:isolate;background:linear-gradient(160deg,rgba(255,255,255,var(--lg-t1,.012)),rgba(255,255,255,var(--lg-t2,.004)) 60%);border:1px solid rgba(255,255,255,.08);-webkit-backdrop-filter:blur(var(--lg-blur,4px)) saturate(180%) brightness(1.06);backdrop-filter:blur(var(--lg-blur,4px)) saturate(180%) brightness(1.06);   /* teinte et flou : réglages « Verre liquide » (par défaut : glace transparente) */
   box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -1px 1px rgba(255,255,255,.08),inset 0 0 24px rgba(255,255,255,.04),0 14px 36px -18px rgba(0,0,0,.85)}
 /* Liquid Glass : liseré spéculaire (lumière en haut à gauche, rebond en bas à droite) */
 .glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;z-index:1;
@@ -360,6 +360,20 @@ p,.tip,.consent,.notes,small{text-wrap:pretty}
 #settings.glass::after{z-index:0}
 @media (prefers-reduced-motion:reduce){.tab-ind.stretch{animation:none}.glow::before,.lit>.glow::before{transition:none;scale:1}.sw input:active::after,.sw input[type=range]:active::-webkit-slider-thumb{scale:1}}
 @media (prefers-reduced-transparency:reduce){#settings.glass{background:#141417}.glow{display:none}}
+/* panneau « Verre liquide » */
+.lg-btns{display:flex;gap:8px;flex-wrap:wrap}.lg-btns .btn{flex:1;justify-content:center}
+/* ---------- animations façon Apple ---------- */
+/* passage Studio ↔ Mes cours : fondu, petit glissement et flou qui se dissipe */
+main.enter>*{animation:vin .34s var(--ease-out) both}   /* sur les enfants : un fondu sur <main> lui-même couperait le verre (le flou ne verrait plus le fond) */
+main.enter>:nth-child(2){animation-delay:40ms}main.enter>:nth-child(3){animation-delay:80ms}main.enter>:nth-child(n+4){animation-delay:110ms}
+@keyframes vin{from{opacity:0;translate:0 10px}}
+/* Mes cours : les cartes arrivent l'une après l'autre */
+.rise{animation:rise .42s var(--ease-out) both;animation-delay:var(--d,0ms)}
+@keyframes rise{from{opacity:0;translate:0 14px;scale:.98}}
+/* notification : sort comme une goutte de verre */
+.toast.glass.on{animation:tin .42s var(--ease-out)}
+@keyframes tin{0%{scale:.86 .7;filter:blur(6px);opacity:.4}60%{scale:1.02 .98;filter:blur(0);opacity:1}100%{scale:1 1}}
+@media (prefers-reduced-motion:reduce){main.enter>*,.rise,.toast.glass.on{animation:none}}
 </style>
 </head>
 <body>
@@ -443,6 +457,16 @@ p,.tip,.consent,.notes,small{text-wrap:pretty}
     <div class="sw"><span><b>Transcription précise automatique</b><small>Affine le texte après chaque cours (environ 2 Go, ou 0,8 Go en mode léger, téléchargé une seule fois)</small></span><input type="checkbox" id="o-hq" checked aria-label="Transcription précise automatique"></div>
     <div class="sw"><span><b>Transcription précise en direct</b><small>Pendant le cours, avec la carte graphique de ton ordinateur (Mac récent, Chrome)</small></span><input type="checkbox" id="o-live" checked aria-label="Transcription précise en direct"></div>
     <div class="sw"><span><b>Mode léger</b><small>Modèle Whisper (0,8 Go) au lieu de Cohere Transcribe (2 Go) : un peu moins précis, plus rapide à télécharger</small></span><input type="checkbox" id="o-light" aria-label="Mode léger"></div>
+    <h3>Verre liquide</h3>
+    <p class="tip">Règle le verre du site en direct, comme une vraie vitre. Teinte au minimum = glace transparente. Sur Safari, seuls la teinte et le flou changent.</p>
+    <label class="sw"><span><b>Teinte</b><small>À gauche : verre clair comme de la glace</small></span><input type="range" id="lg-tint" min="0" max="0.8" step="0.02" value="0" aria-label="Teinte du verre"></label>
+    <label class="sw"><span><b>Flou</b><small>Ce qui passe derrière le verre</small></span><input type="range" id="lg-blur" min="0" max="16" step="0.5" value="4" aria-label="Flou du verre"></label>
+    <label class="sw"><span><b>Réfraction des bords</b><small>Les bords courbent la lumière</small></span><input type="range" id="lg-edge" min="0" max="2.5" step="0.05" value="1" aria-label="Réfraction des bords"></label>
+    <label class="sw"><span><b>Largeur du bord</b><small>Épaisseur de la partie bombée</small></span><input type="range" id="lg-rim" min="0.3" max="2.5" step="0.05" value="1" aria-label="Largeur du bord"></label>
+    <label class="sw"><span><b>Coins bombés</b><small>Plus de reflet dans les coins</small></span><input type="range" id="lg-corner" min="0" max="2" step="0.05" value="0.4" aria-label="Coins bombés"></label>
+    <label class="sw"><span><b>Ondulation</b><small>Petites vagues le long du bord</small></span><input type="range" id="lg-ripple" min="0" max="1" step="0.02" value="0.2" aria-label="Ondulation"></label>
+    <div class="sw"><span><b>Effet loupe</b><small>Le centre du verre grossit ce qui est derrière</small></span><input type="checkbox" id="lg-warp" aria-label="Effet loupe"></div>
+    <div class="lg-btns"><button class="btn" type="button" id="lg-rand">🎲 Au hasard</button><button class="btn" type="button" id="lg-reset">Valeurs d'origine</button></div>
     <h3>Traitement audio</h3>
     <div class="sw"><span><b>Voix du prof renforcée</b><small>Coupe le grondement, rapproche une voix lointaine</small></span><input type="checkbox" id="o-boost" checked aria-label="Voix du prof renforcée"></div>
     <div class="sw"><span><b>Suppression du bruit</b><small>Filtre le bruit de fond de la salle</small></span><input type="checkbox" id="o-noise" checked aria-label="Suppression du bruit"></div>
@@ -484,15 +508,21 @@ p,.tip,.consent,.notes,small{text-wrap:pretty}
   var ok=!!window.chrome&&!/Firefox/.test(navigator.userAgent)&&!matchMedia('(prefers-reduced-transparency: reduce)').matches;
   if(!ok)return;
   var NS='http://www.w3.org/2000/svg',defs=document.querySelector('#lg-defs defs'),n=0;
+  /* réglages du verre (panneau « Verre liquide » des Réglages), mêmes effets que liquid-glass-js : bord, liseré, coins, ondulation, loupe */
+  var LG=window.LG=window.LG||{edge:1,rim:1,corner:.4,ripple:.2,warp:false,blur:4};
   function map(w,h,r,bezel){
     var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d'),im=g.createImageData(w,h),D=im.data;
-    var hw=w/2,hh=h/2;r=Math.min(r,hw,hh);
+    var hw=w/2,hh=h/2;r=Math.min(r,hw,hh);bezel*=LG.rim;
     for(var y=0;y<h;y++)for(var x=0;x<w;x++){
-      var px=x+.5-hw,py=y+.5-hh,ax=Math.abs(px),ay=Math.abs(py),qx=ax-(hw-r),qy=ay-(hh-r),d,nx=0,ny=0;
-      if(qx>0&&qy>0){var L=Math.hypot(qx,qy)||1;d=r-L;nx=qx/L*Math.sign(px);ny=qy/L*Math.sign(py);}
+      var px=x+.5-hw,py=y+.5-hh,ax=Math.abs(px),ay=Math.abs(py),qx=ax-(hw-r),qy=ay-(hh-r),d,nx=0,ny=0,crn=0;
+      if(qx>0&&qy>0){var L=Math.hypot(qx,qy)||1;d=r-L;nx=qx/L*Math.sign(px);ny=qy/L*Math.sign(py);crn=1;}
       else if(hw-ax<hh-ay){d=hw-ax;nx=Math.sign(px);}else{d=hh-ay;ny=Math.sign(py);}
       var i=(y*w+x)*4,dx=0,dy=0;
-      if(d<bezel&&d>-1){var t=Math.max(0,d)/bezel,m=Math.pow(1-t,2.4);dx=nx*m;dy=ny*m;}
+      if(d<bezel&&d>-1){var t=Math.max(0,d)/bezel,m=Math.pow(1-t,2.4)*(1+crn*LG.corner);   /* bord qui courbe la lumière, plus fort dans les coins */
+        var rp=Math.sin(Math.max(0,d)*.9)*LG.ripple*(1-t);   /* ondulation le long du bord */
+        dx=nx*m-ny*rp;dy=ny*m+nx*rp;}
+      if(LG.warp){dx-=px/hw*.35;dy-=py/hh*.35;}   /* effet loupe : le centre grossit ce qui passe derrière */
+      dx=Math.max(-1,Math.min(1,dx));dy=Math.max(-1,Math.min(1,dy));
       D[i]=128+dx*127;D[i+1]=128+dy*127;D[i+2]=128;D[i+3]=255;}
     g.putImageData(im,0,0);return c.toDataURL();
   }
@@ -505,7 +535,7 @@ p,.tip,.consent,.notes,small{text-wrap:pretty}
     var f=document.createElementNS(NS,'filter');f.id=id;
     f.setAttribute('x','0');f.setAttribute('y','0');f.setAttribute('width','1');f.setAttribute('height','1');
     f.setAttribute('primitiveUnits','objectBoundingBox');f.setAttribute('color-interpolation-filters','sRGB');
-    var bl=big?7:2,sc=(big?55:34)/((w+h)/2);
+    var bl=(big?1.75:.5)*LG.blur,sc=(big?55:34)*LG.edge/((w+h)/2);
     var url=map(w,h,rad,Math.min(big?26:16,Math.min(w,h)/2));
     f.innerHTML='<feGaussianBlur in="SourceGraphic" stdDeviation="'+(bl/w)+' '+(bl/h)+'" result="b"/>'+
       '<feImage href="'+url+'" x="0" y="0" width="1" height="1" preserveAspectRatio="none" color-interpolation-filters="sRGB" result="m"/>'+
@@ -520,6 +550,7 @@ p,.tip,.consent,.notes,small{text-wrap:pretty}
   function watch(){[].forEach.call(document.querySelectorAll('.glass'),function(el){if(!el.dataset.lgw){el.dataset.lgw=1;ro.observe(el);}});all();}
   var pend=0;new MutationObserver(function(ms){if(pend)return;for(var i=0;i<ms.length;i++){for(var j=0;j<ms[i].addedNodes.length;j++){var nd=ms[i].addedNodes[j];if(nd.nodeType===1&&(nd.classList.contains('glass')||nd.querySelector&&nd.querySelector('.glass'))){pend=requestAnimationFrame(function(){pend=0;watch();});return;}}}}).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('load',watch);watch();
+  var rq=0;window.lgRefresh=function(){clearTimeout(rq);rq=setTimeout(function(){[].forEach.call(document.querySelectorAll('.glass'),function(el){delete el.dataset.lg;});all();},90);};   /* après un réglage : on recalcule tout le verre */
 })();
 (function(){
 'use strict';
@@ -527,9 +558,20 @@ var $=function(id){return document.getElementById(id);};
 /* ---------- format ---------- */
 var MIME=['audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/webm']   /* M4A d'abord : le fichier s'ouvre partout (QuickTime, Musique, iPhone…) au lieu d'un .webm que le Mac envoie vers un autre navigateur */.filter(function(m){return window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m);})[0]||'';
 /* ---------- réglages ---------- */
-var SKEY='memovox.reglages',S={q:'256',boost:true,noise:true,echo:true,agc:false,files:false,sfx:true,fxv:.7,hq:true,live:true,light:false,v2:true,v3:true};
+var LG0={tint:0,blur:4,edge:1,rim:1,corner:.4,ripple:.2,warp:false};   /* verre liquide : teinte au minimum = glace transparente */
+var SKEY='memovox.reglages',S={q:'256',boost:true,noise:true,echo:true,agc:false,files:false,sfx:true,fxv:.7,hq:true,live:true,light:false,v2:true,v3:true,lg:Object.assign({},LG0)};
 try{var sv=JSON.parse(localStorage.getItem(SKEY));if(sv){if(!sv.v2&&sv.q==='160')sv.q='256';sv.v2=true;if(!sv.v3){sv.files=false;sv.v3=true;}   /* plus de copie dans Téléchargements par défaut */for(var k in S)if(k in sv)S[k]=sv[k];}}catch(e){}
 function saveS(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
+S.lg=Object.assign({},LG0,S.lg||{});
+/* ---------- verre liquide : réglages en direct (comme le panneau de liquid-glass-js) ---------- */
+var LGF=[['tint','Teinte'],['blur','Flou'],['edge','Réfraction des bords'],['rim','Largeur du bord'],['corner','Coins bombés'],['ripple','Ondulation']];
+function lgApply(){
+  var L=S.lg,R=document.documentElement.style;
+  R.setProperty('--lg-t1',(.012+L.tint*.5).toFixed(3));R.setProperty('--lg-t2',(.004+L.tint*.25).toFixed(3));R.setProperty('--lg-blur',L.blur+'px');
+  if(window.LG){Object.assign(window.LG,{edge:L.edge,rim:L.rim,corner:L.corner,ripple:L.ripple,warp:L.warp,blur:L.blur});if(window.lgRefresh)window.lgRefresh();}
+}
+function lgPaint(){LGF.forEach(function(f){var i=$('lg-'+f[0]);if(!i)return;i.value=S.lg[f[0]];i.style.setProperty('--v',Math.round((S.lg[f[0]]-i.min)/(i.max-i.min)*100)+'%');});var w=$('lg-warp');if(w)w.checked=!!S.lg.warp;}
+lgApply();
 var dlg=$('settings');
 function paintS(){
   [].forEach.call(document.querySelectorAll('input[name=q]'),function(r){r.checked=r.value===S.q;});
@@ -569,6 +611,13 @@ dlg.addEventListener('close',function(){document.body.classList.remove('sheet');
   dlg.addEventListener('click',function(e){if(moved){moved=false;e.stopImmediatePropagation();}},true);   /* le lâcher d'un glissement n'est pas un clic à côté */
 })();
 $('o-fxv').addEventListener('input',function(){this.style.setProperty('--v',Math.round(this.value*100)+'%');});
+LGF.forEach(function(f){$('lg-'+f[0]).addEventListener('input',function(){S.lg[f[0]]=parseFloat(this.value);lgPaint();lgApply();saveS();});});
+$('lg-warp').addEventListener('change',function(){S.lg.warp=this.checked;lgApply();saveS();});
+$('lg-rand').addEventListener('click',function(){   /* 🎲 comme dans liquid-glass-js : des valeurs au hasard, dans des limites jolies */
+  var r=Math.random;S.lg={tint:+(r()*.3).toFixed(2),blur:+(1+r()*9).toFixed(1),edge:+(.5+r()*1.6).toFixed(2),rim:+(.6+r()*1.4).toFixed(2),corner:+(r()*1.4).toFixed(2),ripple:+(r()*.7).toFixed(2),warp:r()<.3};
+  lgPaint();lgApply();saveS();toast('🎲 Nouveau verre');});
+$('lg-reset').addEventListener('click',function(){S.lg=Object.assign({},LG0);lgPaint();lgApply();saveS();toast('Verre d\'origine : glace transparente');});
+lgPaint();
 dlg.addEventListener('change',function(){if(wk&&wk._pref!==prefer()&&!LIVE.on&&!Object.keys(hqJobs).length){wk.terminate();wk=null;wkReady=null;wkInfo=null;}});   /* changement de modèle : on repart de zéro */
 /* un clic à côté de la fenêtre (gauche, droite, haut, bas) la ferme */
 dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close();});
@@ -1159,9 +1208,11 @@ function courseBody(c){
     c.docs.forEach(function(f){var fu=URL.createObjectURL(f.blob);urls.push(fu);var a=el('a','file',f.name);a.href=fu;a.download=f.name;fl.appendChild(a);});dd.appendChild(fl);box.appendChild(dd);}
   return box;
 }
+var stag=false;   /* cartes en cascade seulement à l'ouverture de Mes cours, pas à chaque recherche */
 function renderList(){
   urls.forEach(URL.revokeObjectURL);urls=[];
   allCours().then(function(all){
+    var sg=stag,ni=0;stag=false;
     var list=$('list'),chips=$('lib-chips');list.innerHTML='';chips.innerHTML='';
     $('lib-bar').hidden=!all.length;
     if(!all.length){list.innerHTML='<div class="card empty glass"><b>Aucun cours enregistré</b>Tes cours apparaîtront ici. Va dans le Studio pour lancer ton premier enregistrement.</div>';return;}
@@ -1191,6 +1242,7 @@ function renderList(){
         if(c.id===openId)fill();else wrap.inert=true;   /* refermée : ses boutons ne prennent pas le focus */
         row.onclick=function(){var op=!card.classList.contains('open');if(op){fill();void wrap.offsetHeight;}
           card.classList.toggle('open',op);wrap.inert=!op;row.setAttribute('aria-expanded',String(op));openId=op?c.id:0;};
+        if(sg&&ni<10&&c.id!==justAdded){card.classList.add('rise');card.style.setProperty('--d',(ni++*45)+'ms');card.addEventListener('animationend',function(e){if(e.animationName==='rise')card.classList.remove('rise');});}
         list.appendChild(card);
         if(c.id===justAdded){justAdded=null;setTimeout(function(){try{card.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}},400);}
       });
@@ -1216,8 +1268,8 @@ function importAudio(f,last){
 function show(which){
   var st=which==='studio';document.body.classList.toggle('v-cours',!st);window.scrollTo(0,0);$('v-studio').hidden=!st;$('v-cours').hidden=st;
   $('tab-studio').setAttribute('aria-selected',String(st));$('tab-cours').setAttribute('aria-selected',String(!st));
-  tabInd(true);
-  if(!st)renderList();else sizeCanvas();
+  tabInd(true);var vw=$(st?'v-studio':'v-cours');vw.classList.remove('enter');void vw.offsetWidth;vw.classList.add('enter');
+  if(!st){stag=true;renderList();}else sizeCanvas();
 }
 function tabInd(anim){   /* la pastille blanche glisse sous l'onglet choisi */
   var ind=document.querySelector('.tab-ind'),t=document.querySelector('.tab[aria-selected="true"]');if(!ind||!t||!t.offsetWidth)return;
