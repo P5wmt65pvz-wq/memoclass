@@ -20,12 +20,14 @@
   --body:"Manrope",-apple-system,"SF Pro Text","Segoe UI",system-ui,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --blur:blur(24px) saturate(170%);
+  --ease-out:cubic-bezier(.23,1,.32,1); --ease-in-out:cubic-bezier(.77,0,.175,1);
   --shadow:inset 0 1px 0 var(--hi),inset 0 -1px 0 rgba(255,255,255,.04),0 12px 34px -16px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box}
 html{overflow-x:clip}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit}
+button,a,label,summary,input,.drop{touch-action:manipulation;-webkit-tap-highlight-color:transparent}   /* pas d'attente de double-tap ni de rectangle gris : la réaction vient de .press */
 .halo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .halo span{position:absolute;border-radius:50%;animation:drift 26s ease-in-out infinite alternate}
 body.is-rec .halo span{animation-play-state:paused}
@@ -50,6 +52,9 @@ header{display:grid;gap:14px}
 .head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 8px 8px 12px;border-radius:22px}
 .logo{display:flex;align-items:center;gap:11px}
 .logo svg.mark{width:34px;height:34px;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.logo{position:relative}
+.logo .lm{position:absolute;z-index:1;left:0;top:50%;width:34px;height:34px;margin-top:-17px;opacity:0;transition:opacity .6s;pointer-events:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.logo.metal .lm{opacity:1}
 .logo b{display:block;font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase}
 .logo small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--soft)}
 .icon-btn{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;cursor:pointer}
@@ -152,76 +157,18 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
 .tip{font-size:12.5px;color:var(--soft);background:rgba(0,0,0,.2);border-radius:14px;padding:10px 12px;margin:2px 0}
 .foot{text-align:center;font-size:12px;color:var(--dim);line-height:1.5;margin:0}
 .foot a{color:var(--soft)}
-.toast.glass{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,calc(100% + 60px));visibility:hidden;border-radius:16px;padding:11px 16px;font-size:14px;font-weight:700;transition:transform .35s cubic-bezier(.2,.9,.3,1.15),visibility 0s .35s;z-index:10;max-width:calc(100% - 32px);background:rgba(18,21,34,.8)}
-.toast.glass.on{transform:translate(-50%,0);visibility:visible;transition:transform .35s cubic-bezier(.2,.9,.3,1.15)}   /* caché pour de vrai : plus de liseré qui dépasse en bas de l'écran */
+.toast.glass{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,calc(100% + 60px));visibility:hidden;border-radius:16px;padding:11px 16px;font-size:14px;font-weight:700;transition:transform .22s var(--ease-out),visibility 0s .22s;z-index:10;max-width:calc(100% - 32px);background:rgba(18,21,34,.8)}
+.toast.glass.on{transform:translate(-50%,0);visibility:visible;transition:transform .3s var(--ease-out)}   /* caché pour de vrai : plus de liseré qui dépasse en bas de l'écran */
 :focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){.rec.live,.halo span{animation:none}}
 
 /* ---------- animations ---------- */
-.press{transition:transform .25s ease}
-.press.down{transform:scale(.97);transition:transform .08s ease-out}
-.ripple{position:absolute;border-radius:50%;pointer-events:none;z-index:3;width:12px;height:12px;margin:-6px 0 0 -6px;
-  background:radial-gradient(circle,rgba(255,255,255,.55),rgba(200,212,255,.18) 45%,transparent 70%);animation:ripple .7s ease-out forwards}
-@keyframes ripple{to{transform:scale(28);opacity:0}}
-.rec.jelly{animation:jelly .65s cubic-bezier(.3,1.4,.5,1)}
-.rec.live.jelly{animation:jelly .65s cubic-bezier(.3,1.4,.5,1),pulse 1.6s ease-in-out .65s infinite}
-@keyframes jelly{0%{transform:scale(1)}25%{transform:scale(.86,.92) rotateX(18deg)}50%{transform:scale(1.08,1.02) rotateX(-8deg)}75%{transform:scale(.98,1.03)}100%{transform:scale(1)}}
-.stage3d{perspective:900px}
-.tilt{transition:transform .45s cubic-bezier(.2,.9,.3,1);transform-style:preserve-3d}
-.done-ov{position:fixed;inset:0;z-index:20;display:grid;place-items:center;perspective:1000px;background:radial-gradient(circle at 50% 45%,rgba(60,10,8,.5),rgba(5,5,6,.7));animation:dim 2.9s ease forwards;cursor:pointer}
-@keyframes dim{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
-.done-ov .rays{position:absolute;width:560px;height:560px;border-radius:50%;
-  background:repeating-conic-gradient(from 0deg,rgba(255,120,110,.16) 0 8deg,transparent 8deg 22deg);
-  -webkit-mask:radial-gradient(circle,#000 0,#000 25%,transparent 62%);mask:radial-gradient(circle,#000 0,#000 25%,transparent 62%);
-  animation:rays 2.9s linear forwards}
-@keyframes rays{0%{transform:scale(.3) rotate(0);opacity:0}15%{transform:scale(1) rotate(30deg);opacity:1}100%{transform:scale(1.1) rotate(160deg);opacity:0}}
-.done-ov .card3d{position:relative;width:min(280px,76vw);padding:26px 20px 22px;border-radius:30px;text-align:center;color:#fff;transform-style:preserve-3d;
-  background:linear-gradient(160deg,rgba(60,58,62,.97),rgba(28,28,30,.98) 60%,rgba(80,20,18,.96));
-  border:1px solid rgba(255,255,255,.45);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
-  box-shadow:inset 0 2px 2px rgba(255,255,255,.7),inset 0 -14px 40px rgba(120,135,255,.25),0 40px 80px -30px rgba(0,0,0,.9);overflow:hidden;
-  animation:drop 2.9s cubic-bezier(.2,1,.3,1) forwards}
-@keyframes drop{0%{transform:translateY(-120vh) rotateY(-540deg) scale(.6)}22%{transform:translateY(0) rotateY(0) scale(1.08,.9)}30%{transform:scale(.94,1.08)}38%{transform:scale(1.03,.98)}46%{transform:scale(1)}86%{transform:scale(1);opacity:1}100%{transform:scale(.7) translateY(30px);opacity:0}}
-.done-ov .card3d::after{content:"";position:absolute;top:-20%;bottom:-20%;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:shine 1s .75s ease-out forwards}
-@keyframes shine{to{left:130%}}
-.done-ov .badge{width:78px;height:78px;margin:0 auto 12px;border-radius:24px;display:grid;place-items:center;
-  background:radial-gradient(circle at 32% 26%,#fff,#FFB0AA 40%,#FF3B30);box-shadow:inset 0 -6px 12px rgba(140,20,10,.35),0 12px 28px -10px rgba(255,59,48,.9);
-  animation:pop .6s .55s cubic-bezier(.3,1.8,.5,1) both}
-.done-ov .badge svg{width:42px;height:42px;stroke-dasharray:40;stroke-dashoffset:40;animation:tick .45s .9s ease-out forwards}
-@keyframes tick{to{stroke-dashoffset:0}}
-@keyframes pop{0%{transform:scale(0) rotate(-25deg)}100%{transform:scale(1) rotate(0)}}
-.done-ov h3{margin:0;font-size:28px;font-weight:800;letter-spacing:-.03em;text-transform:uppercase;line-height:1;animation:pop .5s .75s cubic-bezier(.3,1.8,.5,1) both;text-shadow:0 2px 0 rgba(160,20,10,.5)}
-.done-ov p{margin:8px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:#D1D1D6;animation:pop .5s .95s cubic-bezier(.3,1.6,.5,1) both}
-.done-ov .spark{position:absolute;left:50%;top:50%;width:var(--z);height:var(--z);margin:calc(var(--z)/-2) 0 0 calc(var(--z)/-2);
-  background:var(--c);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);opacity:0;
-  animation:spark 1.1s var(--d) cubic-bezier(.15,.8,.3,1) forwards}
-@keyframes spark{0%{transform:translate(0,0) scale(.2) rotate(0);opacity:1}70%{opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1) rotate(160deg);opacity:0}}
-@media (prefers-reduced-motion:reduce){.press,.press.down,.tilt{transition:none;transform:none!important}.ripple,.rec.jelly,.done-ov *{animation:none!important}.done-ov{display:none!important}}
+.press{transition:transform .16s var(--ease-out),background-color .25s,color .25s,border-color .2s,opacity .16s}   /* au relâché : revient en 160 ms */
+.press.down{transform:scale(.97);transition:transform .08s var(--ease-out),opacity .08s}   /* réagit dès l'appui, pas au relâché */
+@media (prefers-reduced-motion:reduce){.press,.press.down{transform:none!important}.press.down{opacity:.7}}   /* sans mouvement, mais on voit toujours qu'on a appuyé */
 
 /* ---------- animation de départ d'enregistrement ---------- */
-.go-ov{position:fixed;inset:0;z-index:30;pointer-events:none;overflow:hidden;perspective:900px}
-.go-ov .flash{position:absolute;inset:0;background:radial-gradient(circle at var(--cx) var(--cy),rgba(255,59,48,.55),rgba(255,59,48,0) 60%);animation:goflash .9s ease-out forwards}
-@keyframes goflash{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
-.go-ov .shock{position:absolute;left:var(--cx);top:var(--cy);width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;
-  border:3px solid rgba(255,90,80,.9);box-shadow:0 0 30px rgba(255,59,48,.9),inset 0 0 30px rgba(255,59,48,.6);animation:shock 1.1s cubic-bezier(.1,.7,.2,1) forwards}
-.go-ov .shock:nth-child(3){animation-delay:.12s;border-color:rgba(255,255,255,.7)}.go-ov .shock:nth-child(4){animation-delay:.24s}
-@keyframes shock{0%{transform:scale(.4);opacity:1}100%{transform:scale(45);opacity:0}}
-.go-ov .word{position:absolute;left:50%;top:42%;transform-style:preserve-3d;display:flex;align-items:center;gap:.18em;
-  font-size:clamp(70px,24vw,170px);font-weight:900;letter-spacing:-.04em;color:#fff;line-height:1;
-  text-shadow:0 0 30px rgba(255,59,48,.95),0 0 80px rgba(255,59,48,.7),3px 0 0 rgba(255,59,48,.9),-3px 0 0 rgba(255,180,170,.6);
-  animation:word 1.5s cubic-bezier(.2,.9,.25,1) forwards}
-.go-ov .word i{width:.42em;height:.42em;border-radius:50%;background:#FF3B30;box-shadow:0 0 40px #FF3B30,0 0 90px rgba(255,59,48,.8);animation:dotpulse .5s ease-in-out 3 alternate}
-@keyframes dotpulse{to{transform:scale(1.25)}}
-@keyframes word{0%{transform:translate(-50%,-50%) rotateX(75deg) scale(3.2);opacity:0;filter:blur(14px)}
-  22%{transform:translate(-50%,-50%) rotateX(-8deg) scale(.95);opacity:1;filter:blur(0)}
-  32%{transform:translate(-50%,-50%) rotateX(0) scale(1.04)}
-  40%{transform:translate(-50%,-50%) scale(1)}
-  72%{transform:translate(-50%,-50%) scale(1);opacity:1}
-  100%{transform:translate(-50%,-260%) scale(.18);opacity:0;filter:blur(2px)}}
-.go-ov .ember{position:absolute;left:var(--cx);top:var(--cy);width:var(--z);height:var(--z);margin:calc(var(--z)/-2) 0 0 calc(var(--z)/-2);border-radius:50%;
-  background:var(--c);box-shadow:0 0 12px var(--c);animation:ember 1s var(--d) cubic-bezier(.1,.8,.3,1) forwards;opacity:0}
-@keyframes ember{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(.2);opacity:0}}
-.go-ov .bars{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 2px,transparent 2px 5px);animation:goflash 1s ease-out forwards}
 .studio .recbadge{position:absolute;top:18px;right:18px;z-index:5;display:none;align-items:center;gap:7px;
   font-weight:800;font-size:12px;letter-spacing:.14em;color:#fff;padding:7px 12px;border-radius:999px;background:rgba(255,59,48,.18);border:1px solid rgba(255,59,48,.5);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
@@ -237,9 +184,6 @@ body.is-rec .studio .recbadge{display:flex}
 .link-ov.out{opacity:0}
 
 /* Bouton « verre liquide » : il se déforme, suit un peu le pointeur et revient comme une goutte souple */
-.jb{translate:var(--jx,0) var(--jy,0);scale:var(--js,1);transition:translate .3s cubic-bezier(.3,1.6,.5,1),scale .4s cubic-bezier(.3,1.7,.5,1),transform .25s ease}
-.drop.jb{transition:border-color .2s,background .2s,translate .3s cubic-bezier(.3,1.6,.5,1),scale .4s cubic-bezier(.3,1.7,.5,1)}
-.rec.jb{transition:transform .15s,translate .3s cubic-bezier(.3,1.6,.5,1),scale .4s cubic-bezier(.3,1.7,.5,1)}
 .jw{animation:wob .5s cubic-bezier(.3,1.3,.5,1)}
 @keyframes wob{0%{scale:1}30%{scale:1.045 .965}60%{scale:.985 1.015}100%{scale:1}}
 /* Mes cours : rangés par matière, repérables d'un coup d'œil */
@@ -248,14 +192,14 @@ body.is-rec .studio .recbadge{display:flex}
 .course .player{display:flex;align-items:center;gap:8px}.course .player audio{flex:1;min-width:0}
 .lib-bar[hidden]{display:none}
 .lib-bar input{font:inherit;font-size:15px;font-weight:600;color:var(--text);background:rgba(255,255,255,.07);border:1px solid var(--edge);border-radius:14px;padding:11px 14px;width:100%}
-.lib-bar input:focus{outline:2px solid #2F86FF;outline-offset:1px}
+.lib-bar input:focus{outline:2px solid #FF453A;outline-offset:1px}
 .lib-chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip-btn{border:1px solid var(--edge);background:var(--glass-2);border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:700;cursor:pointer;color:var(--text)}
 .chip-btn[aria-pressed="true"]{background:linear-gradient(135deg,#FFFFFF,#F2F2F7);color:var(--ink-on);border-color:transparent}
 .grp{display:flex;justify-content:space-between;align-items:baseline;margin:22px 6px 4px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);font-weight:800}
 .course{padding:14px 16px}
 .course .c-row{all:unset;box-sizing:border-box;display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;border-radius:12px}
-.course .c-row:focus-visible{outline:2px solid #2F86FF;outline-offset:4px}
+.course .c-row:focus-visible{outline:2px solid #FF453A;outline-offset:4px}
 .course .c-left h2{margin:0;font-size:17px;line-height:1.25}
 .course .chev{font-size:22px;color:var(--soft);transition:rotate .25s}
 .course.open .chev{rotate:180deg}
@@ -269,6 +213,12 @@ body.is-rec .studio .recbadge{display:flex}
 @keyframes tabpop{40%{scale:1.3;box-shadow:0 0 0 9px rgba(255,200,80,.35),0 0 22px rgba(255,190,60,.7)}}
 dialog[open]{animation:dlgin .4s cubic-bezier(.2,1,.3,1)}
 @keyframes dlgin{from{opacity:0;transform:scale(.9) translateY(16px)}}
+#settings{transition:opacity .18s var(--ease-out),transform .18s var(--ease-out),overlay .18s allow-discrete,display .18s allow-discrete;opacity:0;transform:scale(.96) translateY(8px)}
+#settings[open]{animation:none;opacity:1;transform:none;transition-duration:.28s}
+@starting-style{#settings[open]{opacity:0;transform:scale(.96) translateY(8px)}}
+#settings::backdrop{transition:opacity .2s,overlay .2s allow-discrete,display .2s allow-discrete;opacity:0}
+#settings[open]::backdrop{opacity:1}
+@starting-style{#settings[open]::backdrop{opacity:0}}
 #fin.warp{animation:warp 1.5s .08s both,warpglow 2.2s ease-out both}   /* sort du tourbillon en tournant, vient vers toi, puis retombe d'un coup sur la page */
 @keyframes warp{0%{transform:perspective(900px) scale(.04) rotate(-300deg);opacity:0;filter:blur(10px);animation-timing-function:cubic-bezier(.2,.8,.3,1)}
  48%{transform:perspective(900px) translateZ(170px) rotateX(8deg);opacity:1;filter:blur(0);animation-timing-function:linear}
@@ -338,7 +288,11 @@ body.recmode.linkfx .mini{z-index:31;translate:-50% 0;opacity:1;background:rgba(
 .mini.paused i{animation:none;background:var(--warn);box-shadow:none}
 .mini b{font-family:var(--mono);font-size:17px;font-variant-numeric:tabular-nums;min-width:4.6em;text-align:left}
 .mini .icon-btn{width:38px;height:38px;border-radius:50%}
-@media (prefers-reduced-motion:reduce){.jb,.jw,.more{animation:none;transition:none}#oracle{transition:none}}
+@media (prefers-reduced-motion:reduce){.jw,.more{animation:none;transition:none}#oracle{transition:none}#settings,#settings::backdrop{transition:opacity .15s}}
+/* « Réduire la transparence » (Mac, iPhone) : verre plein, texte bien lisible */
+@media (prefers-reduced-transparency:reduce){.glass,.btn,.toast.glass,dialog,.mini,.lib-bar input{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.glass{background:#1C1C1F}.btn{background:#2A2A2E}dialog,.toast.glass{background:#141417}.glass::before,.glass::after{display:none}dialog::backdrop{background:rgba(0,0,0,.7);-webkit-backdrop-filter:none;backdrop-filter:none}}
+/* « Augmenter le contraste » : bords nets, texte secondaire plus clair */
+@media (prefers-contrast:more){:root{--soft:#E5E5EA;--dim:#C7C7CC;--edge:rgba(255,255,255,.55)}.glass,.btn,dialog,.chip-btn,.opt,.sw{border-color:rgba(255,255,255,.55)}}
 </style>
 </head>
 <body>
@@ -1189,16 +1143,15 @@ db().then(function(d){
 /* ---------- animations ---------- */
 (function(){
   var calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.addEventListener('pointerdown',function(e){
-    if(calm)return;
-    var t=e.target.closest('.btn,.tab,.icon-btn,.opt,.sw,.drop,.rec,.chip');
+  document.addEventListener('pointerdown',function(e){   /* même avec « réduire les animations » : la feuille de style remplace alors le rétrécissement par un léger fondu */
+    var t=e.target.closest('.btn,.tab,.icon-btn,.opt,.sw,.drop,.rec,.chip,.chip-btn,.c-row,.more,.link');
     if(!t)return;
     t.classList.add('press','down');
   });
   ['pointerup','pointercancel','pointerleave'].forEach(function(n){document.addEventListener(n,function(){[].forEach.call(document.querySelectorAll('.press.down'),function(x){x.classList.remove('down');});},true);});
   var rec=document.getElementById('rec');
   /* Bouton « verre liquide » : au survol il rebondit un tout petit peu, sans bouger de place */
-  if(!calm&&matchMedia('(hover: hover)').matches){
+  if(!calm&&matchMedia('(hover: hover) and (pointer: fine)').matches){   /* pas sur écran tactile : un toucher y déclenche un faux survol */
     var JS='.btn,.tab,.icon-btn,.opt,.rec,.chip,.drop',cur=null;
     document.addEventListener('pointermove',function(e){
       var t=e.target&&e.target.closest?e.target.closest(JS):null;
@@ -1528,6 +1481,28 @@ window.mvCelebrate=function(info,done,status){
   };
 })();
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
+})();
+</script>
+<script>
+/* Logo en métal liquide chromé (Paper Shaders 0.0.82, licence Apache-2.0, paper.design) : seulement avec WebGL 2 et sans « réduire les animations » ;
+   sinon le logo dessiné reste. La bibliothèque met le rendu en pause quand l'onglet est caché ou le logo hors de l'écran (et pendant l'enregistrement, où il est masqué). */
+(function(){
+  var logo=document.querySelector('.logo'),mark=logo&&logo.querySelector('svg.mark');
+  if(!mark||!window.matchMedia||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  try{if(!document.createElement('canvas').getContext('webgl2'))return;}catch(e){return;}
+  /* logo-metal.png = la forme du logo déjà préparée par toProcessedLiquidMetal (réduite à 256 px) : la préparer ici bloquait la page environ 1 s. */
+  var im=new Image();im.src='logo-metal.png';
+  Promise.all([import('https://cdn.jsdelivr.net/npm/@paper-design/shaders@0.0.82/dist/index.js'),im.decode().then(function(){return im;})]).then(function(a){
+    var P=a[0],box=document.createElement('div');box.className='lm';logo.insertBefore(box,mark);
+    var o=P.defaultObjectSizing,c=P.getShaderColorFromString;
+    new P.ShaderMount(box,P.liquidMetalFragmentShader,{
+      u_colorBack:c('#00000000'),u_colorTint:c('#ffffff'),u_image:im,u_isImage:true,
+      u_contour:.4,u_distortion:.07,u_softness:.1,u_repetition:2,u_shiftRed:.3,u_shiftBlue:.3,u_angle:70,u_shape:0,
+      u_fit:P.ShaderFitOptions.contain,u_scale:1,u_rotation:o.rotation,u_offsetX:o.offsetX,u_offsetY:o.offsetY,
+      u_originX:o.originX,u_originY:o.originY,u_worldWidth:o.worldWidth,u_worldHeight:o.worldHeight
+    },undefined,(navigator.deviceMemory||8)<4?0:1,0,2,undefined,['u_image']);   /* petit appareil : reflet chromé fixe, sans calcul à chaque image */
+    requestAnimationFrame(function(){logo.classList.add('metal');mark.style.opacity='0';});
+  }).catch(function(){});   /* hors ligne ou WebGL refusé : le logo dessiné reste */
 })();
 </script>
 </body>
