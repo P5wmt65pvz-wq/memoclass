@@ -20,24 +20,31 @@
     defiler();
   });
   function poser() {
-    // 0–.14 vrai appareil · .14–.2 il devient les pièces · .2–.4 il s'ouvre · .4–.6 ouvert · .6–.68 il se ferme · .68–.72 vrai appareil · .72–.84 il se retourne · dos
-    var ouvre = lisse((p - .2) / .2) * (1 - lisse((p - .6) / .08));
-    var pieces = lisse((p - .15) / .03) * (1 - lisse((p - .69) / .02));
+    // 0–.16 vrai appareil · .16–.26 il éclate · .26–.58 ouvert · .58–.68 il se referme · .68–.86 il pivote · dos
+    var sort = lisse((p - .16) / .1), rentre = lisse((p - .58) / .1);
+    var ouvert = sort * (1 - rentre);               // 0 = fermé, 1 = grand ouvert
+    // les pièces ne sont jamais montrées « rentrées » : elles partent déjà un peu écartées
+    var ecart = .38 + .62 * ouvert;
     P.forEach(function (o) {
-      var e = lisse(ouvre * 1.25 - o.i * .04);
+      var e = lisse(ecart * 1.12 - o.i * .02);
       o.el.style.transform = "translate(" + (o.dx * (1 - e)).toFixed(2) + "cqw," + (o.dy * (1 - e)).toFixed(2) + "cqw)";
     });
-    zone.style.opacity = pieces.toFixed(3);
-    // fermé, l'appareil est plus grand (surtout sur téléphone) ; ouvert, tout tient dans l'écran
-    var grand = innerWidth / innerHeight < .9 ? .75 : .06;
-    plateau.style.transform = "translate(-50%,-50%) scale(" + (1 + grand * (1 - ouvre)).toFixed(3) + ")";
-    var tour = lisse((p - .72) / .12), angle = tour * 180;
-    avant.style.opacity = (1 - pieces) * (angle < 90 ? 1 : 0);
-    avant.style.transform = "translate(-50%,-50%) rotateY(" + Math.min(angle, 90).toFixed(1) + "deg)";
-    dos.style.opacity = angle > 90 ? 1 : 0;
-    dos.style.transform = "translate(-50%,-50%) rotateY(" + (angle > 90 ? angle - 180 : -90).toFixed(1) + "deg)";
-    var vis = p > .4 && p < .6 ? G.bornes(Math.min((p - .4) / .04, (.6 - p) / .04), 0, 1) : 0;
+    // coupe nette (jamais deux appareils en transparence), masquée par un bref flou de mouvement
+    var SEUIL = .1, coupe = ouvert >= SEUIL;
+    zone.style.opacity = coupe ? 1 : 0;
+    var flou = Math.max(0, 1 - Math.abs(ouvert - SEUIL) / .07) * 5;
+    zone.style.filter = flou > .2 ? "blur(" + flou.toFixed(1) + "px)" : "none";
+    // le retournement : l'avant pivote et s'efface, puis le dos arrive (chevauchement court)
+    var tour = lisse((p - .7) / .16), sortie = lisse(tour / .58), arrivee = lisse((tour - .42) / .58);
+    avant.style.opacity = coupe ? 0 : (1 - sortie).toFixed(3);
+    avant.style.transform = "translate(-50%,-50%) translateX(" + (-sortie * 8).toFixed(2) + "%) rotateY(" + (-sortie * 32).toFixed(1) + "deg) scale(" + (1 + Math.min(ouvert / SEUIL, 1) * .05).toFixed(3) + ")";
+    avant.style.filter = !coupe && flou > .2 ? "blur(" + flou.toFixed(1) + "px)" : "none";
+    dos.style.opacity = arrivee.toFixed(3);
+    dos.style.transform = "translate(-50%,-50%) translateX(" + ((1 - arrivee) * 8).toFixed(2) + "%) rotateY(" + ((1 - arrivee) * 32).toFixed(1) + "deg)";
+    var vis = p > .3 && p < .56 ? G.bornes(Math.min((p - .3) / .04, (.56 - p) / .04), 0, 1) : 0;
     zoneEtiq.style.opacity = vis;
+    var grand = innerWidth / innerHeight < .9 ? .75 : .06;
+    plateau.style.transform = "translate(-50%,-50%) scale(" + (1 + grand * (1 - ouvert)).toFixed(3) + ")";
   }
   // inertie : l'animation rejoint le défilement en douceur, comme sur une page produit Apple
   var cible = 0, boucle = false;
