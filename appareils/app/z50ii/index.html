@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nikon Z50II : apprends en essayant</title>
+<meta name="description" content="Ouvre le Nikon Z50II du doigt, puis essaie ses vraies commandes : éclaircir une photo, flouter le fond, figer l'action, photographier la nuit.">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../style.css?v=1">
+<link rel="stylesheet" href="../../appareil.css?v=1">
+</head>
+<body>
+<main id="contenu">
+  <section class="eclate-zone bloc">
+    <div class="eclate-titre">
+      <a class="retour" href="../../">← Autre appareil</a>
+      <h1>Nikon Z50II</h1>
+      <p>Touche une pièce pour savoir à quoi elle sert.</p>
+    </div>
+    <div class="eclate-scene"><div class="eclate" id="eclate" aria-label="L'appareil, pièce par pièce"></div></div>
+    <div class="eclate-bas"><button type="button" class="bouton" id="ouvrir" aria-pressed="false">Ouvrir l'appareil</button><p class="bulle-piece" id="bulle-piece" hidden></p></div>
+  </section>
+
+  <section class="bloc" id="viseur" aria-labelledby="t-vis">
+    <div class="titre"><span class="sur">Dans l'appareil</span><h2 id="t-vis">Essaie. Tu verras tout de suite.</h2></div>
+    <div class="vf-defis" role="group" aria-label="Défis"></div>
+    <div class="vf">
+      <div class="vf-ecran">
+        <img class="vf-photo fond" alt=""><img class="vf-photo net" alt="">
+        <div class="vf-grain"></div>
+        <p class="vf-titre"></p>
+        <div class="vf-hud"></div>
+      </div>
+      <div class="vf-cote">
+        <p class="vf-consigne" aria-live="polite"></p>
+        <div class="vf-commandes"><img src="commandes.webp" alt="Le dessus du vrai Nikon Z50II : molettes, touches et déclencheur" width="1040" height="840"></div>
+        <div class="vf-fin" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloc suite-app">
+    <a class="carte-lien" href="../../../guide-z50ii/reglages.html"><b>Les menus</b><span>9 réglages guidés, écran par écran</span></a>
+    <a class="carte-lien" href="../../../guide-z50ii/situations.html"><b>Par situation</b><span>Portrait, sport, nuit… les bons réglages</span></a>
+    <a class="carte-lien" href="../../../guide-z50ii/aide.html"><b>Un problème ?</b><span>Photo floue, écran noir…</span></a>
+  </section>
+  <p class="bloc muted petit-note">Vue éclatée : illustration générée par IA à partir d'une vraie photo du Z50II. Commandes vérifiées dans le Guide de référence Nikon. Site indépendant, non affilié à Nikon.</p>
+</main>
+<script src="donnees.js?v=1"></script>
+<script src="../../appareil.js?v=1"></script>
+</body>
+</html>
