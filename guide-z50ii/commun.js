@@ -5,7 +5,7 @@
   var PAGES = [
     ["index.html", "Accueil"],
     ["decouvrir.html", "Découvrir"],
-    ["reglages.html", "Régler"],
+    ["reglages.html", "Prendre en main"],
     ["apprendre.html", "Apprendre"],
     ["situations.html", "Photographier"],
     ["video.html", "Filmer"],
