@@ -19,6 +19,8 @@
   G.ecrire = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
   G.echapper = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   G.bornes = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  // au plus un calcul par image affichée, même si le curseur envoie plus d'événements
+  G.parImage = function (f) { var att = false; return function () { if (att) return; att = true; requestAnimationFrame(function () { att = false; f(); }); }; };
   G.reduit = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   G.PAGES = PAGES;
 

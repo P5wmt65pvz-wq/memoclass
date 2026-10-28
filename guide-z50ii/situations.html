@@ -41,13 +41,13 @@
     ["Un objet à vendre", "img/carte-eclatee.webp", "Net et fidèle", "A", "f/8", "Auto", "100", "AF-S, zone réduite", "Balance des blancs : pré-réglage manuel", "Trépied, fenêtre sur le côté, feuille blanche en réflecteur, retardateur 2 s."],
     ["Un concert", "concert", "Lumière difficile", "S", "La plus grande ouverture", "1/250 s", "Auto, max 12 800", "AF-C, zone automatique + Personnes", "Mode silencieux (flash impossible)", "En RAW, la couleur des projecteurs se corrige bien mieux après."]
   ];
-  var src = function (n) { return n.indexOf("/") > -1 ? n : "photos/" + n + ".jpg"; };
+  var src = function (n, t) { return n.indexOf("/") > -1 ? n : "photos/" + (t || "v") + "/" + n + ".webp"; };
   $("#tuiles").innerHTML = R.map(function (r, i) { return '<button class="tuile apparait" type="button" data-i="' + i + '"><img src="' + src(r[1]) + '" alt="" loading="lazy"' + (r[1].indexOf("/") > -1 ? ' style="object-fit:contain;background:radial-gradient(#fff,#dcdde2)"' : "") + "><span>" + G.echapper(r[0]) + "<small>" + G.echapper(r[2]) + "</small></span></button>"; }).join("");
   $$("#tuiles .apparait").forEach(G.observer);
   var f = $("#feuille"), fond = $("#fond"), dernier = null;
   function ouvrir(i, bouton) {
     var r = R[i]; dernier = bouton;
-    f.innerHTML = '<div class="poignee"></div><button class="fermer" type="button" aria-label="Fermer">✕</button><div class="image"><img src="' + src(r[1]) + '" alt=""' + (r[1].indexOf("/") > -1 ? ' style="object-fit:contain;background:radial-gradient(#fff,#dcdde2)"' : "") + '></div><div class="corps"><h2 id="f-titre">' + G.echapper(r[0]) + '</h2><div class="reglages-recette">' +
+    f.innerHTML = '<div class="poignee"></div><button class="fermer" type="button" aria-label="Fermer">✕</button><div class="image"><img src="' + src(r[1], "m") + '" alt=""' + (r[1].indexOf("/") > -1 ? ' style="object-fit:contain;background:radial-gradient(#fff,#dcdde2)"' : "") + '></div><div class="corps"><h2 id="f-titre">' + G.echapper(r[0]) + '</h2><div class="reglages-recette">' +
       [["1 · Mode", r[3]], ["2 · Ouverture", r[4]], ["3 · Vitesse", r[5]], ["4 · ISO", r[6]], ["5 · Mise au point", r[7]], ["6 · En plus", r[8]]].map(function (x) { return "<div><small>" + x[0] + "</small><b>" + G.echapper(x[1]) + "</b></div>"; }).join("") +
       '</div><p class="note" style="margin:0"><strong>Astuce · </strong>' + G.echapper(r[9]) + '</p><div class="actions"><button class="bouton clair" type="button" data-d="-1">← Précédente</button><button class="bouton" type="button" data-d="1">Suivante →</button></div></div>';
     f.hidden = false; requestAnimationFrame(function () { f.classList.add("ouvert"); fond.classList.add("ouvert"); });

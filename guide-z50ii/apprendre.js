@@ -10,7 +10,7 @@
   var VIT = [1 / 4000, 1 / 2000, 1 / 1000, 1 / 500, 1 / 250, 1 / 125, 1 / 60, 1 / 30, 1 / 15, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 15, 30];
   var ISO = [100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200];
   var simF = $("#sim-floue"), simN = $("#sim-nette"), voile = $("#sim-voile"), grain = $("#sim-grain"), gx = grain.getContext("2d");
-  [simF, simN].forEach(function (c) { c.style.backgroundImage = "url(photos/portrait.jpg)"; });
+  [simF, simN].forEach(function (c) { c.style.backgroundImage = "url(photos/m/portrait.webp)"; });
   var vit = function (t) { return t >= 1 ? t + " s" : "1/" + Math.round(1 / t) + " s"; };
   var iris = $("#iris"), ix = iris.getContext("2d");
   function dessinerIris(N) {
@@ -55,7 +55,7 @@
     if (N >= 11) m.push("Tout est net, du premier plan au fond.");
     $("#verdict").textContent = m.join(" ");
   }
-  ["#sim-ouverture", "#sim-vitesse", "#sim-iso", "#sim-lumiere"].forEach(function (s) { $(s).addEventListener("input", simuler); });
+  ["#sim-ouverture", "#sim-vitesse", "#sim-iso", "#sim-lumiere"].forEach(function (s) { $(s).addEventListener("input", G.parImage(simuler)); });
   addEventListener("resize", simuler); simuler();
   G.quiz($("#quiz-lumiere"), [
     { q: "Tu veux un arrière-plan bien flou. Tu choisis…", opts: ["f/1.8", "f/16", "3200 ISO"], bon: 0, pourquoi: "Petit chiffre f/ = grande ouverture = fond flou." },
@@ -128,7 +128,7 @@
   function af(i) {
     var a = AF[i];
     $$("button", za).forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
-    aimg.src = a[1].indexOf("/") > -1 ? a[1] : "photos/" + a[1] + ".jpg";
+    aimg.src = a[1].indexOf("/") > -1 ? a[1] : "photos/m/" + a[1] + ".webp";
     aimg.style.objectFit = a[1].indexOf("/") > -1 ? "contain" : "cover"; aimg.parentNode.style.background = a[1].indexOf("/") > -1 ? "radial-gradient(#fff,#e6e7eb)" : "#000";
     $("#reponse-af").innerHTML = "<div><small>Mode</small><strong>" + G.echapper(a[2]) + "</strong></div><div><small>Zone AF</small><strong>" + G.echapper(a[3]) + "</strong></div><div><small>Détection du sujet</small><strong>" + G.echapper(a[4]) + "</strong></div>";
     $("#pourquoi-af").textContent = a[5]; cadreAF(a[6]);
@@ -150,7 +150,7 @@
   }
   var bdb = $("#bdb"), bc = $("#bdb-canvas"), bx = bc.getContext("2d"), src = null, photo = new Image();
   photo.onload = function () { var c = document.createElement("canvas"); c.width = bc.width; c.height = bc.height; var g = c.getContext("2d"), s = Math.max(c.width / photo.width, c.height / photo.height); g.drawImage(photo, (c.width - photo.width * s) / 2, (c.height - photo.height * s) / 2, photo.width * s, photo.height * s); try { src = g.getImageData(0, 0, c.width, c.height); } catch (e) { src = null; bx.drawImage(c, 0, 0); } dessinerBdb(); };
-  photo.src = "photos/paysage.jpg";
+  photo.src = "photos/m/paysage.webp";
   function dessinerBdb() {
     var v = +bdb.value; G.remplir(bdb); $("#o-bdb").textContent = v + " K";
     $("#bdb-etiq").textContent = Math.abs(v - 3000) <= 200 ? "Le blanc est blanc ✓" : v > 3000 ? "Trop chaud : dominante orangée" : "Trop froid : dominante bleue";
@@ -165,14 +165,14 @@
   var PRE = [["Incandescent", 3000], ["Fluorescent", 4200], ["Ensoleillé", 5200], ["Flash", 5400], ["Nuageux", 6000], ["Ombre", 8000]];
   $("#prereglages").innerHTML = PRE.map(function (p) { return '<button class="puce" type="button" data-k="' + p[1] + '">' + p[0] + " · " + p[1] + " K</button>"; }).join("");
   $$("#prereglages button").forEach(function (b) { b.addEventListener("click", function () { bdb.value = b.dataset.k; dessinerBdb(); }); });
-  bdb.addEventListener("input", dessinerBdb); dessinerBdb();
+  bdb.addEventListener("input", G.parImage(dessinerBdb)); dessinerBdb();
   var STY = [
     ["Standard", "none", "Équilibré. Le bon choix par défaut."], ["Neutre", "contrast(.9) saturate(.82)", "Traitement minimal, pour retoucher ensuite."],
     ["Saturé", "saturate(1.5) contrast(1.06)", "Couleurs éclatantes, idéal pour les couleurs primaires."], ["Paysage", "saturate(1.32) contrast(1.1) hue-rotate(-6deg)", "Bleus et verts intenses."],
     ["Uniforme", "contrast(.76) saturate(.78) brightness(1.06)", "Un maximum de détails des ombres aux hautes lumières, pour une retouche poussée."], ["Monochrome", "grayscale(1) contrast(1.08)", "Le noir et blanc classique (trois versions)."],
     ["Sépia", "sepia(.85) contrast(1.05)", "Un des 20 Creative Picture Control."], ["Rêve", "brightness(1.12) contrast(.86) saturate(.9)", "Un des 20 Creative Picture Control."]
   ];
-  $("#styles").innerHTML = STY.map(function (s, i) { return '<button type="button" aria-pressed="' + (i === 0) + '" data-i="' + i + '"><img src="photos/paysage.jpg" alt="" loading="lazy" style="filter:' + s[1] + '"><span>' + s[0] + "</span></button>"; }).join("");
+  $("#styles").innerHTML = STY.map(function (s, i) { return '<button type="button" aria-pressed="' + (i === 0) + '" data-i="' + i + '"><img src="photos/v/paysage.webp" alt="" loading="lazy" style="filter:' + s[1] + '"><span>' + s[0] + "</span></button>"; }).join("");
   function style(i) { $("#pc-img").style.filter = STY[i][1]; $("#pc-texte").textContent = STY[i][0] + " : " + STY[i][2]; $$("#styles button").forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); }); }
   $$("#styles button").forEach(function (b) { b.addEventListener("click", function () { style(+b.dataset.i); }); });
   style(0);
