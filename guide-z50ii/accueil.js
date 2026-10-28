@@ -4,89 +4,45 @@
   "use strict";
   var G = window.GZ, $ = G.$, $$ = G.$$;
   var NB = 160;
-  var NOMS = { lentilles: "Lentilles", objectif: "Objectif", capteur: "Capteur 20,9 Mpx", poignee: "Poignée", capot: "Viseur OLED et flash", commandes: "Molettes et déclencheur", ecran: "Écran tactile orientable", batterie: "Batterie EN-EL25a", carte: "Carte SD" };
-  // L'animation est une vidéo LUE normalement (pas sautée image par image : sur
-  // iPhone, chaque saut de position coûte cher et ça saccadait). Quand on défile,
-  // la vidéo joue jusqu'à la bonne image, plus vite si on est loin ; pour revenir
-  // en arrière, on joue une copie inversée. Tout est décodé par la puce vidéo.
-  var heros = $(".heros"), av = $("#sequence"), ar = $("#sequence-inverse"), actif = av;
-  var temps = $$(".temps"), indice = $("#indice"), charge = $("#charge"), zoneEtiq = $("#etiquettes");
-  var dossier = "", p = 0, POS = null, largeurs = null, iw = 1600, ih = 1000, base = null;
-  var duree = 0, sens = 1, bascule = false, boucle = false, modeSaut = false;
-
-  function choisir() { return innerWidth / innerHeight >= .9 ? "l" : "p"; }
-  function charger() {
-    var d = choisir(); if (d === dossier) return;
-    dossier = d; iw = d === "l" ? 1600 : 750; ih = d === "l" ? 1000 : 1200;
-    duree = 0; sens = 1; actif = av; av.style.opacity = 1; ar.style.opacity = 0;
-    av.src = "sequence/" + d + ".mp4"; ar.src = "sequence/" + d + "-inverse.mp4"; av.load(); ar.load();
-    POS = null;
-    fetch("sequence/" + d + "/etiquettes.json").then(function (r) { return r.json(); }).then(function (j) { POS = j; largeurs = null; poserEtiquettes(); }).catch(function () {});
-  }
-  [av, ar].forEach(function (v) {
-    // iPhone : une vidéo n'affiche ses images qu'après un premier play (muet, donc autorisé)
-    v.addEventListener("loadedmetadata", function () {
-      if (v === av) duree = v.duration;
-      var pr = v.play(); if (pr && pr.then) pr.then(function () { v.pause(); if (v === av) { v.currentTime = 0; lancer(); } }, function () { modeSaut = true; lancer(); });
-    });
+  var NOMS = { objectif: "L'objectif", dessus: "Molettes et déclencheur", boitier: "Le boîtier", capteur: "Le capteur 20,9 Mpx", ecran: "L'écran orientable", batterie: "La batterie", carte: "La carte SD" };
+  // Le vrai Z50II (photos libres de droits) : de face, il s'ouvre en pièces
+  // (vue éclatée générée par IA à partir de la vraie photo), se referme, puis
+  // se retourne sur son vrai dos. Tout est transform/opacity : rien ne rame.
+  var heros = $(".heros"), plateau = $("#plateau"), zone = $("#pieces"), avant = $(".vrai.avant"), dos = $(".vrai.dos");
+  var temps = $$(".temps"), indice = $("#indice"), zoneEtiq = $("#etiquettes"), P = [], p = 0;
+  var lisse = function (t) { t = G.bornes(t, 0, 1); return t * t * (3 - 2 * t); };
+  var K = { ecran: .92, capteur: .95, batterie: .97, carte: .97, boitier: 0, dessus: .9, objectif: .8 }, Z = { ecran: 1, capteur: 2, batterie: 0, carte: 0, boitier: 3, dessus: 4, objectif: 5 };
+  fetch("img/vrai/pieces/pieces.json").then(function (r) { return r.json(); }).then(function (J) {
+    var b = J.pieces.boitier, ratio = J.H / J.W;
+    zone.innerHTML = Object.keys(J.pieces).map(function (n) { var q = J.pieces[n]; return '<img src="img/vrai/pieces/' + n + '.webp" alt="" data-n="' + n + '" style="left:' + q.x + "%;top:" + q.y + "%;width:" + q.w + "%;z-index:" + Z[n] + '">'; }).join("");
+    P = $$("img", zone).map(function (el, i) { var q = J.pieces[el.dataset.n]; return { el: el, n: el.dataset.n, q: q, dx: (b.cx - q.cx) * K[el.dataset.n], dy: (b.cy - q.cy) * K[el.dataset.n] * ratio, i: i }; });
+    zoneEtiq.innerHTML = P.map(function (o) { return '<span data-n="' + o.n + '" style="left:' + o.q.cx + "%;top:" + (o.q.y + o.q.h + 1) + '%">' + NOMS[o.n] + "</span>"; }).join("");
+    defiler();
   });
-  av.addEventListener("progress", function () { try { var f = av.buffered.length ? av.buffered.end(av.buffered.length - 1) / av.duration : 0; charge.style.width = f * 100 + "%"; if (f > .99) charge.style.opacity = 0; } catch (e) {} });
-  av.addEventListener("canplaythrough", function () { charge.style.opacity = 0; });
-
-  function position() { return actif === av ? av.currentTime : duree - ar.currentTime; }
-  function lancer() { if (!boucle && duree) { boucle = true; requestAnimationFrame(suivre); } }
-  function suivre() {
-    var cible = p * (duree - .04), t = position(), ecart = cible - t;
-    poserEtiquettes(t);
-    if (modeSaut) { if (!av.seeking && Math.abs(ecart) > .01) av.currentTime = cible; boucle = false; return; }
-    if (bascule) return requestAnimationFrame(suivre);
-    if (Math.abs(ecart) < .03) { actif.pause(); boucle = false; return; }
-    var voulu = ecart > 0 ? 1 : -1;
-    if (voulu !== sens) {
-      // changement de sens : l'autre vidéo se place sur la même image, puis on échange
-      var autre = voulu > 0 ? av : ar; bascule = true; actif.pause();
-      autre.currentTime = voulu > 0 ? t : duree - t;
-      autre.addEventListener("seeked", function fini() {
-        autre.removeEventListener("seeked", fini);
-        autre.style.opacity = 1; actif.style.opacity = 0; actif = autre; sens = voulu; bascule = false;
-      });
-      return requestAnimationFrame(suivre);
-    }
-    actif.playbackRate = G.bornes(Math.abs(ecart) / .35, .6, 4);
-    if (actif.paused) { var pr = actif.play(); if (pr && pr.catch) pr.catch(function () { modeSaut = true; }); }
-    requestAnimationFrame(suivre);
-  }
-  function taille() {
-    // place la vidéo comme le faisait le canevas : l'appareil sous le texte, un peu plus petit
-    var W = innerWidth, H = innerHeight, l = dossier === "l", s = Math.min(W / iw, H / ih) * (l ? .84 : .96);
-    base = { w: iw * s, h: ih * s, x: (W - iw * s) / 2, y: (H - ih * s) / 2 + H * (l ? .13 : .11) };
-    [av, ar].forEach(function (v) { v.style.width = base.w + "px"; v.style.height = base.h + "px"; v.style.left = base.x + "px"; v.style.top = base.y + "px"; });
-  }
-  function echelle() { var fin = G.bornes((p - .84) / .16, 0, 1); return 1 - .13 * fin * fin * (3 - 2 * fin); }
-  function cadre() { var k = echelle(), w = base.w * k, h = base.h * k; return { x: base.x + (base.w - w) / 2, y: base.y + (base.h - h) / 2, w: w, h: h }; }
-  var etiqVisibles = true;
-  function poserEtiquettes(t) {
-    if (!POS || !base) return;
-    if (!zoneEtiq.children.length) zoneEtiq.innerHTML = Object.keys(NOMS).map(function (n) { return '<span data-n="' + n + '">' + NOMS[n] + "</span>"; }).join("");
-    var spans = $$("span", zoneEtiq);
-    var visible = p > .38 && p < .62 ? G.bornes(Math.min((p - .38) / .05, (.62 - p) / .05), 0, 1) : 0;
-    if (!visible) { if (etiqVisibles) { spans.forEach(function (s) { s.style.opacity = 0; }); etiqVisibles = false; } return; }
-    etiqVisibles = true;
-    if (!largeurs) largeurs = spans.map(function (s) { return s.offsetWidth; }); // lu une fois, pas à chaque image
-    var i = duree && t !== undefined ? Math.round(t / duree * (NB - 1)) : Math.round(p * (NB - 1)), f = POS[G.bornes(i, 0, NB - 1)] || {}, c = cadre();
-    var court = dossier === "p", PEU = { lentilles: 1, capteur: 1, ecran: 1, commandes: 1, carte: 1 };
-    spans.forEach(function (s, k) {
-      var q = f[s.dataset.n]; if (!q || (court && !PEU[s.dataset.n])) { s.style.opacity = 0; return; }
-      // sur téléphone, moins d'étiquettes et jamais coupées par le bord
-      var demi = largeurs[k] / 2 + 8, x = G.bornes(c.x + q[0] / 100 * c.w, demi, innerWidth - demi), y = c.y + q[1] / 100 * c.h;
-      s.style.transform = "translate3d(" + (x - largeurs[k] / 2).toFixed(1) + "px," + y.toFixed(1) + "px,0) translateY(-50%)";
-      s.style.opacity = visible;
+  function poser() {
+    // 0–.14 vrai appareil · .14–.2 il devient les pièces · .2–.4 il s'ouvre · .4–.6 ouvert · .6–.68 il se ferme · .68–.72 vrai appareil · .72–.84 il se retourne · dos
+    var ouvre = lisse((p - .2) / .2) * (1 - lisse((p - .6) / .08));
+    var pieces = lisse((p - .15) / .03) * (1 - lisse((p - .69) / .02));
+    P.forEach(function (o) {
+      var e = lisse(ouvre * 1.25 - o.i * .04);
+      o.el.style.transform = "translate(" + (o.dx * (1 - e)).toFixed(2) + "cqw," + (o.dy * (1 - e)).toFixed(2) + "cqw)";
     });
+    zone.style.opacity = pieces.toFixed(3);
+    // fermé, l'appareil est plus grand (surtout sur téléphone) ; ouvert, tout tient dans l'écran
+    var grand = innerWidth / innerHeight < .9 ? .75 : .06;
+    plateau.style.transform = "translate(-50%,-50%) scale(" + (1 + grand * (1 - ouvre)).toFixed(3) + ")";
+    var tour = lisse((p - .72) / .12), angle = tour * 180;
+    avant.style.opacity = (1 - pieces) * (angle < 90 ? 1 : 0);
+    avant.style.transform = "translate(-50%,-50%) rotateY(" + Math.min(angle, 90).toFixed(1) + "deg)";
+    dos.style.opacity = angle > 90 ? 1 : 0;
+    dos.style.transform = "translate(-50%,-50%) rotateY(" + (angle > 90 ? angle - 180 : -90).toFixed(1) + "deg)";
+    var vis = p > .4 && p < .6 ? G.bornes(Math.min((p - .4) / .04, (.6 - p) / .04), 0, 1) : 0;
+    zoneEtiq.style.opacity = vis;
   }
   function defiler() {
-    var vh = innerHeight, course = heros.offsetHeight - vh;
+    var course = heros.offsetHeight - innerHeight;
     p = G.bornes(scrollY / course, 0, 1);
-    var e = "scale(" + echelle().toFixed(4) + ")"; av.style.transform = e; ar.style.transform = e; lancer(); if (!boucle) poserEtiquettes(duree ? position() : undefined);
+    poser();
     temps.forEach(function (el) {
       var de = +el.dataset.de, a = +el.dataset.a, f = (a - de) * .25, o;
       o = el.dataset.depart && p <= de + f ? 1 : G.bornes(Math.min((p - de) / f, (a - p) / f), 0, 1);
@@ -97,8 +53,8 @@
   }
   var attente = false;
   addEventListener("scroll", function () { if (attente) return; attente = true; requestAnimationFrame(function () { attente = false; defiler(); }); }, { passive: true });
-  addEventListener("resize", function () { charger(); taille(); largeurs = null; defiler(); });
-  charger(); taille(); defiler();
+  addEventListener("resize", defiler);
+  defiler();
 
   // parcours
   var faits = 0;

@@ -69,7 +69,16 @@ button { font: inherit; color: inherit; }
 /* ------------------------------------------------------------ héros */
 .heros { position: relative; height: 380vh; background: #f3f2f5; }
 .scene { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
-.scene video { position: absolute; display: block; object-fit: fill; background: transparent; pointer-events: none; }
+.plateau { position: absolute; left: 50%; top: 60%; transform: translate(-50%, -50%); width: min(94vw, 1100px, 100svh * .82); aspect-ratio: 1680 / 944; container-type: inline-size; perspective: 1400px; }
+@media (max-aspect-ratio: 9/10) { .plateau { top: 55%; width: 96vw; } }
+.plateau .pieces { position: absolute; inset: 0; opacity: 0; }
+.plateau .pieces img { position: absolute; display: block; height: auto; will-change: transform; }
+.plateau .vrai { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); backface-visibility: hidden; will-change: transform, opacity; }
+.plateau .vrai.avant { width: 46%; }
+.plateau .vrai.dos { width: 50%; opacity: 0; }
+.plateau .etiquettes { opacity: 0; z-index: 9; }
+.plateau .etiquettes span { left: auto; top: auto; transform: translate(-50%, 0); opacity: 1; will-change: auto; }
+@media (max-width: 600px) { .plateau .etiquettes [data-n="boitier"], .plateau .etiquettes [data-n="batterie"] { display: none; } }
 .temps { position: absolute; left: 0; right: 0; padding: 0 24px; opacity: 0; pointer-events: none; will-change: opacity, transform; }
 .temps.haut { top: 12vh; text-align: center; }
 .temps.bas { bottom: 9vh; text-align: center; }
