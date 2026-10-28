@@ -21,7 +21,7 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           enablement: true
-      - run: mkdir _site && cp -r index.html mentions-legales.html icone-180.png logo-metal.png polices guide-z50ii _site/
+      - run: mkdir _site && cp -r index.html mentions-legales.html icone-180.png logo-metal.png polices guide-z50ii appareils _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
