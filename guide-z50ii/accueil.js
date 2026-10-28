@@ -1,50 +1,50 @@
-/* Accueil : séquence d'images au défilement (assemblé → éclaté → assemblé),
-   étiquettes des pièces qui suivent l'appareil, parcours. */
+/* Accueil : le vrai Z50II se démonte et se remonte au défilement (vraies
+   pièces qui glissent, rien ne fond), étiquettes des pièces, parcours. */
 (function () {
   "use strict";
   var G = window.GZ, $ = G.$, $$ = G.$$;
-  var NB = 160;
   var NOMS = { objectif: "L'objectif", dessus: "Molettes et déclencheur", boitier: "Le boîtier", capteur: "Le capteur 20,9 Mpx", ecran: "L'écran orientable", batterie: "La batterie", carte: "La carte SD" };
-  // Le vrai Z50II (photos libres de droits) : de face, il s'ouvre en pièces
-  // (vue éclatée générée par IA à partir de la vraie photo), se referme, puis
-  // se retourne sur son vrai dos. Tout est transform/opacity : rien ne rame.
-  var heros = $(".heros"), plateau = $("#plateau"), zone = $("#pieces"), avant = $(".vrai.avant"), dos = $(".vrai.dos");
-  var temps = $$(".temps"), indice = $("#indice"), zoneEtiq = $("#etiquettes"), P = [], p = 0;
+  // où poser chaque étiquette (en % de la vue éclatée)
+  var ETIQ = { dessus: [44.9, 28.1], objectif: [24, 90.9], boitier: [55, 74.5], capteur: [71.2, 70.6], ecran: [81.2, 63.9], batterie: [90.7, 56.6], carte: [97.3, 31] };
+  // ordre de départ (l'objectif part en premier) et profondeur pour la rotation
+  var RETARD = { lentA: 0, lentB: .04, lentC: .07, dessus: .1, capteur: .14, ecran: .17, batterie: .2, carte: .22, boitier: 0 };
+  var PROF = { lentA: 70, lentB: 55, lentC: 40, dessus: 20, boitier: 0, capteur: -20, ecran: -35, batterie: -50, carte: -60 };
+  var heros = $(".heros"), plateau = $("#plateau"), monde = $("#monde"), zone = $("#pieces");
+  var temps = $$(".temps"), indice = $("#indice"), zoneEtiq = $("#etiquettes"), P = [], p = 0, W = 1680, H = 944;
   var lisse = function (t) { t = G.bornes(t, 0, 1); return t * t * (3 - 2 * t); };
-  var K = { ecran: .92, capteur: .95, batterie: .97, carte: .97, boitier: 0, dessus: .9, objectif: .8 }, Z = { ecran: 1, capteur: 2, batterie: 0, carte: 0, boitier: 3, dessus: 4, objectif: 5 };
-  fetch("img/vrai/pieces/pieces.json").then(function (r) { return r.json(); }).then(function (J) {
-    var b = J.pieces.boitier, ratio = J.H / J.W;
-    zone.innerHTML = Object.keys(J.pieces).map(function (n) { var q = J.pieces[n]; return '<img src="img/vrai/pieces/' + n + '.webp" alt="" data-n="' + n + '" style="left:' + q.x + "%;top:" + q.y + "%;width:" + q.w + "%;z-index:" + Z[n] + '">'; }).join("");
-    P = $$("img", zone).map(function (el, i) { var q = J.pieces[el.dataset.n]; return { el: el, n: el.dataset.n, q: q, dx: (b.cx - q.cx) * K[el.dataset.n], dy: (b.cy - q.cy) * K[el.dataset.n] * ratio, i: i }; });
-    zoneEtiq.innerHTML = P.map(function (o) { return '<span data-n="' + o.n + '" style="left:' + o.q.cx + "%;top:" + (o.q.y + o.q.h + 1) + '%">' + NOMS[o.n] + "</span>"; }).join("");
+  var doux = function (t) { t = G.bornes(t, 0, 1); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+  fetch("img/vrai/couches/couches.json").then(function (r) { return r.json(); }).then(function (J) {
+    W = J.W; H = J.H;
+    zone.innerHTML = J.couches.map(function (c) {
+      return '<img src="img/vrai/couches/' + c.n + '.webp" alt="" style="left:' + (c.x / W * 100).toFixed(3) + "%;top:" + (c.y / H * 100).toFixed(3) + "%;width:" + (c.w / W * 100).toFixed(3) + "%;transform-origin:" + ((c.ox - c.x) / c.w * 100).toFixed(1) + "% " + ((c.oy - c.y) / c.h * 100).toFixed(1) + '%">';
+    }).join("");
+    P = $$("img", zone).map(function (el, i) { var c = J.couches[i]; return { el: el, n: c.n, dx: c.dx / W * 100, dy: c.dy / W * 100, s: c.s, r: RETARD[c.n] || 0, z: PROF[c.n] || 0 }; });
+    zoneEtiq.innerHTML = Object.keys(ETIQ).map(function (n) { return '<span data-n="' + n + '" style="left:' + ETIQ[n][0] + "%;top:" + ETIQ[n][1] + '%">' + NOMS[n] + "</span>"; }).join("");
     defiler();
   });
   function poser() {
-    // 0–.16 vrai appareil · .16–.26 il éclate · .26–.58 ouvert · .58–.68 il se referme · .68–.86 il pivote · dos
-    var sort = lisse((p - .16) / .1), rentre = lisse((p - .58) / .1);
-    var ouvert = sort * (1 - rentre);               // 0 = fermé, 1 = grand ouvert
-    // les pièces ne sont jamais montrées « rentrées » : elles partent déjà un peu écartées
-    var ecart = .38 + .62 * ouvert;
+    // 0–.16 appareil monté · .16–.32 il se démonte · ouvert · .56–.7 il se remonte · zoom sur les molettes
+    var ouvert = lisse((p - .16) / .16) * (1 - lisse((p - .56) / .14));
     P.forEach(function (o) {
-      var e = lisse(ecart * 1.12 - o.i * .02);
-      o.el.style.transform = "translate(" + (o.dx * (1 - e)).toFixed(2) + "cqw," + (o.dy * (1 - e)).toFixed(2) + "cqw)";
+      var e = 1 - doux((ouvert * 1.28 - o.r) / 1.06);   // 1 = monté, 0 = éclaté
+      var z = o.z * (1 - e * .7);
+      o.el.style.transform = "translate3d(" + (o.dx * e).toFixed(2) + "cqw," + (o.dy * e).toFixed(2) + "cqw," + z.toFixed(1) + "px) scale(" + (1 + (o.s - 1) * e).toFixed(4) + ")";
     });
-    // coupe nette (jamais deux appareils en transparence), masquée par un bref flou de mouvement
-    var SEUIL = .1, coupe = ouvert >= SEUIL;
-    zone.style.opacity = coupe ? 1 : 0;
-    var flou = Math.max(0, 1 - Math.abs(ouvert - SEUIL) / .07) * 5;
-    zone.style.filter = flou > .2 ? "blur(" + flou.toFixed(1) + "px)" : "none";
-    // le retournement : l'avant pivote et s'efface, puis le dos arrive (chevauchement court)
-    var tour = lisse((p - .7) / .16), sortie = lisse(tour / .58), arrivee = lisse((tour - .42) / .58);
-    avant.style.opacity = coupe ? 0 : (1 - sortie).toFixed(3);
-    avant.style.transform = "translate(-50%,-50%) translateX(" + (-sortie * 8).toFixed(2) + "%) rotateY(" + (-sortie * 32).toFixed(1) + "deg) scale(" + (1 + Math.min(ouvert / SEUIL, 1) * .05).toFixed(3) + ")";
-    avant.style.filter = !coupe && flou > .2 ? "blur(" + flou.toFixed(1) + "px)" : "none";
-    dos.style.opacity = arrivee.toFixed(3);
-    dos.style.transform = "translate(-50%,-50%) translateX(" + ((1 - arrivee) * 8).toFixed(2) + "%) rotateY(" + ((1 - arrivee) * 32).toFixed(1) + "deg)";
-    var vis = p > .3 && p < .56 ? G.bornes(Math.min((p - .3) / .04, (.56 - p) / .04), 0, 1) : 0;
+    var vis = p > .3 && p < .55 ? G.bornes(Math.min((p - .3) / .04, (.55 - p) / .04), 0, 1) : 0;
     zoneEtiq.style.opacity = vis;
-    var grand = innerWidth / innerHeight < .9 ? .75 : .06;
-    plateau.style.transform = "translate(-50%,-50%) scale(" + (1 + grand * (1 - ouvert)).toFixed(3) + ")";
+    // il tourne doucement pendant tout le défilement ; puis on s'approche des molettes
+    var rot = -16 + 30 * lisse(p / .9);
+    var zoom = lisse((p - .66) / .14) * (1 - .55 * lisse((p - .86) / .12));
+    var etroit = innerWidth / innerHeight < .9;
+    var grand = (etroit ? .75 : .45) * (1 - ouvert);
+    var sc = (1 + grand * (1 - .5 * zoom)) * (1 + (etroit ? .5 : .7) * zoom);
+    // point fixe (≈ 46 %, 40 % : l'appareil grandit vers le bas, sous le titre) puis centre des molettes (≈ 37 %, 24 %)
+    var cx = 46 - 9 * zoom, cy = 40 - 16 * zoom;
+    monde.style.transformOrigin = cx + "% " + cy + "%";
+    // on amène les molettes au milieu de l'écran (un peu au-dessus)
+    var R = plateau.getBoundingClientRect();
+    var tx = (innerWidth / 2 - (R.left + R.width * cx / 100)) * zoom, ty = (innerHeight * .56 - (R.top + R.height * cy / 100)) * zoom;
+    monde.style.transform = "translate(" + tx.toFixed(1) + "px," + ty.toFixed(1) + "px) rotateY(" + rot.toFixed(2) + "deg) rotateX(" + (4 - 6 * ouvert).toFixed(2) + "deg) scale(" + (sc / 2).toFixed(4) + ")";
   }
   // inertie : l'animation rejoint le défilement en douceur, comme sur une page produit Apple
   var cible = 0, boucle = false;
