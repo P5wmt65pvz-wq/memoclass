@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mentions légales — Guide Z50II</title>
+<meta name="description" content="Mentions légales, confidentialité, conditions d'utilisation et crédits du Guide Z50II.">
+<meta name="theme-color" content="#f5f5f7">
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="contenu" class="bloc" style="max-width:760px">
+  <header class="entete-page"><h1>Mentions légales, confidentialité et crédits</h1><p>En bref : aucun cookie, aucun compte, aucune mesure d'audience, aucune publicité. Rien n'est collecté.</p></header>
+  <div class="grille" style="grid-template-columns:1fr">
+    <section class="carte"><h3>Éditeur</h3><p>Ce site est édité à titre non professionnel par une personne physique. Comme la loi le permet pour préserver son anonymat, seuls le nom et l'adresse de l'hébergeur sont indiqués ; les éléments d'identification de l'éditeur ont été communiqués à l'hébergeur (article 1-1, II de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, dans sa version issue de la loi n° 2024-449 du 21 mai 2024).</p></section>
+    <section class="carte"><h3>Hébergeur</h3><p>GitHub, Inc. (service GitHub Pages), 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p></section>
+    <section class="carte"><h3>Données personnelles</h3><p>Le site ne dépose aucun cookie, ne demande aucun compte et n'utilise aucun outil de mesure d'audience ni aucun service tiers : la police, les images et les scripts sont servis par le site lui-même.</p><p>Ta progression (étapes vues, réglages cochés, quiz réussis) est enregistrée uniquement dans le stockage de ton navigateur, sur ton appareil. Elle n'est envoyée nulle part. Tu peux l'effacer ici : <button class="bouton clair" type="button" id="effacer" style="padding:8px 16px;font-size:14px">Effacer ma progression</button> <span id="efface" class="muted"></span></p><p>Comme tout hébergeur web, GitHub peut enregistrer des informations techniques lors de la connexion (adresse IP, par exemple) pour assurer le service et sa sécurité, selon sa propre politique de confidentialité.</p></section>
+    <section class="carte"><h3>Conditions d'utilisation</h3><p>Le guide est gratuit, sans inscription. Il est indépendant : il n'est ni affilié ni approuvé par Nikon. Nikon, NIKKOR et Z50II sont des marques de Nikon Corporation. Les caractéristiques et procédures ont été vérifiées dans le Guide de référence officiel du Z50II (consulté le 27 octobre 2026) ; les recettes et conseils sont des points de départ de photographe, pas des réglages officiels. En cas de doute, le <a href="https://onlinemanual.nikonimglib.com/z50II/fr/" rel="noopener">manuel officiel</a> fait foi. Les textes et le modèle 3D de l'appareil ont été réalisés pour ce guide.</p></section>
+    <section class="carte"><h3>Crédits</h3><p>Police Inter (Rasmus Andersson), licence SIL Open Font License 1.1, fournie dans le dossier <code>polices</code>.</p><p>Photos sous licence libre, via Wikimedia Commons :</p><ul id="credits" style="padding-left:1.2em;margin:0"></ul></section>
+  </div>
+</main>
+<script src="commun.js"></script>
+<script src="credits.js"></script>
+<script>
+(function () {
+  var G = window.GZ, $ = G.$;
+  if (window.CREDITS) $("#credits").innerHTML = window.CREDITS.map(function (c) { return "<li>" + G.echapper(c.usage) + " : « " + G.echapper(c.titre.replace(/^File:/, "")) + " », " + G.echapper(c.auteur || "auteur inconnu") + ", " + (c.licence_url ? '<a href="' + G.echapper(c.licence_url) + '" rel="noopener">' + G.echapper(c.licence) + "</a>" : G.echapper(c.licence)) + ' — <a href="' + G.echapper(c.page) + '" rel="noopener">source</a></li>'; }).join("");
+  $("#effacer").addEventListener("click", function () { try { Object.keys(localStorage).filter(function (k) { return k.indexOf("gz3-") === 0; }).forEach(function (k) { localStorage.removeItem(k); }); $("#efface").textContent = "C'est fait."; } catch (e) { $("#efface").textContent = "Rien à effacer."; } });
+})();
+</script>
+</body>
+</html>

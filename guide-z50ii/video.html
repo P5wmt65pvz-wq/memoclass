@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Filmer avec le Z50II — Guide Z50II</title>
+<meta name="description" content="Filmer en 4K avec le Nikon Z50II : cadence, vitesse (règle des 180°), formats, son et stabilisation, avec un calculateur interactif.">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/video.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Filmer en 4K avec le Nikon Z50II">
+<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/og.jpg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="contenu" class="bloc">
+  <header class="entete-page">
+    <span class="sur">Étape 5 · Filmer</span>
+    <h1>4K 60p. Et un rendu qui fait pro.</h1>
+    <p>Bascule le sélecteur photo/vidéo, appuie sur le bouton rouge. Ensuite, un seul réglage change tout : la vitesse.</p>
+  </header>
+
+  <section class="carte apparait" aria-labelledby="t-180">
+    <h2 id="t-180" style="font-size:30px;font-weight:800;margin-bottom:6px">La règle des 180°</h2>
+    <p class="muted">Pour un mouvement naturel, la vitesse vaut environ deux fois la cadence. Choisis ta cadence :</p>
+    <div class="puces" id="cadences" role="group" aria-label="Cadence"></div>
+    <div class="reponse" style="grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));margin-top:18px" aria-live="polite">
+      <div><small>Vitesse conseillée</small><strong id="v180"></strong></div>
+      <div><small>Définition</small><strong id="def"></strong></div>
+      <div><small>Pour</small><strong id="pour"></strong></div>
+    </div>
+    <p class="muted" style="margin:14px 0 0;font-size:15px">En plein soleil, cette vitesse lente surexpose : un filtre ND (gris neutre) sur l'objectif règle le problème.</p>
+  </section>
+
+  <div class="grille defile apparait" style="margin-top:18px">
+    <div class="carte"><h3>Définitions</h3><p>4K UHD (3840 × 2160) en 60p, 50p, 30p, 25p ou 24p. Full HD jusqu'à 120p. Ralenti Full HD intégré (×4 ou ×5).</p></div>
+    <div class="carte"><h3>Fichiers</h3><p>MOV ou MP4, en H.265 (8 ou 10 bits) ou H.264 (8 bits). Profils N-Log et HLG pour l'étalonnage. Une séquence dure au maximum 125 minutes.</p></div>
+    <div class="carte"><h3>Le son</h3><p>Micro stéréo intégré, prise micro externe (jack 3,5 mm alimentée) et prise casque. Atténuateur et réduction du bruit du vent dans le menu.</p></div>
+    <div class="carte"><h3>Stabilité</h3><p>La réduction de vibration de l'objectif VR, plus une <span class="menu">VR électronique</span> dans le menu Enregistrement vidéo.</p></div>
+    <div class="carte"><h3>Exposition</h3><p>Motif zébré (réglage g12) pour voir les zones brûlées, moniteur de forme d'onde, cadre REC rouge (g19).</p></div>
+    <div class="carte"><h3>Vlog et produits</h3><p>Écran orientable, <span class="menu">Mode présentation produit</span> (le point passe sur l'objet montré), retardateur vidéo, streaming USB vers l'ordinateur.</p></div>
+  </div>
+  <div class="note apparait"><strong>La mise au point en vidéo :</strong> AF-F (permanent) avec la zone large ou automatique, et la détection Personnes.</div>
+</main>
+<div id="suite" data-texte="Dépannage, fiche technique et lexique, quand tu en as besoin."></div>
+<script src="commun.js"></script>
+<script>
+(function () {
+  var G = window.GZ, $ = G.$, $$ = G.$$;
+  var C = [["24p", 50, "4K ou Full HD", "Le rendu « cinéma »"], ["25p", 50, "4K ou Full HD", "La vidéo classique en Europe"], ["30p", 60, "4K ou Full HD", "Les réseaux sociaux"], ["50p", 100, "4K ou Full HD", "Mouvements fluides, léger ralenti"], ["60p", 125, "4K ou Full HD", "Sport, ralenti ×2,4 en 25p"], ["120p", 250, "Full HD", "Ralenti marqué"]];
+  $("#cadences").innerHTML = C.map(function (c, i) { return '<button class="puce" type="button" aria-pressed="' + (i === 1) + '" data-i="' + i + '">' + c[0] + "</button>"; }).join("");
+  function choisir(i) { var c = C[i]; $("#v180").textContent = "1/" + c[1] + " s"; $("#def").textContent = c[2]; $("#pour").textContent = c[3]; $$("#cadences button").forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); }); }
+  $$("#cadences button").forEach(function (b) { b.addEventListener("click", function () { choisir(+b.dataset.i); }); });
+  choisir(1);
+})();
+</script>
+</body>
+</html>

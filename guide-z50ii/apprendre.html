@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apprendre la photo — Guide Z50II</title>
+<meta name="description" content="Cinq leçons courtes où tout se manipule : la lumière (ouverture, vitesse, ISO), les modes, la mise au point, la couleur et la rafale, avec un mini-quiz pour vérifier.">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/apprendre.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Apprendre la photo avec le Nikon Z50II, en jouant">
+<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/og.jpg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="contenu" class="bloc">
+  <header class="entete-page">
+    <span class="sur">Étape 3 · Apprendre</span>
+    <h1>La photo, en jouant.</h1>
+    <p>Cinq leçons de quelques minutes. Tu bouges les réglages, tu vois le résultat, et un mini-quiz vérifie que c'est acquis.</p>
+  </header>
+
+  <div class="onglets" role="tablist" aria-label="Leçons" id="lecons">
+    <button role="tab" data-panneau="lumiere">1 · Lumière</button>
+    <button role="tab" data-panneau="modes">2 · Modes</button>
+    <button role="tab" data-panneau="nettete">3 · Netteté</button>
+    <button role="tab" data-panneau="couleur">4 · Couleur</button>
+    <button role="tab" data-panneau="rafale">5 · Rafale</button>
+  </div>
+
+  <!-- 1 -->
+  <section class="panneau" id="lumiere" role="tabpanel" aria-label="La lumière">
+    <h2 style="font-size:clamp(30px,4.5vw,48px);font-weight:800;margin-bottom:10px">Trois réglages font la lumière.</h2>
+    <p class="muted" style="font-size:19px;max-width:760px">Chacun a un effet secondaire : l'ouverture floute le fond, la vitesse fige ou laisse filer le mouvement, les ISO ajoutent du grain. Essaie.</p>
+    <div class="deux" style="margin-top:22px">
+      <div>
+        <div class="photo-sim"><div class="couche" id="sim-floue"></div><div class="couche nette" id="sim-nette"></div><canvas id="sim-grain" width="320" height="214"></canvas><div class="voile" id="sim-voile"></div><div class="hud" id="hud"></div></div>
+        <div class="posemetre" aria-hidden="true"><div class="barre-expo"><div class="curseur" id="curseur"></div></div><div class="grad"><span>Trop sombre</span><span>Correct</span><span>Trop clair</span></div></div>
+        <p class="verdict" id="verdict" aria-live="polite"></p>
+      </div>
+      <div class="carte">
+        <div class="reglage"><label for="sim-lumiere">Lumière de la scène</label>
+          <select id="sim-lumiere"><option value="15">Plein soleil</option><option value="12" selected>Ciel couvert</option><option value="9">Fin de journée, à l'ombre</option><option value="7">Intérieur éclairé</option><option value="5">Salle de spectacle</option><option value="2">Rue la nuit</option></select></div>
+        <div class="reglage"><label for="sim-ouverture">Ouverture <output id="o-ouverture"></output></label>
+          <div class="iris"><canvas id="iris" width="152" height="152" aria-hidden="true"></canvas><div style="flex:1"><input type="range" id="sim-ouverture" min="0" max="7" step="1" value="3"><div class="aide">Molette secondaire (avant) en A ou M.</div></div></div></div>
+        <div class="reglage"><label for="sim-vitesse">Vitesse <output id="o-vitesse"></output></label><input type="range" id="sim-vitesse" min="0" max="17" step="1" value="5"><div class="aide">Molette principale (arrière) en S ou M.</div></div>
+        <div class="reglage" style="margin-bottom:6px"><label for="sim-iso">Sensibilité <output id="o-iso"></output></label><input type="range" id="sim-iso" min="0" max="9" step="1" value="0"><div class="aide">Touche ISO + molette principale.</div></div>
+        <p class="muted" style="font-size:13px;margin:0">Simulation pédagogique : effets accentués pour être visibles.</p>
+      </div>
+    </div>
+    <details style="margin-top:22px"><summary>Les valeurs exactes du Z50II</summary><div>
+      <p><b>Ouverture :</b> dépend de l'objectif. Avec le NIKKOR Z DX 16–50 mm f/3.5–6.3 VR, la plus grande ouverture va de f/3.5 (grand-angle) à f/6.3 (zoom).</p>
+      <p><b>Vitesse :</b> de 1/4000 s à 30 s, jusqu'à 900 s en mode M avec la plage étendue (réglage d7), plus les poses B et T.</p>
+      <p><b>Sensibilité :</b> de 100 à 51 200 ISO, plus des réglages Hi jusqu'à l'équivalent de 204 800 ISO. La réduction du bruit ISO atténue le grain.</p>
+      <p style="margin:0"><b>Correction d'exposition :</b> maintiens la touche <span class="kbd">±</span> et tourne une molette, de −5 à +5 IL en photo. +1 IL, c'est deux fois plus de lumière.</p>
+    </div></details>
+    <div class="quiz" id="quiz-lumiere"></div>
+  </section>
+
+  <!-- 2 -->
+  <section class="panneau" id="modes" role="tabpanel" aria-label="Les modes" hidden>
+    <h2 style="font-size:clamp(30px,4.5vw,48px);font-weight:800;margin-bottom:10px">Qui décide : toi, ou l'appareil ?</h2>
+    <p class="muted" style="font-size:19px;max-width:760px">Tourne le sélecteur de mode (fais-le glisser, ou touche un mode).</p>
+    <div class="carte molette-zone" style="margin-top:22px">
+      <svg class="molette" id="molette" viewBox="0 0 240 240" role="slider" tabindex="0" aria-label="Sélecteur de mode" aria-valuetext="A"></svg>
+      <div><h3 id="mode-titre" style="font-size:30px;font-weight:800;margin-bottom:12px"></h3><div class="reponse" id="mode-detail"></div></div>
+    </div>
+    <div class="note"><strong>Le conseil :</strong> le mode A avec ISO AUTO limité. Tu choisis le flou, l'appareil s'occupe du reste. En P, tourner la molette principale propose d'autres couples vitesse/ouverture pour la même lumière (décalage du programme).</div>
+    <div class="quiz" id="quiz-modes"></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="panneau" id="nettete" role="tabpanel" aria-label="La netteté" hidden>
+    <h2 style="font-size:clamp(30px,4.5vw,48px);font-weight:800;margin-bottom:10px">Ne plus jamais rater l'œil.</h2>
+    <p class="muted" style="font-size:19px;max-width:760px">Deux réglages : le mode (quand l'appareil fait le point) et la zone (où). Dis-moi ce que tu photographies.</p>
+    <div class="deux" style="margin-top:22px">
+      <div class="photo-af"><img id="af-img" src="photos/portrait.jpg" alt="Exemple de sujet avec la zone de mise au point"><svg id="af-svg" viewBox="0 0 300 200" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+      <div class="carte"><div class="puces" id="choix-af" role="group" aria-label="Sujet"></div><div class="reponse" id="reponse-af" aria-live="polite" style="margin-top:16px"></div><p id="pourquoi-af" class="muted" style="margin:12px 0 0"></p></div>
+    </div>
+    <details style="margin-top:22px"><summary>Les 5 modes de mise au point</summary><div>
+      <p><b>AF-S :</b> sujet immobile ; mise au point mémorisée à mi-course ; par défaut, pas de déclenchement si ce n'est pas net.</p>
+      <p><b>AF-C :</b> sujet qui bouge ; suivi continu ; par défaut, déclenche même si ce n'est pas encore net.</p>
+      <p><b>AF-A :</b> l'appareil choisit entre AF-S et AF-C (photo seulement).</p>
+      <p><b>AF-F :</b> suivi permanent, en vidéo seulement.</p>
+      <p style="margin:0"><b>MF :</b> manuel, à la bague ; la mise en relief (réglage a12) colore ce qui est net.</p>
+    </div></details>
+    <details><summary>Quand l'autofocus hésite</summary><div>Sujet sans contraste, rayures horizontales, sujet plus petit que le point AF, enseigne lumineuse, éclairage qui scintille. Vise un bord contrasté à la même distance, mémorise (mi-course ou AE-L/AF-L), puis recadre.</div></details>
+    <div class="quiz" id="quiz-nettete"></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="panneau" id="couleur" role="tabpanel" aria-label="La couleur" hidden>
+    <h2 style="font-size:clamp(30px,4.5vw,48px);font-weight:800;margin-bottom:10px">Juste d'abord. À ton goût ensuite.</h2>
+    <p class="muted" style="font-size:19px;max-width:760px">Cette scène est éclairée par des ampoules chaudes, vers 3000 K. Fais glisser jusqu'à ce que le blanc redevienne blanc.</p>
+    <div class="deux" style="margin-top:22px">
+      <div><div class="bdb"><canvas id="bdb-canvas" width="1200" height="800" aria-label="Simulation de balance des blancs"></canvas><span class="etiq" id="bdb-etiq"></span></div></div>
+      <div class="carte">
+        <div class="reglage"><label for="bdb">Balance des blancs <output id="o-bdb"></output></label><input type="range" id="bdb" min="2500" max="10000" step="100" value="5200"><div class="aide">Raccourci : Fn1 + molette principale (préréglages), molette secondaire pour la température exacte.</div></div>
+        <div class="puces" id="prereglages"></div>
+      </div>
+    </div>
+    <h3 style="font-size:28px;font-weight:800;margin:44px 0 6px">Le style de l'image : Picture Control</h3>
+    <p class="muted">Touche dédiée sur le dessus. Il s'applique au JPEG ; sur un RAW, tu peux encore changer d'avis. Touche un style (aperçus indicatifs) :</p>
+    <div class="deux" style="margin-top:16px">
+      <div class="visuel" style="background:#000"><img id="pc-img" src="photos/paysage.jpg" alt="Aperçu du style choisi"></div>
+      <div><div class="styles" id="styles"></div><p id="pc-texte" class="muted" style="margin-top:12px"></p></div>
+    </div>
+    <div class="note"><strong>Contre-jour :</strong> le <span class="menu">D-Lighting actif</span> (Automatique, ou Faible à Très élevé) préserve les détails dans les ombres et les hautes lumières.</div>
+    <div class="quiz" id="quiz-couleur"></div>
+  </section>
+
+  <!-- 5 -->
+  <section class="panneau" id="rafale" role="tabpanel" aria-label="La rafale" hidden>
+    <h2 style="font-size:clamp(30px,4.5vw,48px);font-weight:800;margin-bottom:10px">Jusqu'à 30 images par seconde.</h2>
+    <p class="muted" style="font-size:19px;max-width:760px">Maintiens la touche de mode de déclenchement et tourne la molette principale. Choisis un mode : les barres montrent une seconde de rafale.</p>
+    <div class="carte" style="margin-top:22px"><div class="puces" id="choix-rafale" role="group" aria-label="Mode de déclenchement"></div><div class="rafale" id="rafale-anim" aria-hidden="true"></div><p id="rafale-texte" aria-live="polite" style="margin:8px 0 0;color:var(--ink-2)"></p></div>
+    <p class="muted" style="font-size:14px;margin-top:12px">Cadences maximales mesurées par Nikon, variables selon la qualité d'image et le type d'obturateur. Avec le flash intégré : une photo par appui. Pour C15/C30, Nikon recommande une carte UHS de classe 3 d'au moins 250 Mo/s.</p>
+  </section>
+</main>
+<div id="suite" data-texte="Une situation, les bons réglages, en un geste."></div>
+<script src="commun.js"></script>
+<script src="apprendre.js"></script>
+</body>
+</html>
