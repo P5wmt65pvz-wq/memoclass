@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/sitemap.xml

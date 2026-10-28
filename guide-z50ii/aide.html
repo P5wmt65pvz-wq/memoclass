@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aide — Guide Z50II</title>
+<meta name="description" content="Dépannage du Nikon Z50II (photo floue, impossible de déclencher, écran noir…), fiche technique complète et lexique de la photo.">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/aide.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Nikon Z50II : dépannage, fiche technique, lexique">
+<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/og.jpg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="contenu" class="bloc">
+  <header class="entete-page">
+    <span class="sur">Étape 6 · Aide</span>
+    <h1>Un souci ? Un mot ? Un chiffre ?</h1>
+    <p>Écris ce que tu cherches, ou choisis un onglet.</p>
+  </header>
+  <input class="recherche" id="cherche" type="search" placeholder="Ex. : flou, batterie, RAW, écran noir…" aria-label="Chercher dans l'aide">
+  <div class="onglets" role="tablist" aria-label="Rubriques" id="rubriques">
+    <button role="tab" data-panneau="depannage">Dépannage</button>
+    <button role="tab" data-panneau="fiche">Fiche technique</button>
+    <button role="tab" data-panneau="lexique">Lexique</button>
+  </div>
+  <section class="panneau" id="depannage" role="tabpanel" aria-label="Dépannage"></section>
+  <section class="panneau" id="fiche" role="tabpanel" aria-label="Fiche technique" hidden><div class="carte"><dl class="specs" id="specs"></dl></div></section>
+  <section class="panneau" id="lexique" role="tabpanel" aria-label="Lexique" hidden><dl class="lexique" id="lex"></dl></section>
+  <p id="rien" class="muted" hidden>Rien trouvé. Essaie un autre mot.</p>
+</main>
+<script src="commun.js"></script>
+<script>
+(function () {
+  var G = window.GZ, $ = G.$, $$ = G.$$;
+  var D = [
+    ["Impossible de déclencher", "Vérifie la carte mémoire (présente, pas pleine) et le réglage « Photo si carte absente ? ». En AF-S, l'appareil refuse tant que ce n'est pas net : change de point ou passe en AF-C. Si l'objectif est rétractable, déplie-le."],
+    ["Mes photos sont floues", "En MF par erreur ? Repasse en AF-S ou AF-C. Tout le cadre flou : c'est le bougé, accélère ou monte les ISO. Seul le sujet est flou : il bougeait, vise 1/500 s ou plus."],
+    ["Le viseur est flou", "Tourne la commande de réglage dioptrique, à côté du viseur."],
+    ["L'écran ou le viseur ne s'allume pas", "La touche de mode moniteur a peut-être forcé l'autre affichage : appuie dessus. Nettoie le détecteur oculaire avec une soufflette."],
+    ["L'affichage a changé tout seul", "Tu as sûrement appuyé sur DISP : appuie encore pour faire défiler les affichages."],
+    ["L'appareil ne répond plus", "Attends la fin de l'enregistrement, puis éteins. S'il ne s'éteint pas, retire et remets la batterie. Les photos déjà enregistrées sont conservées."],
+    ["La rafale ne marche pas", "Pas de rafale avec le flash intégré (une photo par appui), ni avec la superposition HDR."],
+    ["Pas de bip de mise au point", "Normal en AF-C, en vidéo ou en mode silencieux. Réglable dans « Sons de l'appareil photo »."],
+    ["Une icône d'horloge clignote", "L'horloge a été réinitialisée : règle de nouveau « Fuseau horaire et date »."],
+    ["La batterie se vide vite", "Wi‑Fi, Bluetooth, RAW, froid, autofocus répété et vitesses lentes la vident plus vite. Compte environ 230 à 250 photos par charge (norme CIPA). Une deuxième batterie EN-EL25a règle le problème."],
+    ["Ma carte est lente en vidéo", "Pour la vidéo, Nikon recommande une carte UHS de classe 3 au minimum ; pour C15/C30, au moins 250 Mo/s."]
+  ];
+  var S = [["Capteur", "CMOS DX 23,5 × 15,7 mm, 20,9 Mpx effectifs"], ["Monture", "Nikon Z (objectifs F avec adaptateur, restrictions possibles)"], ["Formats photo", "NEF (RAW) 14 bits, JPEG, HEIF"], ["Taille d'image", "5568 × 3712 pixels (Large, DX)"], ["Sensibilité", "100 à 51 200 ISO, jusqu'à l'équivalent 204 800"], ["Vitesses", "1/4000 à 30 s (900 s en M), poses B et T"], ["Synchro flash", "Jusqu'à 1/200 s ou 1/250 s selon le réglage"], ["Autofocus", "Hybride, 209 points (231 en zone auto), −9 à +19 IL"], ["Détection du sujet", "Personnes, animaux, oiseaux, véhicules, avions"], ["Rafale", "11 vps (15 en silencieux) ; 15 ou 30 vps en haute vitesse +"], ["Viseur", "OLED ≈ 2,36 M points, couverture 100 %, 1,02×"], ["Écran", "8 cm (3,2\"), tactile, orientable, ≈ 1,04 M points"], ["Vidéo", "4K UHD jusqu'à 60p, Full HD jusqu'à 120p, N-Log, HLG"], ["Flash", "Intégré (NG ≈ 7) + griffe flash"], ["Connexions", "USB‑C, HDMI type D, micro, casque, Wi‑Fi, Bluetooth 5.0"], ["Batterie", "EN-EL25a (EN-EL25 compatible, moins de vues)"], ["Autonomie", "≈ 230 à 250 photos (CIPA), ≈ 55 min de vidéo"], ["Cartes", "SD, SDHC, SDXC, UHS‑I et UHS‑II"], ["Dimensions", "≈ 127 × 96,8 × 66,5 mm"], ["Poids", "≈ 550 g avec batterie et carte, 495 g boîtier seul"]];
+  var L = [["Ouverture (f/)", "Taille du trou de l'objectif. Petit chiffre = grande ouverture, plus de lumière, arrière-plan plus flou."], ["Vitesse d'obturation", "Durée d'exposition du capteur. 1/1000 s fige, 1 s laisse filer le mouvement."], ["ISO", "Amplification du signal du capteur. Plus haut = plus clair, mais plus de grain."], ["IL", "Indice de lumination : +1 IL = deux fois plus de lumière."], ["Correction d'exposition", "Demander une photo plus claire (+) ou plus sombre (−) que ce qu'a calculé l'appareil."], ["RAW (NEF)", "Le fichier brut du capteur : plus lourd, mais tout se rattrape à la retouche."], ["JPEG", "Fichier compressé, prêt à partager."], ["HEIF", "Format plus moderne que le JPEG, plus léger à qualité comparable."], ["Format DX", "Le capteur 23,5 × 15,7 mm de Nikon (équivalent APS-C) : il « allonge » les focales d'environ 1,5×."], ["AF-S", "Autofocus ponctuel : fait le point une fois et le garde."], ["AF-C", "Autofocus continu : suit le sujet qui bouge."], ["AF-F", "Autofocus permanent, en vidéo."], ["Zone AF", "Où l'appareil cherche la netteté : un point, une zone ou tout le cadre."], ["Détection du sujet", "L'appareil reconnaît personnes, animaux, oiseaux, véhicules ou avions et vise leur œil ou leur avant."], ["Balance des blancs", "Correction de la couleur de la lumière pour qu'un blanc reste blanc."], ["Kelvin (K)", "Température de couleur : 3000 K chaud, 8000 K froid."], ["Picture Control", "Le style d'image de Nikon : contraste, saturation, netteté, teinte."], ["D-Lighting actif", "Préserve les détails dans les ombres et les hautes lumières."], ["Mesure matricielle", "L'appareil mesure la lumière de toute l'image ; la mesure spot, un petit cercle autour du point AF."], ["Histogramme", "La répartition des tons : tout à droite = blancs brûlés, tout à gauche = noirs bouchés."], ["VR", "La stabilisation (réduction de vibration) de l'objectif."], ["Poses B et T", "Poses longues en M : B tant que tu appuies, T entre deux appuis."], ["Prédéclenchement", "En C15/C30, l'appareil garde aussi des images prises pendant l'appui à mi-course."], ["N-Log / HLG", "Profils vidéo à grande dynamique : N-Log pour l'étalonnage, HLG pour un affichage HDR."], ["Monture Z", "Le système de fixation des objectifs Nikon hybrides."]];
+  $("#depannage").innerHTML = D.map(function (d) { return "<details><summary>" + G.echapper(d[0]) + "</summary><div>" + G.echapper(d[1]) + "</div></details>"; }).join("");
+  $("#specs").innerHTML = S.map(function (s) { return "<div><dt>" + G.echapper(s[0]) + "</dt><dd>" + G.echapper(s[1]) + "</dd></div>"; }).join("");
+  $("#lex").innerHTML = L.map(function (l) { return "<div><dt>" + G.echapper(l[0]) + "</dt><dd>" + G.echapper(l[1]) + "</dd></div>"; }).join("");
+  G.onglets($("#rubriques"));
+  var norm = function (s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); };
+  $("#cherche").addEventListener("input", function (e) {
+    var q = norm(e.target.value.trim()), total = 0;
+    var groupes = [["#depannage details", "depannage"], ["#specs div", "fiche"], ["#lex div", "lexique"]];
+    groupes.forEach(function (x) {
+      var n = 0;
+      $$(x[0]).forEach(function (el) { var ok = !q || norm(el.textContent).indexOf(q) > -1; el.hidden = !ok; if (ok) n++; if (q && ok && el.tagName === "DETAILS") el.open = true; });
+      total += n;
+      x.push(n);
+    });
+    if (q) { // ouvre le premier onglet qui a des résultats
+      var actif = $("#rubriques [aria-selected=true]").dataset.panneau, ok = groupes.filter(function (x) { return x[2] > 0; });
+      if (ok.length && !ok.some(function (x) { return x[1] === actif; })) $('#rubriques [data-panneau="' + ok[0][1] + '"]').click();
+    }
+    $("#rien").hidden = total > 0;
+  });
+})();
+</script>
+</body>
+</html>

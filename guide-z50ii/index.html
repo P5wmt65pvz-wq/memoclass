@@ -3,451 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Guide Z50II</title>
-<meta name="description" content="Le guide complet, gratuit et indépendant du Nikon Z50II : commandes, exposition, mise au point, couleur, recettes par situation et vidéo. Interactif, vérifié dans le manuel officiel.">
-<meta name="theme-color" content="#000000">
-<meta property="og:title" content="Nikon Z50II — le guide complet">
-<meta property="og:description" content="Du premier déclenchement aux réglages de pro. Gratuit, interactif, vérifié dans le manuel officiel.">
-<meta property="og:image" content="img/trois-quarts.webp">
+<title>Guide Nikon Z50II gratuit et interactif</title>
+<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/">
+<meta name="description" content="Le guide gratuit et interactif du Nikon Z50II : découvre chaque pièce, règle ton appareil pas à pas, apprends l'exposition et la mise au point en jouant, et trouve les bons réglages pour chaque situation.">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nikon Z50II — le guide qui te le fait comprendre">
+<meta property="og:description" content="Gratuit, interactif, vérifié dans le manuel officiel.">
+<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preload" as="image" href="sequence/l/000.webp" media="(min-aspect-ratio: 9/10)">
 <link rel="preload" as="image" href="sequence/p/000.webp" media="(max-aspect-ratio: 9/10)">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<a class="saut" href="#essentiel">Aller au contenu</a>
-<div class="progression" id="progression" aria-hidden="true"></div>
-<svg id="lg-defs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs></defs></svg>
-
-<header class="entete glass">
-  <a class="marque" href="#haut">Guide <span>Z50II</span></a>
-  <nav aria-label="Chapitres" id="nav">
-    <a href="#essentiel">Débuter</a>
-    <a href="#boitier">Commandes</a>
-    <a href="#exposition">Exposition</a>
-    <a href="#mise-au-point">Mise au point</a>
-    <a href="#couleur">Couleur</a>
-    <a href="#recettes">Recettes</a>
-    <a href="#video">Vidéo</a>
-    <a href="#fiche">Fiche</a>
-  </nav>
-  <button class="bouton-menu" id="bouton-menu" aria-expanded="false" aria-controls="tiroir" aria-label="Ouvrir le sommaire">☰</button>
-</header>
-<nav class="tiroir glass" id="tiroir" aria-label="Sommaire">
-  <a href="#essentiel">Débuter en 5 minutes</a>
-  <a href="#boitier">Le boîtier, commande par commande</a>
-  <a href="#premiers-reglages">Les premiers réglages</a>
-  <a href="#exposition">L'exposition</a>
-  <a href="#modes">Les modes</a>
-  <a href="#mise-au-point">La mise au point</a>
-  <a href="#couleur">La couleur</a>
-  <a href="#rafale">Rafale et retardateur</a>
-  <a href="#recettes">Recettes par situation</a>
-  <a href="#video">La vidéo</a>
-  <a href="#fiche">Fiche technique</a>
-  <a href="#depannage">Dépannage</a>
-  <a href="#lexique">Lexique</a>
-</nav>
-
-<!-- ======================================================= HÉROS -->
-<section class="heros" id="haut" aria-label="Présentation">
+<section class="heros" aria-label="Présentation">
   <div class="scene">
     <canvas id="sequence" aria-hidden="true"></canvas>
-    <div class="temps centre" data-de="0" data-a=".1" data-depart="1">
-      <div class="sur">Le guide complet · gratuit · indépendant</div>
-      <h1 class="degrade">Nikon Z50II.</h1>
-      <p>Du premier déclenchement aux réglages de pro.</p>
+    <div class="etiquettes" id="etiquettes" aria-hidden="true"></div>
+    <div class="temps haut" data-de="0" data-a=".12" data-depart="1">
+      <div class="sur">Le guide gratuit et interactif</div>
+      <h1>Nikon Z50II.</h1>
+      <p>Le guide qui te le fait comprendre. Vraiment.</p>
     </div>
-    <div class="temps gauche" data-de=".16" data-a=".3">
-      <span class="chiffre degrade-or">20,9 Mpx</span>
-      <p style="margin-left:0">Un capteur DX qui garde le détail, même quand la lumière tombe : jusqu'à 51 200 ISO.</p>
+    <div class="temps haut" data-de=".18" data-a=".36">
+      <h2>Regarde à l'intérieur.</h2>
+      <p>Chaque pièce a un rôle. Tu vas tous les connaître.</p>
     </div>
-    <div class="temps droite" data-de=".38" data-a=".52">
-      <h2>Tout voir avant de déclencher.</h2>
-      <p style="margin-left:0">Écran tactile orientable de 8 cm et viseur OLED de 2,36 millions de points.</p>
+    <div class="temps haut" data-de=".62" data-a=".8">
+      <h2>Et tout se règle en quelques gestes.</h2>
+      <p>Deux molettes, quelques touches. On te montre lesquelles.</p>
     </div>
-    <div class="temps gauche" data-de=".6" data-a=".76">
-      <h2>Chaque réglage sous le doigt.</h2>
-      <p style="margin-left:0">Deux molettes, un sélecteur de mode, des touches ISO, correction et Picture Control.</p>
+    <div class="temps haut" data-de=".86" data-a="1.01">
+      <h2>On commence ?</h2>
+      <p>Choisis ce que tu veux faire juste en dessous.</p>
     </div>
-    <div class="temps bas" data-de=".86" data-a="1.01">
-      <h2 class="degrade">Apprends à t'en servir. Vraiment.</h2>
-      <p>14 chapitres. Des simulateurs. Des recettes. Tout vérifié dans le manuel officiel.</p>
+    <div class="indice" id="indice">Fais défiler</div>
+    <div class="chargement" aria-hidden="true"><i id="charge"></i></div>
+  </div>
+</section>
+
+<main id="contenu">
+  <section class="bloc" aria-labelledby="t-choix">
+    <div class="titre apparait">
+      <span class="sur">Ton parcours</span>
+      <h2 id="t-choix">Que veux-tu faire ?</h2>
+      <p>Six étapes courtes. Commence par la première, ou va directement à ce dont tu as besoin.</p>
     </div>
-    <div class="indice" id="indice">Faites défiler<i></i></div>
-    <div class="chargement" id="chargement" aria-hidden="true"><span></span></div>
-  </div>
-</section>
-
-<section class="chiffres apparait" aria-label="Les chiffres clés">
-  <div><strong data-compte="20.9" data-dec="1">20,9</strong><span>millions de pixels</span></div>
-  <div><strong data-compte="11">11</strong><span>images par seconde (15 en silencieux)</span></div>
-  <div><strong data-compte="209">209</strong><span>points autofocus</span></div>
-  <div><strong>4K<small style="font-size:.5em"> 60p</small></strong><span>en vidéo</span></div>
-  <div><strong data-compte="51200" data-milliers="1">51 200</strong><span>ISO maximum (hors Hi)</span></div>
-</section>
-
-<!-- ===================================================== SOMMAIRE -->
-<section class="bloc" aria-labelledby="t-sommaire">
-  <div class="titre-section apparait">
-    <span class="sur">Le guide</span>
-    <h2 id="t-sommaire">Tout ce qu'il sait faire. <span class="muted">Et comment le lui demander.</span></h2>
-  </div>
-  <div class="bento apparait">
-    <a class="tuile large" href="#boitier"><img src="img/trois-quarts.webp" alt="" loading="lazy"><small>Chapitre 2</small><h3>Le boîtier, commande par commande</h3><p>Touche un bouton, découvre son rôle.</p></a>
-    <a class="tuile" href="#exposition"><img src="img/objectif.webp" alt="" loading="lazy"><small>Chapitre 4</small><h3>L'exposition, en jouant</h3></a>
-    <a class="tuile" href="#mise-au-point"><img src="photos/oiseau.jpg" alt="" loading="lazy"><small>Chapitre 6</small><h3>Ne plus jamais rater l'œil</h3></a>
-    <a class="tuile" href="#couleur"><img src="photos/paysage.jpg" alt="" loading="lazy"><small>Chapitre 7</small><h3>La couleur juste</h3></a>
-    <a class="tuile" href="#recettes"><img src="photos/ville.jpg" alt="" loading="lazy"><small>Chapitre 9</small><h3>10 recettes prêtes</h3></a>
-    <a class="tuile moitie" href="#video"><img src="img/dessus-34.webp" alt="" loading="lazy"><small>Chapitre 10</small><h3>La vidéo, en 4K</h3></a>
-    <a class="tuile moitie" href="#essentiel"><img src="photos/portrait.jpg" alt="" loading="lazy"><small>Chapitre 1</small><h3>Ta première photo réussie, maintenant</h3></a>
-  </div>
-</section>
-
-<main>
-
-<!-- 1 ------------------------------------------------------------>
-<section class="bloc" id="essentiel">
-  <div class="titre-section apparait">
-    <span class="sur">01 · Débuter</span>
-    <h2>Ta première photo réussie. <span class="muted">En 5 minutes.</span></h2>
-    <p>Sans rien comprendre encore. On approfondit juste après.</p>
-  </div>
-  <ol class="etapes apparait">
-    <li><b>Charge la batterie, puis insère-la avec la carte.</b><span>Accumulateur EN-EL25a et carte SD vont dans le même logement, fermé par un volet. La batterie se recharge dans l'appareil par le câble USB fourni (adaptateur secteur EH-8P en option) : environ 1 h 40 pour une charge complète.</span></li>
-    <li><b>Allume, puis règle la langue et l'heure.</b><span><span class="kbd">MENU</span> → menu Configuration → <span class="menu">Langue (Language)</span>, puis <span class="menu">Fuseau horaire et date</span>.</span></li>
-    <li><b>Déplie l'objectif s'il est rétractable.</b><span>Tourne la bague de zoom jusqu'au déclic, sinon l'appareil ne déclenche pas.</span></li>
-    <li><b>Sélecteur photo/vidéo sur photo, sélecteur de mode sur AUTO.</b><span>L'appareil gère tout : vitesse, ouverture, couleurs.</span></li>
-    <li><b>Tiens-le bien.</b><span>Poignée dans la main droite, la gauche sous l'objectif, coudes contre le buste. La moitié des photos floues viennent de là.</span></li>
-    <li><b>Appuie à mi-course.</b><span>Le point de mise au point passe au vert : c'est net. Sur un visage, l'appareil vise l'œil tout seul.</span></li>
-    <li><b>Appuie jusqu'au bout.</b><span>Puis la touche de visualisation pour revoir ta photo.</span></li>
-  </ol>
-  <p class="citation apparait"><strong>Mi-course pour viser, fin de course pour déclencher.</strong> Tout le reste du guide sert à choisir ce que l'appareil fait entre les deux.</p>
-</section>
-
-<!-- 2 ------------------------------------------------------------>
-<section class="bloc" id="boitier">
-  <div class="titre-section apparait">
-    <span class="sur">02 · Le boîtier</span>
-    <h2>Chaque commande. <span class="muted">Son rôle. Quand t'en servir.</span></h2>
-  </div>
-  <div class="puces apparait" role="tablist" aria-label="Vue de l'appareil" style="margin-bottom:16px">
-    <button class="puce" role="tab" aria-selected="true" data-vue="dessus">Dessus</button>
-    <button class="puce" role="tab" aria-selected="false" data-vue="dos">Dos</button>
-    <button class="puce" role="tab" aria-selected="false" data-vue="avant">Avant</button>
-  </div>
-  <div class="boitier apparait">
-    <div class="vue3d">
-      <img id="vue-img" src="img/dessus.webp" alt="Vue de l'appareil avec les commandes numérotées" width="1600" height="1000">
-      <div class="points" id="points"></div>
+    <div class="parcours apparait"><span id="parcours-texte">0 / 6 étapes</span><div class="rail"><i id="parcours-rail"></i></div></div>
+    <div class="choix-grille apparait" id="choix">
+      <a class="choix" href="decouvrir.html"><span class="fait">Vu ✓</span><span class="num">1 · 3 min</span><h3>Découvrir mon appareil</h3><p>La vue éclatée, puis chaque bouton.</p><span class="aller">Explorer</span><img src="img/carte-eclatee.webp" alt=""></a>
+      <a class="choix" href="reglages.html"><span class="fait">Vu ✓</span><span class="num">2 · 10 min</span><h3>Le régler une fois pour toutes</h3><p>9 réglages, un par écran.</p><span class="aller">Commencer</span><img src="img/carte-dos.webp" alt=""></a>
+      <a class="choix photo" href="apprendre.html"><img src="photos/portrait.jpg" alt=""><span class="fait">Vu ✓</span><span class="num">3 · 15 min</span><h3>Apprendre la photo en jouant</h3><p>Lumière, modes, netteté, couleur.</p><span class="aller">Jouer</span></a>
+      <a class="choix photo" href="situations.html"><img src="photos/oiseau.jpg" alt=""><span class="fait">Vu ✓</span><span class="num">4 · à la demande</span><h3>Je photographie…</h3><p>Une situation, les bons réglages.</p><span class="aller">Choisir</span></a>
+      <a class="choix photo" href="video.html"><img src="photos/concert.jpg" alt=""><span class="fait">Vu ✓</span><span class="num">5 · 5 min</span><h3>Filmer en 4K</h3><p>Les réglages vidéo qui comptent.</p><span class="aller">Filmer</span></a>
+      <a class="choix" href="aide.html"><span class="fait">Vu ✓</span><span class="num">6 · à la demande</span><h3>J'ai un problème</h3><p>Dépannage, fiche technique, lexique.</p><span class="aller">Trouver</span><img src="img/carte-aide.webp" alt=""></a>
     </div>
-    <aside class="carte fiche" aria-live="polite">
-      <div class="num" id="cmd-num"></div>
-      <h3 id="cmd-nom"></h3>
-      <p class="role" id="cmd-role"></p>
-      <p class="astuce" id="cmd-astuce"></p>
-      <div class="nav-fiche"><button type="button" id="cmd-prec">← Précédente</button><button type="button" id="cmd-suiv">Suivante →</button></div>
-    </aside>
-  </div>
-  <p class="muted apparait" style="font-size:14px;margin-top:12px">Appareil modélisé en 3D pour ce guide : la disposition est simplifiée. L'emplacement exact de chaque commande se vérifie sur ton appareil.</p>
-  <div class="grille apparait" style="margin-top:24px">
-    <div class="carte"><span class="sur">Le raccourci n°1</span><h3>Le menu i</h3><p>La touche <span class="kbd">i</span> ouvre les 12 réglages les plus utilisés : Picture Control, balance des blancs, qualité, mise au point, réduction de vibration, mesure… Tu choisis ce qu'il contient (réglage perso f1).</p></div>
-    <div class="carte"><span class="sur">Deux touches à ton service</span><h3>Fn1 et Fn2</h3><p>Par défaut, <span class="kbd">Fn1</span> + molette = balance des blancs, <span class="kbd">Fn2</span> + molette = mode et zone de mise au point. Réattribuables (réglage perso f2).</p></div>
-    <div class="carte"><span class="sur">Automatique</span><h3>Viseur ou écran</h3><p>Le détecteur oculaire bascule seul vers le viseur quand ton œil approche. La touche de mode moniteur force l'un ou l'autre.</p></div>
-  </div>
-</section>
+  </section>
 
-<!-- 3 ------------------------------------------------------------>
-<section class="bloc" id="premiers-reglages">
-  <div class="titre-section apparait">
-    <span class="sur">03 · Les premiers réglages</span>
-    <h2>Dix minutes une fois. <span class="muted">Des années de photos réussies.</span></h2>
-    <p>Coche au fur et à mesure : ta progression est gardée sur cet appareil.</p>
-  </div>
-  <div class="jauge apparait"><span id="compte-reglages"></span><div class="rail"><span id="rail-reglages"></span></div></div>
-  <ul class="coche apparait" id="liste-reglages">
-    <li><label><input type="checkbox" data-id="r1"><span><b>Formater la carte mémoire.</b> Menu Configuration → <span class="menu">Formater la carte mémoire</span>. Avec chaque nouvelle carte. Tout ce qu'elle contient est effacé.</span></label></li>
-    <li><label><input type="checkbox" data-id="r2"><span><b>Régler la netteté du viseur.</b> Tourne la commande de réglage dioptrique jusqu'à ce que l'affichage soit net pour tes yeux.</span></label></li>
-    <li><label><input type="checkbox" data-id="r3"><span><b>Choisir NEF (RAW) + JPEG fine.</b> Menu i → <span class="menu">Qualité d'image</span>. Le JPEG pour partager, le RAW pour rattraper une photo plus tard.</span></label></li>
-    <li><label><input type="checkbox" data-id="r4"><span><b>Activer ISO AUTO avec une limite.</b> <span class="menu">Réglage de la sensibilité</span> → contrôle auto, sensibilité maximale par exemple 6400 ISO.</span></label></li>
-    <li><label><input type="checkbox" data-id="r5"><span><b>Allonger le délai d'extinction.</b> Réglage perso <span class="menu">c3 : Délai d'extinction</span>, au prix d'un peu d'autonomie.</span></label></li>
-    <li><label><input type="checkbox" data-id="r6"><span><b>Signer tes photos.</b> Menu Configuration → <span class="menu">Informations de copyright</span> : ton nom dans chaque fichier.</span></label></li>
-    <li><label><input type="checkbox" data-id="r7"><span><b>Ranger le menu i.</b> Réglage perso <span class="menu">f1 : Personnaliser le menu i</span>. Ce que tu changes le plus en premier.</span></label></li>
-    <li><label><input type="checkbox" data-id="r8"><span><b>Enregistrer ta configuration sur U1.</b> Menu Configuration → <span class="menu">Enregistrer réglages utilisateur</span>. Un tour de molette et tout revient.</span></label></li>
-    <li><label><input type="checkbox" data-id="r9"><span><b>Appairer ton téléphone.</b> Application SnapBridge, puis menu Réseau → <span class="menu">Connecter au périphérique mobile</span>.</span></label></li>
-  </ul>
-</section>
-
-<!-- 4 ------------------------------------------------------------>
-<section class="bloc" id="exposition">
-  <div class="titre-section apparait">
-    <span class="sur">04 · L'exposition</span>
-    <h2>Trois réglages. <span class="muted">Trois effets secondaires.</span></h2>
-    <p>L'ouverture, la vitesse et la sensibilité décident de la lumière. Chacune change aussi l'image : le flou d'arrière-plan, le flou de bouger, le grain. Joue avec.</p>
-  </div>
-  <div class="simulateur apparait">
-    <div>
-      <div class="photo-sim" id="photo-sim">
-        <div class="couche floue" id="sim-floue"></div>
-        <div class="couche nette" id="sim-nette"></div>
-        <canvas class="grain" id="sim-grain" width="320" height="214"></canvas>
-        <div class="voile" id="sim-voile"></div>
-        <div class="hud" id="hud"></div>
-      </div>
-      <div class="posemetre" aria-hidden="true">
-        <div class="barre"><div class="curseur" id="curseur-expo"></div></div>
-        <div class="grad"><span>−3</span><span>−2</span><span>−1</span><span>0</span><span>+1</span><span>+2</span><span>+3</span></div>
-      </div>
-      <p class="verdict" id="verdict" aria-live="polite"></p>
+  <section class="bloc" aria-label="En chiffres" style="margin-top:90px">
+    <div class="chiffres apparait">
+      <div><strong>20,9</strong><span>millions de pixels, capteur DX</span></div>
+      <div><strong>11</strong><span>images par seconde (15 en silencieux)</span></div>
+      <div><strong>209</strong><span>points de mise au point</span></div>
+      <div><strong>4K</strong><span>vidéo jusqu'à 60 images/s</span></div>
     </div>
-    <div class="carte commandes-sim">
-      <div class="reglage">
-        <label for="sim-lumiere">Lumière de la scène</label>
-        <select id="sim-lumiere">
-          <option value="15">Plein soleil</option>
-          <option value="12" selected>Ciel couvert</option>
-          <option value="9">Ombre profonde, fin de journée</option>
-          <option value="7">Intérieur bien éclairé</option>
-          <option value="5">Salle de spectacle</option>
-          <option value="2">Rue la nuit</option>
-        </select>
-      </div>
-      <div class="reglage">
-        <label for="sim-ouverture">Ouverture <output id="o-ouverture"></output></label>
-        <div class="iris"><canvas id="iris" width="184" height="184" aria-hidden="true"></canvas><div style="flex:1"><input type="range" id="sim-ouverture" min="0" max="7" step="1" value="3"><div class="aide">Petit chiffre : beaucoup de lumière, fond flou. Molette secondaire en A ou M.</div></div></div>
-      </div>
-      <div class="reglage">
-        <label for="sim-vitesse">Vitesse <output id="o-vitesse"></output></label>
-        <input type="range" id="sim-vitesse" min="0" max="17" step="1" value="5">
-        <div class="aide">Rapide : mouvement figé. Lent : plus de lumière, mais tout bouge. Molette principale en S ou M.</div>
-      </div>
-      <div class="reglage">
-        <label for="sim-iso">Sensibilité <output id="o-iso"></output></label>
-        <input type="range" id="sim-iso" min="0" max="9" step="1" value="0">
-        <div class="aide">Plus haut : plus clair, mais plus de grain. Touche ISO + molette principale.</div>
-      </div>
-      <p class="muted" style="font-size:13.5px;margin:0">Simulation pédagogique : les effets sont accentués pour être visibles.</p>
-    </div>
-  </div>
-  <div class="grille apparait" style="margin-top:24px">
-    <div class="carte"><span class="sur">Ouverture</span><h3>Le diaphragme</h3><p>f/1.8 laisse entrer beaucoup de lumière et floute l'arrière-plan ; f/16 en laisse peu mais rend tout net. Avec l'objectif du kit (NIKKOR Z DX 16–50 mm f/3.5–6.3 VR), le plus ouvert va de f/3.5 en grand-angle à f/6.3 en zoom.</p></div>
-    <div class="carte"><span class="sur">Vitesse</span><h3>Le temps de pose</h3><p>De 1/4000 s à 30 s, jusqu'à 900 s en mode M avec la plage étendue, plus les poses B et T. À main levée, ne descends pas trop sous 1/(focale) environ, sauf avec un objectif stabilisé.</p></div>
-    <div class="carte"><span class="sur">Sensibilité</span><h3>Les ISO</h3><p>De 100 à 51 200 ISO, plus des réglages Hi jusqu'à l'équivalent de 204 800 ISO. La réduction du bruit ISO atténue le grain.</p></div>
-  </div>
-  <div class="note apparait"><strong>La correction d'exposition :</strong> photo trop sombre ou trop claire en P, S ou A ? Maintiens la touche <span class="kbd">±</span> et tourne une molette : de −5 à +5 IL en photo. Un IL de plus, c'est deux fois plus de lumière.</div>
-</section>
-
-<!-- 5 ------------------------------------------------------------>
-<section class="bloc" id="modes">
-  <div class="titre-section apparait">
-    <span class="sur">05 · Les modes</span>
-    <h2>Qui décide quoi. <span class="muted">Toi, ou l'appareil.</span></h2>
-  </div>
-  <div class="carte apparait">
-    <div class="puces" id="choix-modes" role="tablist" aria-label="Modes de prise de vue" style="margin-bottom:22px"></div>
-    <div id="detail-mode" aria-live="polite"></div>
-  </div>
-  <div class="grille apparait" style="margin-top:16px">
-    <div class="carte"><span class="sur">Conseil</span><h3>Le mode A par défaut</h3><p>Tu choisis l'ouverture, donc le flou ; l'appareil s'occupe de la vitesse. Avec ISO AUTO limité, c'est le meilleur compromis.</p></div>
-    <div class="carte"><span class="sur">Astuce de pro</span><h3>Le décalage du programme</h3><p>En P, tourne la molette principale : d'autres couples vitesse/ouverture pour la même lumière.</p></div>
-    <div class="carte"><span class="sur">Astuce de pro</span><h3>U1, U2, U3</h3><p>Trois configurations complètes en mémoire : sport, portrait, nuit sur trépied.</p></div>
-  </div>
-</section>
-
-<!-- 6 ------------------------------------------------------------>
-<section class="bloc" id="mise-au-point">
-  <div class="titre-section apparait">
-    <span class="sur">06 · La mise au point</span>
-    <h2>Ne plus jamais <span class="degrade-or">rater l'œil.</span></h2>
-    <p>Deux réglages font tout : le mode (quand il fait le point) et la zone (où il le fait). Dis-moi ce que tu photographies.</p>
-  </div>
-  <div class="af apparait">
-    <div class="photo-af"><img id="af-img" src="photos/portrait.jpg" alt="Exemple de sujet, avec la zone de mise au point superposée"><svg id="af-svg" viewBox="0 0 300 200" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-    <div class="carte">
-      <div class="puces" id="choix-af" role="tablist" aria-label="Sujet photographié"></div>
-      <div class="reponse" id="reponse-af" aria-live="polite"></div>
-      <p id="pourquoi-af" class="muted" style="margin:14px 0 0"></p>
-    </div>
-  </div>
-  <div class="deux apparait" style="margin-top:16px">
-    <div class="tableau">
-      <table>
-        <thead><tr><th>Mode</th><th>Pour quoi</th></tr></thead>
-        <tbody>
-          <tr><td>AF-S</td><td>Sujet immobile. Mise au point mémorisée à mi-course. Par défaut, pas de déclenchement si ce n'est pas net.</td></tr>
-          <tr><td>AF-C</td><td>Sujet qui bouge. Suivi continu de la distance. Par défaut, déclenche même si ce n'est pas encore net.</td></tr>
-          <tr><td>AF-A</td><td>L'appareil choisit AF-S ou AF-C (photo uniquement).</td></tr>
-          <tr><td>AF-F</td><td>Vidéo uniquement : suivi permanent.</td></tr>
-          <tr><td>MF</td><td>Manuel, à la bague. La mise en relief (a12) colore ce qui est net.</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="carte">
-      <span class="sur">Détection du sujet</span>
-      <h3>Personnes, animaux, oiseaux, véhicules, avions.</h3>
-      <p>Menu → <span class="menu">Options AF/MF détection sujet</span>. L'appareil encadre le visage, puis l'œil. Avec plusieurs sujets, le sélecteur multidirectionnel passe de l'un à l'autre.</p>
-      <p class="muted" style="font-size:15px">Pour les animaux et les oiseaux, le manuel conseille de couper l'illuminateur d'assistance AF (a11) : sa lumière peut gêner leurs yeux.</p>
-    </div>
-  </div>
-</section>
-
-<!-- 7 ------------------------------------------------------------>
-<section class="bloc" id="couleur">
-  <div class="titre-section apparait">
-    <span class="sur">07 · La couleur</span>
-    <h2>Juste d'abord. <span class="muted">À ton goût ensuite.</span></h2>
-    <p>La balance des blancs rend le blanc blanc, quelle que soit la lumière. La scène ci-dessous est éclairée par des ampoules chaudes, vers 3000 K. Trouve le bon réglage.</p>
-  </div>
-  <div class="deux apparait">
-    <div>
-      <div class="bdb"><canvas id="bdb-canvas" width="1200" height="800" aria-label="Simulation de balance des blancs"></canvas><span class="etiquette" id="bdb-etiquette"></span></div>
-      <div class="reglage" style="margin-top:18px">
-        <label for="bdb">Température réglée <output id="o-bdb"></output></label>
-        <input type="range" id="bdb" min="2500" max="10000" step="100" value="5200">
-        <div class="aide">Raccourci par défaut : <span class="kbd">Fn1</span> + molette principale (préréglages), molette secondaire pour la température exacte.</div>
-      </div>
-    </div>
-    <div class="tableau">
-      <table>
-        <thead><tr><th>Réglage</th><th>Environ</th><th>Quand</th></tr></thead>
-        <tbody>
-          <tr><td>Automatique</td><td>—</td><td>La plupart des cas (3 variantes pour l'intérieur).</td></tr>
-          <tr><td>Lumière naturelle auto</td><td>4500–8000 K</td><td>Dehors, couleurs proches de l'œil.</td></tr>
-          <tr><td>Ensoleillé</td><td>5200 K</td><td>Soleil direct.</td></tr>
-          <tr><td>Nuageux</td><td>6000 K</td><td>Ciel couvert.</td></tr>
-          <tr><td>Ombre</td><td>8000 K</td><td>Sujet à l'ombre.</td></tr>
-          <tr><td>Incandescent</td><td>3000 K</td><td>Ampoules chaudes.</td></tr>
-          <tr><td>Flash</td><td>5400 K</td><td>Photo au flash.</td></tr>
-          <tr><td>Température</td><td>2500–10 000 K</td><td>Tu choisis la valeur.</td></tr>
-          <tr><td>Pré-réglage manuel</td><td>mesuré</td><td>Lumière difficile : mesure sur une feuille blanche (6 valeurs gardées).</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="titre-section apparait" style="padding-top:100px">
-    <span class="sur">Picture Control</span>
-    <h2 style="font-size:clamp(34px,5vw,64px)">Le style de l'image, en une touche.</h2>
-    <p>La touche Picture Control est sur le dessus. Le style s'applique au JPEG ; sur un RAW, tu peux encore changer d'avis à la retouche. Aperçus indicatifs :</p>
-  </div>
-  <div class="styles apparait" id="styles"></div>
-  <div class="note apparait"><strong>Contre-jour :</strong> active le <span class="menu">D-Lighting actif</span> (Automatique, ou Faible à Très élevé). Il préserve les détails dans les ombres et les hautes lumières.</div>
-</section>
-
-<!-- 8 ------------------------------------------------------------>
-<section class="bloc" id="rafale">
-  <div class="titre-section apparait">
-    <span class="sur">08 · Rafale et retardateur</span>
-    <h2>Jusqu'à 30 images <span class="muted">par seconde.</span></h2>
-    <p>Maintiens la touche de mode de déclenchement et tourne la molette principale. Choisis un mode pour voir sa cadence en temps réel.</p>
-  </div>
-  <div class="carte apparait">
-    <div class="puces" id="choix-rafale" role="tablist" aria-label="Mode de déclenchement"></div>
-    <div class="rafale" id="rafale-anim" aria-hidden="true"></div>
-    <p id="rafale-texte" aria-live="polite" style="margin:10px 0 0;color:var(--text-2)"></p>
-  </div>
-  <p class="muted apparait" style="font-size:14px;margin-top:12px">Cadences maximales mesurées par Nikon ; elles varient selon la qualité d'image et le type d'obturateur. Avec le flash intégré, une seule photo par appui. Pour C15/C30, Nikon recommande une carte UHS de classe 3 d'au moins 250 Mo/s.</p>
-</section>
-
-<!-- 9 ------------------------------------------------------------>
-<section id="recettes" aria-labelledby="t-recettes">
-  <div class="bloc">
-    <div class="titre-section apparait">
-      <span class="sur">09 · Recettes</span>
-      <h2 id="t-recettes">Une situation. <span class="muted">Les bons réglages.</span></h2>
-      <p>Des points de départ de photographe. Règle, déclenche, regarde, ajuste.</p>
-    </div>
-    <div class="fleches"><button type="button" id="rec-g" aria-label="Recettes précédentes">‹</button><button type="button" id="rec-d" aria-label="Recettes suivantes">›</button></div>
-  </div>
-  <div class="carrousel apparait" id="carrousel" tabindex="0" aria-label="Recettes, défilement horizontal"></div>
-</section>
-
-<!-- 10 ----------------------------------------------------------->
-<section class="bloc" id="video">
-  <div class="titre-section apparait">
-    <span class="sur">10 · La vidéo</span>
-    <h2>4K 60p. <span class="muted">Et tout pour bien filmer.</span></h2>
-    <p>Bascule le sélecteur photo/vidéo, puis le bouton rouge.</p>
-  </div>
-  <div class="grille apparait">
-    <div class="carte"><span class="sur">Définitions</span><h3>4K UHD jusqu'à 60p</h3><p>Full HD jusqu'à 120p. Ralenti Full HD intégré (×4 ou ×5).</p></div>
-    <div class="carte"><span class="sur">Fichiers</span><h3>H.265 10 bits, N-Log, HLG</h3><p>MOV ou MP4, H.265 (8 ou 10 bits) ou H.264. Une séquence dure au maximum 125 minutes.</p></div>
-    <div class="carte"><span class="sur">Le son</span><h3>Micro et casque</h3><p>Micro stéréo intégré, prise micro (jack 3,5 mm alimentée), prise casque, atténuateur, réduction du bruit du vent.</p></div>
-    <div class="carte"><span class="sur">Stabilité</span><h3>VR électronique</h3><p>En plus de la réduction de vibration de l'objectif VR, dans le menu Enregistrement vidéo.</p></div>
-    <div class="carte"><span class="sur">Exposition</span><h3>Zébras et forme d'onde</h3><p>Motif zébré (g12) pour voir les zones brûlées, moniteur de forme d'onde, cadre REC rouge.</p></div>
-    <div class="carte"><span class="sur">Créateurs</span><h3>Vlog et produits</h3><p>Écran orientable, mode présentation produit, retardateur vidéo, streaming USB vers l'ordinateur.</p></div>
-  </div>
-  <div class="note apparait"><strong>La règle des 180° :</strong> une vitesse d'environ deux fois la cadence donne un mouvement naturel. À 25p, 1/50 s ; à 50p, 1/100 s. En plein soleil, un filtre ND évite de surexposer.</div>
-</section>
-
-<!-- 11-12 -------------------------------------------------------->
-<section class="bloc" id="fiche">
-  <div class="titre-section apparait">
-    <span class="sur">11 · Batterie, cartes et fiche technique</span>
-    <h2>Les caractéristiques. <span class="muted">Sans jargon inutile.</span></h2>
-  </div>
-  <div class="grille apparait" style="margin-bottom:40px">
-    <div class="carte"><span class="sur">Autonomie</span><h3>230 à 250 photos</h3><p>Par charge (norme CIPA), ou environ 55 minutes de vidéo. Wi‑Fi, RAW, froid et autofocus répété la réduisent : prends une deuxième batterie.</p></div>
-    <div class="carte"><span class="sur">Cartes</span><h3>SD UHS‑I ou UHS‑II</h3><p>SD, SDHC, SDXC. Pour la vidéo : UHS de classe 3 au minimum. Formate chaque carte dans l'appareil.</p></div>
-    <div class="carte"><span class="sur">Transfert</span><h3>SnapBridge et NX Studio</h3><p>Vers le téléphone par l'application SnapBridge ; vers l'ordinateur en USB‑C ou Wi‑Fi. NX Studio, gratuit, développe les RAW.</p></div>
-  </div>
-  <dl class="specs apparait">
-    <div><dt>Capteur</dt><dd>CMOS DX 23,5 × 15,7 mm, 20,9 Mpx effectifs</dd></div>
-    <div><dt>Monture</dt><dd>Nikon Z (objectifs F avec adaptateur, restrictions possibles)</dd></div>
-    <div><dt>Formats photo</dt><dd>NEF (RAW) 14 bits, JPEG, HEIF</dd></div>
-    <div><dt>Taille d'image</dt><dd>5568 × 3712 pixels (Large, DX)</dd></div>
-    <div><dt>Sensibilité</dt><dd>100 à 51 200 ISO, jusqu'à l'équivalent 204 800</dd></div>
-    <div><dt>Vitesses</dt><dd>1/4000 à 30 s (900 s en M), poses B et T</dd></div>
-    <div><dt>Synchro flash</dt><dd>Jusqu'à 1/200 s ou 1/250 s selon le réglage</dd></div>
-    <div><dt>Autofocus</dt><dd>Hybride, 209 points (231 en zone auto), −9 à +19 IL</dd></div>
-    <div><dt>Rafale</dt><dd>11 vps (15 en silencieux) ; 15 ou 30 vps en haute vitesse +</dd></div>
-    <div><dt>Viseur</dt><dd>OLED ≈ 2,36 M points, 100 %, 1,02×</dd></div>
-    <div><dt>Écran</dt><dd>8 cm (3,2"), tactile, orientable, ≈ 1,04 M points</dd></div>
-    <div><dt>Vidéo</dt><dd>4K UHD 60p, Full HD 120p, N-Log, HLG</dd></div>
-    <div><dt>Flash</dt><dd>Intégré (NG ≈ 7) + griffe flash</dd></div>
-    <div><dt>Connexions</dt><dd>USB‑C, HDMI type D, micro, casque, Wi‑Fi, Bluetooth 5.0</dd></div>
-    <div><dt>Batterie</dt><dd>EN-EL25a (EN-EL25 compatible, moins de vues)</dd></div>
-    <div><dt>Dimensions et poids</dt><dd>127 × 96,8 × 66,5 mm · 550 g (495 g boîtier seul)</dd></div>
-  </dl>
-</section>
-
-<!-- 13 ----------------------------------------------------------->
-<section class="bloc" id="depannage">
-  <div class="titre-section apparait">
-    <span class="sur">12 · Dépannage</span>
-    <h2>Un souci ? <span class="muted">La solution.</span></h2>
-  </div>
-  <div class="apparait">
-    <details><summary>Impossible de déclencher</summary><div>Vérifie la carte (présente, pas pleine) et le réglage <span class="menu">Photo si carte absente ?</span>. En AF-S, l'appareil refuse tant que ce n'est pas net : change de point ou passe en AF-C. Déplie l'objectif s'il est rétractable.</div></details>
-    <details><summary>Mes photos sont floues</summary><div>En MF par erreur ? Repasse en AF-S ou AF-C. Tout le cadre flou : c'est le bougé, accélère ou monte les ISO. Seul le sujet flou : il bougeait, vise 1/500 s ou plus.</div></details>
-    <details><summary>Le viseur est flou</summary><div>Tourne la commande de réglage dioptrique, à côté du viseur.</div></details>
-    <details><summary>L'écran ou le viseur ne s'allume pas</summary><div>La touche de mode moniteur a peut-être forcé l'autre affichage. Nettoie le détecteur oculaire à la soufflette.</div></details>
-    <details><summary>L'affichage a changé tout seul</summary><div>Tu as sûrement appuyé sur <span class="kbd">DISP</span> : appuie encore pour faire défiler.</div></details>
-    <details><summary>L'appareil ne répond plus</summary><div>Attends la fin de l'enregistrement, éteins. S'il ne s'éteint pas, retire et remets la batterie. Les photos déjà enregistrées sont conservées.</div></details>
-    <details><summary>La rafale ne marche pas</summary><div>Pas de rafale avec le flash intégré (une photo par appui), ni avec la superposition HDR.</div></details>
-    <details><summary>Pas de bip de mise au point</summary><div>Normal en AF-C, en vidéo ou en mode silencieux. Réglable dans <span class="menu">Sons de l'appareil photo</span>.</div></details>
-    <details><summary>Une icône d'horloge clignote</summary><div>L'horloge a été réinitialisée : règle de nouveau <span class="menu">Fuseau horaire et date</span>.</div></details>
-  </div>
-</section>
-
-<!-- 14 ----------------------------------------------------------->
-<section class="bloc" id="lexique">
-  <div class="titre-section apparait">
-    <span class="sur">13 · Lexique</span>
-    <h2>Les mots. <span class="muted">Enfin clairs.</span></h2>
-  </div>
-  <input class="recherche apparait" id="recherche-lexique" type="search" placeholder="Chercher un mot : RAW, IL, AF-C…" aria-label="Chercher dans le lexique">
-  <dl class="lexique apparait" id="lexique-liste"></dl>
-</section>
-
+    <p class="muted apparait" style="margin-top:22px;text-align:center">Gratuit · sans compte · sans publicité · sans cookie · chaque réglage vérifié dans le manuel officiel Nikon.</p>
+  </section>
 </main>
-
-<footer>
-  <p><strong>Guide gratuit et indépendant, non affilié à Nikon.</strong> Nikon, NIKKOR et Z50II sont des marques de Nikon Corporation. L'appareil montré est un modèle 3D réalisé pour ce guide.</p>
-  <p>Caractéristiques et procédures vérifiées dans le <a href="https://onlinemanual.nikonimglib.com/z50II/fr/" rel="noopener">Guide de référence officiel du Z50II</a> (consulté le 27 octobre 2026). Les recettes sont des points de départ de photographe, pas des réglages officiels. En cas de doute, le manuel officiel fait foi.</p>
-  <details><summary>Crédits des photos</summary><ul id="credits"></ul></details>
-</footer>
-
-<script src="credits.js"></script>
-<script src="verre-liquide.js"></script>
-<script src="app.js"></script>
+<script src="commun.js"></script>
+<script src="accueil.js"></script>
 </body>
 </html>
