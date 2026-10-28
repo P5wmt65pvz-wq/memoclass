@@ -14,68 +14,15 @@
 </head>
 <body>
 <main id="contenu" class="bloc">
-  <header class="entete-page">
+  <header class="entete-page compacte">
     <span class="sur">Étape 2 · Régler</span>
     <h1>Dix minutes une fois. Des années de bonnes photos.</h1>
-    <p>Un réglage par écran. Fais-le sur ton appareil, puis touche « C'est fait ». Ta progression reste sur cet appareil.</p>
+    <p>Fais-le d'abord ici, dans l'appareil simulé : le guide te dit sur quelle commande appuyer. Puis refais pareil sur le tien.</p>
   </header>
-  <section class="carte etape-zone" aria-live="polite">
-    <div class="compteur" id="compteur" aria-hidden="true"></div>
-    <div id="etape"></div>
-  </section>
+  <div id="sim"></div>
 </main>
 <div id="suite" data-texte="Lumière, modes, netteté, couleur : des leçons courtes où tout se manipule."></div>
 <script src="commun.js"></script>
-<script>
-(function () {
-  "use strict";
-  var G = window.GZ, $ = G.$;
-  var E = [
-    ["Formate ta carte mémoire", "Avec chaque nouvelle carte : l'appareil la prépare pour lui. Attention, tout ce qu'elle contient est effacé.", ["MENU", "Menu Configuration", "Formater la carte mémoire"]],
-    ["Règle la netteté du viseur", "Regarde dans le viseur et tourne la petite commande de réglage dioptrique, à côté, jusqu'à ce que les informations soient nettes pour tes yeux.", ["Viseur", "Commande de réglage dioptrique"]],
-    ["Passe en RAW + JPEG fine", "Le JPEG pour partager tout de suite. Le RAW (NEF) pour rattraper une photo trop sombre ou une couleur ratée, plus tard.", ["Touche i", "Qualité d'image", "NEF (RAW) + JPEG fine"]],
-    ["Active ISO AUTO, avec une limite", "L'appareil monte la sensibilité tout seul quand la lumière baisse, sans dépasser ta limite. Plus de photo floue par manque de lumière.", ["Touche ISO + molette secondaire", "ISO AUTO", "Réglage de la sensibilité : maximum 6400"]],
-    ["Choisis le mode A", "Tu choisis l'ouverture (le flou d'arrière-plan), l'appareil s'occupe du reste. Le meilleur mode pour apprendre.", ["Sélecteur de mode", "A"]],
-    ["Active la détection du sujet", "L'appareil reconnaît les visages et fait le point sur l'œil, tout seul.", ["MENU", "Options AF/MF détection sujet", "Automatique ou Personnes"]],
-    ["Allonge le délai d'extinction", "Si l'écran s'éteint trop vite à ton goût. Un peu moins d'autonomie, beaucoup moins d'agacement.", ["MENU", "Réglages personnalisés", "c3 : Délai d'extinction"]],
-    ["Signe tes photos", "Ton nom est inscrit dans chaque fichier. Utile si une photo circule.", ["MENU", "Menu Configuration", "Informations de copyright"]],
-    ["Enregistre tout sur U1", "Un tour de molette sur U1 et toute ta configuration revient, même si quelqu'un a tout déréglé.", ["MENU", "Menu Configuration", "Enregistrer réglages utilisateur", "U1"]]
-  ];
-  var cle = "gz3-reglages", faits = (G.lire(cle) || "").split(",").filter(Boolean).map(Number), i = 0;
-  while (faits.indexOf(i) > -1 && i < E.length) i++;
-  var compteur = $("#compteur"), zone = $("#etape");
-  compteur.innerHTML = E.map(function () { return "<i></i>"; }).join("");
-  function rendre() {
-    Array.prototype.forEach.call(compteur.children, function (b, k) { b.className = faits.indexOf(k) > -1 ? "ok" : k === i ? "ici" : ""; });
-    if (i >= E.length) {
-      zone.innerHTML = '<div class="bravo"><div class="grand" aria-hidden="true">✓</div><h2 style="font-size:40px;font-weight:800">Ton appareil est prêt.</h2><p class="pourquoi" style="margin-top:10px">Les 9 réglages sont faits. Place à la photo.</p><div class="actions" style="justify-content:center"><a class="bouton" href="apprendre.html">Apprendre en jouant →</a><button class="bouton clair" type="button" id="refaire">Tout revoir</button></div></div>';
-      $("#refaire").addEventListener("click", function () { faits = []; G.ecrire(cle, ""); i = 0; rendre(); });
-      return;
-    }
-    var e = E[i];
-    var ecran = '<div class="ecran-sim" aria-hidden="true"><div class="haut"><span>Sur ton appareil</span><span>' + (i + 1) + "/" + E.length + "</span></div>" + e[2].map(function (c, k) { return '<div class="ligne"><i>' + (k + 1) + "</i>" + G.echapper(c) + "</div>"; }).join("") + '<div class="ok">C\'est réglé ✓</div></div>';
-    zone.innerHTML = '<div class="etape"><div><div class="muted" style="font-weight:700">Réglage ' + (i + 1) + " sur " + E.length + "</div><h2>" + G.echapper(e[0]) + '</h2><p class="pourquoi">' + G.echapper(e[1]) + '</p><div class="chemin vh">' + e[2].map(function (c, k) { return (k ? "<b>→</b>" : "") + "<span>" + G.echapper(c) + "</span>"; }).join("") + '</div><div class="actions"><button class="bouton jaune" type="button" id="fait">C\'est fait ✓</button>' + (i > 0 ? '<button class="bouton clair" type="button" id="prec">← Précédent</button>' : "") + '<button class="bouton clair" type="button" id="passer">Passer</button></div></div>' + ecran + "</div>";
-    animer();
-    $("#fait").addEventListener("click", function () { if (faits.indexOf(i) < 0) faits.push(i); G.ecrire(cle, faits.join(",")); i++; rendre(); $("#etape").scrollIntoView({ block: "center", behavior: G.reduit ? "auto" : "smooth" }); });
-    $("#passer").addEventListener("click", function () { i++; rendre(); });
-    if ($("#prec")) $("#prec").addEventListener("click", function () { i--; rendre(); });
-  }
-  // l'écran simulé parcourt le chemin, ligne par ligne, en boucle
-  var minuterie = null;
-  function animer() {
-    clearTimeout(minuterie);
-    var lignes = zone.querySelectorAll(".ecran-sim .ligne"), ok = zone.querySelector(".ecran-sim .ok"), k = 0;
-    if (!lignes.length) return;
-    if (G.reduit) { lignes[lignes.length - 1].classList.add("ici"); ok.classList.add("on"); return; }
-    (function pas() {
-      Array.prototype.forEach.call(lignes, function (l, j) { l.className = "ligne" + (j < k ? " vu" : j === k ? " ici" : ""); });
-      ok.classList.toggle("on", k >= lignes.length);
-      if (k > lignes.length) { k = 0; minuterie = setTimeout(pas, 300); return; }
-      k++; minuterie = setTimeout(pas, k > lignes.length ? 1800 : 950);
-    })();
-  }
-  rendre();
-})();
-</script>
+<script src="sim.js"></script>
 </body>
 </html>
