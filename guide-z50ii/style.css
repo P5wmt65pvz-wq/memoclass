@@ -76,7 +76,7 @@ button { font: inherit; color: inherit; }
 .plateau .pieces img { position: absolute; display: block; height: auto; will-change: transform; }
 .plateau .vrai { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); backface-visibility: hidden; will-change: transform, opacity; }
 .plateau .vrai.avant { width: 46%; }
-.plateau .vrai.dos { width: 50%; opacity: 0; }
+.plateau .vrai.dos { width: 54%; opacity: 0; }
 .plateau .etiquettes { opacity: 0; z-index: 9; }
 .plateau .etiquettes span { left: auto; top: auto; transform: translate(-50%, 0); opacity: 1; will-change: auto; }
 @media (max-width: 600px) { .plateau .etiquettes [data-n="boitier"], .plateau .etiquettes [data-n="batterie"] { display: none; } }
