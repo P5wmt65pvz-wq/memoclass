@@ -72,6 +72,7 @@ button { font: inherit; color: inherit; }
 .plateau { position: absolute; left: 50%; top: 60%; transform: translate(-50%, -50%); width: min(94vw, 1100px, 100svh * .82); aspect-ratio: 1680 / 944; container-type: inline-size; perspective: 1400px; }
 @media (max-aspect-ratio: 9/10) { .plateau { top: 55%; width: 96vw; } }
 .plateau .pieces { position: absolute; inset: 0; opacity: 0; }
+.plateau::before { content: ""; position: absolute; left: 22%; right: 22%; bottom: 6%; height: 9%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .22), transparent); filter: blur(6px); }
 .plateau .pieces img { position: absolute; display: block; height: auto; will-change: transform; }
 .plateau .vrai { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); backface-visibility: hidden; will-change: transform, opacity; }
 .plateau .vrai.avant { width: 46%; }

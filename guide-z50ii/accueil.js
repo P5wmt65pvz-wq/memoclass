@@ -39,9 +39,20 @@
     var vis = p > .4 && p < .6 ? G.bornes(Math.min((p - .4) / .04, (.6 - p) / .04), 0, 1) : 0;
     zoneEtiq.style.opacity = vis;
   }
+  // inertie : l'animation rejoint le défilement en douceur, comme sur une page produit Apple
+  var cible = 0, boucle = false;
+  function suivre() {
+    var d = cible - p;
+    p = Math.abs(d) < .0004 || G.reduit ? cible : p + d * .14;
+    rendre();
+    if (p !== cible) requestAnimationFrame(suivre); else boucle = false;
+  }
   function defiler() {
     var course = heros.offsetHeight - innerHeight;
-    p = G.bornes(scrollY / course, 0, 1);
+    cible = G.bornes(scrollY / course, 0, 1);
+    if (!boucle) { boucle = true; requestAnimationFrame(suivre); }
+  }
+  function rendre() {
     poser();
     temps.forEach(function (el) {
       var de = +el.dataset.de, a = +el.dataset.a, f = (a - de) * .25, o;
@@ -51,8 +62,7 @@
     });
     indice.style.opacity = G.bornes(1 - p * 14, 0, 1);
   }
-  var attente = false;
-  addEventListener("scroll", function () { if (attente) return; attente = true; requestAnimationFrame(function () { attente = false; defiler(); }); }, { passive: true });
+  addEventListener("scroll", defiler, { passive: true });
   addEventListener("resize", defiler);
   defiler();
 
