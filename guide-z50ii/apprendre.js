@@ -112,7 +112,7 @@
     ["Sport", "sport", "AF-C", "AF zone dynamique (M)", "Personnes", "Le manuel recommande la zone dynamique M pour les déplacements imprévisibles, comme des joueurs de football.", ["dynamique", 50, 50, 8, 12]],
     ["Oiseaux", "oiseau", "AF-C", "AF zone dynamique (L)", "Oiseaux", "Le manuel recommande la zone dynamique L pour les sujets rapides et difficiles à cadrer, comme les oiseaux.", ["dynamique-l", 50, 47, 8, 12]],
     ["Paysage", "paysage", "AF-S", "AF point sélectif", "Désactivée", "Place le point au tiers de la scène : avec f/8, tout reste net.", ["point", 60, 40, 7, 10]],
-    ["Objet, produit", "img/carte-eclatee.webp", "AF-S", "AF zone réduite", "Désactivée", "Le manuel recommande la zone réduite pour les sujets immobiles et la photo de produits.", ["reduite", 50, 50, 4, 6]],
+    ["Objet, produit", "objet", "AF-S", "AF zone réduite", "Désactivée", "Le manuel recommande la zone réduite pour les sujets immobiles et la photo de produits.", ["reduite", 50, 50, 4, 6]],
     ["Vlog, vidéo", "portrait", "AF-F", "AF zone large ou automatique", "Personnes", "AF-F suit en permanence en vidéo. Le mode présentation produit bascule le point sur l'objet que tu montres.", ["large", 53, 52, 50, 80]]
   ];
   var za = $("#choix-af"), asvg = $("#af-svg"), aimg = $("#af-img");

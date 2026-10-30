@@ -41,7 +41,7 @@
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") { tiroir.classList.remove("ouvert"); bm.setAttribute("aria-expanded", "false"); } });
 
   var pied = document.createElement("footer");
-  pied.innerHTML = "<span>Guide gratuit et indépendant, non affilié à Nikon.</span><a href=\"mentions.html\">Mentions légales, confidentialité et crédits</a><span>Vérifié dans le <a href=\"https://onlinemanual.nikonimglib.com/z50II/fr/\" rel=\"noopener\">manuel officiel</a></span>";
+  pied.innerHTML = "<span>Guide gratuit et indépendant, ni affilié ni approuvé par Nikon. Nikon et Z50II sont des marques de Nikon Corporation.</span><a href=\"mentions.html\">Mentions légales, confidentialité et crédits</a><span>Vérifié dans le <a href=\"https://onlinemanual.nikonimglib.com/z50II/fr/\" rel=\"noopener\">manuel officiel</a></span>";
   document.body.appendChild(pied);
 
   // page vue

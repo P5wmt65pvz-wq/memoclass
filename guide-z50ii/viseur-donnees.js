@@ -22,7 +22,7 @@ window.APPAREIL = {
     iso: { x: 33.8, y: 56.7, nom: "Touche ISO", dit: "La sensibilité à la lumière." },
     rec: { x: 48.2, y: 56.4, nom: "Bouton rouge", dit: "Lance la vidéo." },
     declencheur: { x: 30.6, y: 78.4, nom: "Déclencheur", dit: "Appuie pour prendre la photo." },
-    secondaire: { x: 37.5, y: 86.5, nom: "Molette avant", dit: "La molette sous ton index." },
+    secondaire: { x: 43, y: 91, nom: "Molette avant", dit: "La molette sous ton index." },
     mode: { x: 75.1, y: 31.9, nom: "Molette de mode", dit: "P, S, A, M… le « qui décide quoi »." }
   },
   modes: ["AUTO", "P", "S", "A", "M", "U1", "U2", "U3", "SCN"],
