@@ -4,46 +4,50 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Découvrir le Z50II — Guide Z50II</title>
-<meta name="description" content="La vue éclatée du Nikon Z50II et chaque commande expliquée : touche un numéro, découvre à quoi elle sert et quand t'en servir.">
+<meta name="description" content="Le Nikon Z50II en vraies photos, de face, de dessus et de dos : touche un numéro et découvre chaque commande, à quoi elle sert et quand t'en servir.">
 <meta name="theme-color" content="#f5f5f7">
 <link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/decouvrir.html">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<meta property="og:title" content="Découvrir le Nikon Z50II, pièce par pièce">
-<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/og.jpg">
-<link rel="stylesheet" href="style.css?v=202610281833">
+<meta property="og:title" content="Découvrir le Nikon Z50II, bouton par bouton">
+<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-z50ii/og-z50ii.jpg">
+<link rel="stylesheet" href="style.css?v=202610301800">
 </head>
 <body>
 <main id="contenu" class="bloc">
   <header class="entete-page">
     <span class="sur">Étape 1 · Découvrir</span>
-    <h1>Ton appareil, pièce par pièce.</h1>
+    <h1>Ton appareil, bouton par bouton.</h1>
     <p>Touche un numéro : tu sais ce que c'est, à quoi ça sert, et quand t'en servir.</p>
   </header>
 
   <div class="onglets" role="tablist" aria-label="Vue de l'appareil" id="vues">
-    <button role="tab" data-panneau="eclatee">Vue éclatée</button>
+    <button role="tab" data-panneau="face">Face</button>
     <button role="tab" data-panneau="dessus">Dessus</button>
     <button role="tab" data-panneau="dos">Dos</button>
-    <button role="tab" data-panneau="avant">Avant</button>
   </div>
 
-  <div class="deux" id="eclatee" role="tabpanel">
-    <div class="visuel"><div class="cadre"><img data-src="img/eclatee.webp" alt="Vue éclatée de l'appareil : objectif, lentilles, capteur, écran, batterie, carte et commandes séparés" width="2000" height="1250"><div class="points"></div></div></div>
+  <div class="deux" id="face" role="tabpanel">
+    <div class="visuel"><div class="defil"><div class="cadre"><img data-src="img/vrai/face.webp" alt="Le Z50II de face, sans objectif : monture, capteur et commandes numérotées" width="885" height="716"><div class="points"></div></div></div></div>
     <aside class="carte fiche" aria-live="polite"></aside>
   </div>
   <div class="deux" id="dessus" role="tabpanel" hidden>
-    <div class="visuel"><div class="cadre"><img data-src="img/dessus.webp" alt="L'appareil vu du dessus, commandes numérotées" width="2000" height="1250"><div class="points"></div></div></div>
+    <div class="visuel"><div class="defil"><div class="cadre"><img data-src="img/vrai/dessus.webp" alt="Le Z50II vu du dessus, commandes numérotées" width="885" height="587"><div class="points"></div></div></div></div>
     <aside class="carte fiche" aria-live="polite"></aside>
   </div>
   <div class="deux" id="dos" role="tabpanel" hidden>
-    <div class="visuel"><div class="cadre"><img data-src="img/dos.webp" alt="L'appareil vu de dos, commandes numérotées" width="2000" height="1250"><div class="points"></div></div></div>
+    <div class="visuel"><div class="defil"><div class="cadre"><img data-src="img/3d/dos.webp" alt="Le Z50II vu de dos, commandes numérotées" width="1456" height="1052"><div class="points"></div></div></div></div>
     <aside class="carte fiche" aria-live="polite"></aside>
   </div>
-  <div class="deux" id="avant" role="tabpanel" hidden>
-    <div class="visuel"><div class="cadre"><img data-src="img/avant.webp" alt="L'appareil vu de face, commandes numérotées" width="2000" height="1250"><div class="points"></div></div></div>
-    <aside class="carte fiche" aria-live="polite"></aside>
+  <p class="muted note-photo">Vraies photos du Z50II. <span class="glisse">Fais glisser la photo pour voir tout l'appareil.</span></p>
+
+  <div class="titre apparait">
+    <span class="sur">Sous l'appareil, dans la trappe</span>
+    <h2>La batterie et la carte.</h2>
   </div>
-  <p class="muted" style="font-size:14px;margin-top:14px">Appareil modélisé en 3D pour ce guide : la forme est simplifiée. L'emplacement exact de chaque commande se vérifie sur ton appareil.</p>
+  <div class="grille defile apparait">
+    <div class="carte"><h3>La batterie EN-EL25a</h3><p>Environ 230 à 250 photos par charge (norme CIPA), ou 55 minutes de vidéo. Elle se recharge dans l'appareil par USB‑C, en 1 h 40 environ.</p><p class="muted">Prends une deuxième batterie pour une journée de photo.</p></div>
+    <div class="carte"><h3>La carte SD</h3><p>SD, SDHC ou SDXC, en UHS‑I ou UHS‑II. Pour la vidéo, une carte UHS de classe 3 au minimum.</p><p class="muted">Formate chaque nouvelle carte dans l'appareil.</p></div>
+  </div>
 
   <div class="titre apparait">
     <span class="sur">Trois raccourcis à retenir</span>
@@ -56,7 +60,8 @@
   </div>
 </main>
 <div id="suite" data-texte="Tu entres dans l'appareil simulé : on te dit quelle commande presser."></div>
-<script src="commun.js?v=202610281833"></script>
-<script src="decouvrir.js?v=202610281833"></script>
+<script src="fond.js?v=202610301800" defer></script>
+<script src="commun.js?v=202610301800"></script>
+<script src="decouvrir.js?v=202610301800"></script>
 </body>
 </html>
