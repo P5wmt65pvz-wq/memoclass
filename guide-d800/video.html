@@ -1,59 +1,8 @@
 <!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Filmer avec le D800 — Guide D800</title>
-<meta name="description" content="Filmer en Full HD avec le Nikon D800 : cadence, vitesse (règle des 180°), formats et son, avec un calculateur interactif.">
-<meta name="theme-color" content="#f5f5f7">
-<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guide-d800/video.html">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<meta property="og:title" content="Filmer en Full HD avec le Nikon D800">
-<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-d800/og-d800.jpg">
-<link rel="stylesheet" href="style.css?v=202610311700">
-</head>
-<body>
-<main id="contenu" class="bloc">
-  <header class="entete-page">
-    <span class="sur">Étape 5 · Filmer</span>
-    <h1>Full HD. Un capteur plein format. Un rendu cinéma.</h1>
-    <p>Au dos, tourne le sélecteur de visée écran sur la caméra, appuie sur <span class="kbd">Lv</span>, puis sur le bouton rouge. Ensuite, un seul réglage change tout : la vitesse.</p>
-  </header>
-
-  <section class="carte apparait" aria-labelledby="t-180">
-    <h2 id="t-180" style="font-size:30px;font-weight:800;margin-bottom:6px">La règle des 180°</h2>
-    <p class="muted">Pour un mouvement naturel, la vitesse vaut environ deux fois la cadence. Choisis ta cadence :</p>
-    <div class="puces" id="cadences" role="group" aria-label="Cadence"></div>
-    <div class="reponse" style="grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));margin-top:18px" aria-live="polite">
-      <div><small>Vitesse conseillée</small><strong id="v180"></strong></div>
-      <div><small>Définition</small><strong id="def"></strong></div>
-      <div><small>Pour</small><strong id="pour"></strong></div>
-    </div>
-    <p class="muted" style="margin:14px 0 0;font-size:15px">En plein soleil, cette vitesse lente surexpose : un filtre ND (gris neutre) sur l'objectif règle le problème.</p>
-  </section>
-
-  <div class="grille defile apparait" style="margin-top:18px">
-    <div class="carte"><h3>Définitions</h3><p>Full HD 1920 × 1080 en 30p, 25p ou 24p ; HD 1280 × 720 en 60p, 50p, 30p ou 25p. Deux qualités : ★ supérieure ou normale (menu <span class="menu">Paramètres vidéo</span>).</p></div>
-    <div class="carte"><h3>Fichiers</h3><p>MOV, compression H.264, son PCM linéaire. Une séquence dure au plus 29 min 59 s. Sortie HDMI utilisable en même temps que l'écran.</p></div>
-    <div class="carte"><h3>Le son</h3><p>Micro intégré mono. Pour la stéréo : micro externe sur la prise jack 3,5 mm. Prise casque, et sensibilité du micro réglable.</p></div>
-    <div class="carte"><h3>Exposition</h3><p>En mode M, tu règles l'ouverture, la vitesse (1/25 à 1/8000 s, selon la cadence) et la sensibilité (100 à Hi 2). En A : l'ouverture et la correction. En P et S, tout est automatique.</p></div>
-    <div class="carte"><h3>Stabilité</h3><p>Le D800 n'a pas de stabilisation dans le boîtier : elle vient de l'objectif (objectifs VR). Sinon, trépied ou appui.</p></div>
-    <div class="carte"><h3>En plus</h3><p>Repères pendant l'enregistrement, et un mode accéléré (time-lapse) dans le menu Prise de vue.</p></div>
-  </div>
-  <div class="note apparait"><strong>La mise au point en vidéo :</strong> AF-F (permanent) ou AF-S, avec AF priorité visage ou AF zone large. En visée écran, l'autofocus est plus lent qu'au viseur : beaucoup font le point avant de lancer l'enregistrement.</div>
-</main>
-<div id="suite" data-texte="Dépannage, fiche technique et lexique, quand tu en as besoin."></div>
-<script src="fond.js?v=202610311700" defer></script>
-<script src="commun.js?v=202610311700"></script>
-<script>
-(function () {
-  var G = window.GZ, $ = G.$, $$ = G.$$;
-  var C = [["24p", 50, "Full HD 1080", "Le rendu « cinéma »"], ["25p", 50, "Full HD 1080", "La vidéo classique en Europe"], ["30p", 60, "Full HD 1080", "Les réseaux sociaux"], ["50p", 100, "HD 720", "Mouvements fluides, léger ralenti"], ["60p", 125, "HD 720", "Sport, ralenti ×2,4 en 25p"]];
-  $("#cadences").innerHTML = C.map(function (c, i) { return '<button class="puce" type="button" aria-pressed="' + (i === 1) + '" data-i="' + i + '">' + c[0] + "</button>"; }).join("");
-  function choisir(i) { var c = C[i]; $("#v180").textContent = "1/" + c[1] + " s"; $("#def").textContent = c[2]; $("#pour").textContent = c[3]; $$("#cadences button").forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); }); }
-  $$("#cadences button").forEach(function (b) { b.addEventListener("click", function () { choisir(+b.dataset.i); }); });
-  choisir(1);
-})();
-</script>
-</body>
-</html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>Le guide a déménagé</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guides/d800/video.html">
+<meta http-equiv="refresh" content="0; url=/memoclass/guides/d800/video.html">
+<script>location.replace("/memoclass/guides/d800/video.html" + location.hash)</script>
+</head><body style="font:17px system-ui;padding:40px">Le guide a déménagé : <a href="/memoclass/guides/d800/video.html">continuer</a>.</body></html>

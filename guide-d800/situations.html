@@ -1,71 +1,8 @@
 <!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Je photographie… — Guide D800</title>
-<meta name="description" content="Portrait, sport, paysage, nuit, animaux, oiseaux, contre-jour, concert : touche une situation, obtiens les bons réglages du Nikon D800.">
-<meta name="theme-color" content="#f5f5f7">
-<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guide-d800/situations.html">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<meta property="og:title" content="Les bons réglages du Nikon D800 pour chaque situation">
-<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-d800/og-d800.jpg">
-<link rel="stylesheet" href="style.css?v=202610311700">
-</head>
-<body>
-<main id="contenu" class="bloc">
-  <header class="entete-page">
-    <span class="sur">Étape 4 · Photographier</span>
-    <h1>Je photographie…</h1>
-    <p>Touche une situation : tu obtiens les réglages, dans l'ordre où tu les fais. Des points de départ éprouvés : règle, déclenche, regarde, ajuste.</p>
-  </header>
-  <div class="tuiles" id="tuiles"></div>
-</main>
-<div class="feuille-fond" id="fond"></div>
-<section class="feuille" id="feuille" role="dialog" aria-modal="true" aria-labelledby="f-titre" hidden></section>
-<div id="suite" data-texte="Les réglages vidéo qui comptent, en cinq minutes."></div>
-<script src="fond.js?v=202610311700" defer></script>
-<script src="commun.js?v=202610311700"></script>
-<script>
-(function () {
-  "use strict";
-  var G = window.GZ, $ = G.$, $$ = G.$$;
-  var R = [
-    ["Un portrait", "portrait", "Fond flou, œil net", "A", "La plus petite valeur f/ possible", "Auto (au moins 1/125 s)", "Auto, max 3200", "AF-S, AF point sélectif sur l'œil", "Picture Control Portrait", "Avec un 50 mm f/1.8 ou un 85 mm, rapproche-toi du sujet et éloigne-le du fond : le flou vient autant de la distance que de l'ouverture."],
-    ["Du sport", "sport", "Figer l'action", "S", "Auto", "1/1000 s", "Auto", "AF-C, AF dynamique 21 points", "Déclenchement CH (4 vues/s en FX)", "Déclenche par courtes rafales, en anticipant l'action. En zone d'image DX, la cadence monte à 5 vues/s."],
-    ["Un paysage", "paysage", "Net de près à loin", "A", "f/8", "Auto", "100", "AF-S, AF point sélectif au tiers de la scène", "Picture Control Paysage", "L'horizon sur un tiers de l'image, pas au milieu. Le quadrillage du viseur (d6) t'aide à le garder droit."],
-    ["La ville la nuit", "ville", "À main levée", "A", "La plus grande ouverture", "Auto (au moins 1/30 s avec un objectif VR)", "Auto, max 6400", "AF-S sur une zone éclairée", "Réduction de vibration de l'objectif : activée", "Prends trois photos en rafale lente (CL) et garde la plus nette."],
-    ["Une pose longue", "pose-longue", "Filés de lumière, trépied", "M", "f/8", "5 à 30 s (pose B au-delà)", "100", "Mise au point, puis passage en M", "Miroir relevé (MUP) ou retardateur", "Ferme l'obturateur d'oculaire (levier à gauche du viseur) : la lumière qui entre par le viseur fausse la mesure."],
-    ["Des animaux", "animal", "Le regard", "S", "Auto", "1/500 s", "Auto", "AF-C, AF dynamique 21 points", "Illuminateur AF coupé (a8)", "Mets-toi à hauteur de ses yeux : la photo change complètement."],
-    ["Des oiseaux en vol", "oiseau", "Rapide et imprévisible", "S", "Auto", "1/2000 s", "Auto", "AF-C, AF dynamique 51 points", "Déclenchement CH", "Le manuel recommande le 51 points pour les sujets difficiles à cadrer dans le viseur, comme les oiseaux."],
-    ["Un contre-jour", "contre-jour", "Ombres et lumière", "A", "f/4 à f/5.6", "Auto", "Auto", "AF-S, AF point sélectif", "D-Lighting actif Automatique ; correction +0,7 à +1 IL", "Pour un visage, le flash intégré avec une correction du flash négative le débouche."],
-    ["Un objet à vendre", "objet", "Net et fidèle", "A", "f/8", "Auto", "100", "AF-S, AF point sélectif", "Balance des blancs : pré-réglage manuel", "Trépied, fenêtre sur le côté, feuille blanche en réflecteur, retardateur 2 s."],
-    ["Un concert", "concert", "Lumière difficile", "S", "La plus grande ouverture", "1/250 s", "Auto, max 6400", "AF-C, AF dynamique 9 points", "Déclenchement discret (Q), sans flash", "En RAW (NEF), la couleur des projecteurs se corrige bien mieux après."]
-  ];
-  var src = function (n, t) { return n.indexOf("/") > -1 ? n : "photos/" + (t || "v") + "/" + n + ".webp"; };
-  $("#tuiles").innerHTML = R.map(function (r, i) { return '<button class="tuile apparait" type="button" data-i="' + i + '"><img src="' + src(r[1]) + '" alt="" loading="lazy"' + (r[1].indexOf("/") > -1 ? ' style="object-fit:contain;background:radial-gradient(#fff,#dcdde2)"' : "") + "><span>" + G.echapper(r[0]) + "<small>" + G.echapper(r[2]) + "</small></span></button>"; }).join("");
-  $$("#tuiles .apparait").forEach(G.observer);
-  var f = $("#feuille"), fond = $("#fond"), dernier = null;
-  function ouvrir(i, bouton) {
-    var r = R[i]; dernier = bouton;
-    f.innerHTML = '<div class="poignee"></div><button class="fermer" type="button" aria-label="Fermer">✕</button><div class="image"><img src="' + src(r[1], "m") + '" alt=""' + (r[1].indexOf("/") > -1 ? ' style="object-fit:contain;background:radial-gradient(#fff,#dcdde2)"' : "") + '></div><div class="corps"><h2 id="f-titre">' + G.echapper(r[0]) + '</h2><div class="reglages-recette">' +
-      [["1 · Mode", r[3]], ["2 · Ouverture", r[4]], ["3 · Vitesse", r[5]], ["4 · ISO", r[6]], ["5 · Mise au point", r[7]], ["6 · En plus", r[8]]].map(function (x) { return "<div><small>" + x[0] + "</small><b>" + G.echapper(x[1]) + "</b></div>"; }).join("") +
-      '</div><p class="note" style="margin:0"><strong>Astuce · </strong>' + G.echapper(r[9]) + '</p><div class="actions"><button class="bouton clair" type="button" data-d="-1">← Précédente</button><button class="bouton" type="button" data-d="1">Suivante →</button></div></div>';
-    f.hidden = false; requestAnimationFrame(function () { f.classList.add("ouvert"); fond.classList.add("ouvert"); });
-    $(".fermer", f).addEventListener("click", fermer);
-    $$("[data-d]", f).forEach(function (b) { b.addEventListener("click", function () { ouvrir((i + +b.dataset.d + R.length) % R.length, dernier); }); });
-    $(".fermer", f).focus();
-  }
-  function fermer() { f.classList.remove("ouvert"); fond.classList.remove("ouvert"); setTimeout(function () { f.hidden = true; }, 400); if (dernier) dernier.focus(); }
-  fond.addEventListener("click", fermer);
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !f.hidden) fermer(); });
-  // tirer la feuille vers le bas pour la fermer
-  var y0 = null;
-  f.addEventListener("touchstart", function (e) { if (f.scrollTop <= 0) y0 = e.touches[0].clientY; }, { passive: true });
-  f.addEventListener("touchmove", function (e) { if (y0 === null) return; var d = e.touches[0].clientY - y0; if (d > 0) f.style.transform = "translate(-50%," + d + "px)"; }, { passive: true });
-  f.addEventListener("touchend", function (e) { if (y0 === null) return; var d = e.changedTouches[0].clientY - y0; f.style.transform = ""; y0 = null; if (d > 110) fermer(); });
-  $$("#tuiles .tuile").forEach(function (b) { b.addEventListener("click", function () { ouvrir(+b.dataset.i, b); }); });
-})();
-</script>
-</body>
-</html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>Le guide a déménagé</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guides/d800/situations.html">
+<meta http-equiv="refresh" content="0; url=/memoclass/guides/d800/situations.html">
+<script>location.replace("/memoclass/guides/d800/situations.html" + location.hash)</script>
+</head><body style="font:17px system-ui;padding:40px">Le guide a déménagé : <a href="/memoclass/guides/d800/situations.html">continuer</a>.</body></html>
