@@ -48,5 +48,5 @@ Vidéos de référence (Google Drive, partage par lien ; télécharger avec `htt
 - Raphaël de nuit (ciel étoilé, apparition du cercle vers 8 s) : `1UrgXyu45joiC21FHS2qzMf5lVDFtBEJQ`
 Ces vidéos sont sans son. Ne jamais intégrer d'images ni de sons de l'anime dans le site (droits d'auteur) : reproduire avec du dessin canvas.
 
-## Dossier `guide-z50ii/` (27/10/2026)
-Site indépendant : le guide gratuit du Nikon Z50II, hébergé ici faute de dépôt dédié (en ligne sur `/memoclass/guide-z50ii/`). Il ne partage rien avec Mémoclass ; sa source de travail est dans le dépôt BOS (`Output/guide-z50ii/`). Ne pas le modifier depuis une tâche Mémoclass.
+## Dossier `guides/` (02/11/2026)
+Site indépendant : les guides photo gratuits (accueil « Quel est ton appareil ? », puis `guides/z50ii/`, `guides/d800/`), en ligne sur `/memoclass/guides/`. Il ne partage rien avec Mémoclass ; sa source de travail est dans le dépôt BOS (`Output/guides/`, `sh construire.sh` produit `site/`). `guide-z50ii/` et `guide-d800/` ne contiennent plus que des redirections, les images de partage et `guide-z50ii/media/` (vidéos Instagram, à garder). Ne pas les modifier depuis une tâche Mémoclass.

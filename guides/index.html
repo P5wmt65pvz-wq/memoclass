@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guides photo gratuits et interactifs</title>
+<meta name="description" content="Choisis ton appareil photo : un guide gratuit et interactif pour comprendre chaque bouton, régler ton appareil pas à pas et apprendre la photo en jouant. Nikon Z50II, Nikon D800.">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guides/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Les guides photo — choisis ton appareil">
+<meta property="og:description" content="Gratuits, interactifs, vérifiés dans les manuels officiels.">
+<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guides/d800/og-d800.jpg">
+<style>
+@font-face { font-family: "Inter"; font-weight: 100 900; font-display: swap; src: url("polices/inter.woff2") format("woff2"); }
+:root { --ink: #1d1d1f; --ink-2: #3a3a3e; --gris: #6b6b72; --jaune: #ffcc00; --ease: cubic-bezier(.2, .8, .2, 1); --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+* { box-sizing: border-box; }
+html { background: #f5f5f7; }
+body { margin: 0; color: var(--ink); font: 17px/1.55 var(--sans); letter-spacing: -.012em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.fond-anime { position: fixed; left: 0; top: 0; z-index: -1; width: 100%; height: 100vh; height: 100lvh; pointer-events: none; }
+main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+.haut { text-align: center; padding: clamp(70px, 14vh, 140px) 0 clamp(30px, 6vh, 56px); }
+.marque { display: inline-flex; align-items: center; gap: 9px; font-weight: 800; letter-spacing: -.02em; }
+.marque svg { width: 26px; height: 26px; }
+h1 { font-size: clamp(42px, 7.6vw, 96px); line-height: 1; font-weight: 800; letter-spacing: -.055em; margin: 22px 0 16px; text-wrap: balance; }
+.haut p { margin: 0 auto; max-width: 30ch; color: var(--gris); font-size: clamp(18px, 2vw, 22px); font-weight: 500; text-wrap: balance; }
+.cherche { display: flex; max-width: 520px; margin: 34px auto 0; background: rgba(255,255,255,.85); border-radius: 999px; padding: 6px; box-shadow: 0 2px 4px rgba(0,0,0,.04), 0 18px 40px -22px rgba(0,0,0,.25); }
+.cherche input { flex: 1; min-width: 0; border: 0; background: transparent; font: 600 17px var(--sans); color: var(--ink); padding: 12px 18px; outline: none; }
+.cherche:focus-within { box-shadow: 0 0 0 3px rgba(255,204,0,.6), 0 18px 40px -22px rgba(0,0,0,.25); }
+.liste { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 420px)); justify-content: center; gap: 18px; }
+.app { position: relative; display: grid; grid-template-rows: auto 1fr; color: var(--ink); text-decoration: none; background: #fff; border-radius: 32px; padding: 26px 26px 24px; box-shadow: 0 2px 4px rgba(0,0,0,.04), 0 24px 60px -28px rgba(0,0,0,.22); transition: transform .45s var(--ease), box-shadow .45s var(--ease); overflow: hidden; }
+.app:hover { transform: translateY(-6px); box-shadow: 0 2px 4px rgba(0,0,0,.04), 0 34px 70px -28px rgba(0,0,0,.3); }
+.app:active { transform: scale(.98); transition-duration: .15s; }
+.app:focus-visible { outline: 3px solid var(--jaune); outline-offset: 3px; }
+.photo { aspect-ratio: 5 / 4; display: grid; place-items: center; background: radial-gradient(60% 55% at 50% 55%, #fff 30%, #eeeef1 100%); border-radius: 22px; overflow: hidden; }
+.photo img { width: 84%; height: 84%; object-fit: contain; transition: transform .6s var(--ease); filter: drop-shadow(0 18px 18px rgba(0,0,0,.18)); }
+.app:hover .photo img { transform: scale(1.05) rotate(-1.5deg); }
+.texte { padding-top: 20px; display: grid; gap: 6px; align-content: start; }
+.type { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8a6d00; }
+.app b { font-size: clamp(28px, 3vw, 36px); letter-spacing: -.04em; line-height: 1.05; }
+.app .details { color: var(--gris); font-size: 16px; }
+.aller { margin-top: 12px; display: inline-flex; align-items: center; gap: 8px; justify-self: start; min-height: 44px; padding: 0 20px; border-radius: 999px; background: var(--ink); color: #fff; font-weight: 700; font-size: 15px; transition: background-color .2s; }
+.app:hover .aller { background: #000; }
+.app[hidden] { display: none; }
+.rien { text-align: center; color: var(--gris); margin: 30px 0 0; }
+.note { text-align: center; color: var(--gris); font-size: 15px; margin: 46px auto 0; max-width: 46ch; }
+footer { width: min(1120px, calc(100% - 32px)); margin: 90px auto 0; padding: 26px 0 60px; border-top: 1px solid rgba(0,0,0,.08); color: var(--gris); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; }
+footer a { display: inline-block; padding: 11px 0; color: var(--gris); text-underline-offset: 3px; }
+.entre { animation: entre .9s var(--ease) both; }
+@keyframes entre { from { opacity: 0; transform: translateY(18px); } }
+@media (prefers-reduced-motion: reduce) { .entre { animation: none; } .app, .photo img { transition: none; } }
+</style>
+</head>
+<body>
+<main id="contenu">
+  <header class="haut entre">
+    <div class="marque"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="9" width="28" height="19" rx="5" fill="#1d1d1f"/><path d="M11 9l2-4h6l2 4z" fill="#1d1d1f"/><circle cx="16" cy="18.5" r="6.5" fill="#fff"/><circle cx="16" cy="18.5" r="4.4" fill="#1d1d1f"/><circle cx="14.6" cy="17.1" r="1.3" fill="#ffcc00"/><circle cx="25" cy="13" r="1.4" fill="#ffcc00"/></svg>Les guides photo</div>
+    <h1>Quel est ton appareil&nbsp;?</h1>
+    <p>Un guide gratuit et interactif pour chacun. Chaque bouton, chaque réglage, en jouant.</p>
+    <form class="cherche" role="search" onsubmit="return false"><input id="q" type="search" placeholder="Cherche ton appareil (ex. D800)" aria-label="Cherche ton appareil" autocomplete="off"></form>
+  </header>
+  <div class="liste entre" id="liste" style="animation-delay:.12s">
+    <a class="app" href="z50ii/" data-mots="nikon z50ii z50 ii z 50 hybride aps-c dx">
+      <div class="photo"><img src="img/z50ii.webp" alt="Le Nikon Z50II" width="709" height="640"></div>
+      <div class="texte"><span class="type">Hybride · format DX</span><b>Nikon Z50II</b><span class="details">20,9 Mpx · vidéo 4K · écran orientable</span><span class="aller">Ouvrir le guide →</span></div>
+    </a>
+    <a class="app" href="d800/" data-mots="nikon d800 d 800 d800e reflex plein format fx">
+      <div class="photo"><img src="img/d800.webp" alt="Le Nikon D800" width="720" height="630"></div>
+      <div class="texte"><span class="type">Reflex · plein format FX</span><b>Nikon D800</b><span class="details">36,3 Mpx · 51 points AF · Full HD</span><span class="aller">Ouvrir le guide →</span></div>
+    </a>
+  </div>
+  <p class="rien" id="rien" hidden>Pas encore de guide pour cet appareil.</p>
+  <p class="note">Chaque guide est vérifié dans le manuel officiel de l'appareil.</p>
+</main>
+<footer>
+  <span>Guides gratuits et indépendants, ni affiliés ni approuvés par Nikon. Nikon, Z50II et D800 sont des marques de Nikon Corporation.</span>
+  <a href="d800/mentions.html">Mentions légales, confidentialité et crédits</a>
+</footer>
+<script>
+(function () {
+  var q = document.getElementById("q"), apps = [].slice.call(document.querySelectorAll(".app")), rien = document.getElementById("rien");
+  var norm = function (s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[\s-]+/g, ""); };
+  q.addEventListener("input", function () {
+    var v = norm(q.value), n = 0;
+    apps.forEach(function (a) { var ok = !v || norm(a.dataset.mots).indexOf(v) > -1 || a.dataset.mots.split(" ").some(function (m) { return norm(m).indexOf(v) > -1; }); a.hidden = !ok; if (ok) n++; });
+    rien.hidden = n > 0;
+  });
+})();
+</script>
+<script src="fond.js?v=202611020900" defer></script>
+</body>
+</html>
