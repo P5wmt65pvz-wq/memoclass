@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aide — Guide D800</title>
+<meta name="description" content="Dépannage du Nikon D800 (photo floue, impossible de déclencher, écran noir…), fiche technique complète et lexique de la photo.">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="canonical" href="https://p5wmt65pvz-wq.github.io/memoclass/guide-d800/aide.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Nikon D800 : dépannage, fiche technique, lexique">
+<meta property="og:image" content="https://p5wmt65pvz-wq.github.io/memoclass/guide-d800/og-d800.jpg">
+<link rel="stylesheet" href="style.css?v=202610311700">
+</head>
+<body>
+<main id="contenu" class="bloc">
+  <header class="entete-page">
+    <span class="sur">Étape 6 · Aide</span>
+    <h1>Un souci ? Un mot ? Un chiffre ?</h1>
+    <p>Écris ce que tu cherches, ou choisis un onglet.</p>
+  </header>
+  <input class="recherche" id="cherche" type="search" placeholder="Ex. : flou, batterie, RAW, écran noir…" aria-label="Chercher dans l'aide">
+  <div class="onglets" role="tablist" aria-label="Rubriques" id="rubriques">
+    <button role="tab" data-panneau="depannage">Dépannage</button>
+    <button role="tab" data-panneau="fiche">Fiche technique</button>
+    <button role="tab" data-panneau="lexique">Lexique</button>
+  </div>
+  <section class="panneau" id="depannage" role="tabpanel" aria-label="Dépannage"></section>
+  <section class="panneau" id="fiche" role="tabpanel" aria-label="Fiche technique" hidden><div class="carte"><dl class="specs" id="specs"></dl></div></section>
+  <section class="panneau" id="lexique" role="tabpanel" aria-label="Lexique" hidden><dl class="lexique" id="lex"></dl></section>
+  <p id="rien" class="muted" hidden>Rien trouvé. Essaie un autre mot.</p>
+</main>
+<script src="fond.js?v=202610311700" defer></script>
+<script src="commun.js?v=202610311700"></script>
+<script>
+(function () {
+  var G = window.GZ, $ = G.$, $$ = G.$$;
+  var D = [
+    ["Impossible de déclencher", "Vérifie la carte mémoire (présente, pas pleine) et le réglage f11 « Photo si carte absente ? ». En AF-S, l'appareil refuse tant que ce n'est pas net : change de point ou passe en AF-C."],
+    ["Mes photos sont floues", "Le sélecteur de mise au point est sur M par erreur ? Remets-le sur AF. Tout le cadre flou : c'est le bougé, accélère ou monte les ISO (avec 36 millions de pixels, le moindre bougé se voit). Seul le sujet est flou : il bougeait, vise 1/500 s ou plus."],
+    ["Le viseur est flou", "Tire la commande de réglage dioptrique, à droite du viseur, tourne-la jusqu'à ce que les points AF soient nets, puis repousse-la."],
+    ["Le point AF ne bouge plus", "La bague de verrouillage autour du sélecteur multidirectionnel est sur « L » : remets-la sur le point blanc."],
+    ["Rien ne filme", "Au dos, le sélecteur de visée écran doit être sur la caméra, puis appuie sur Lv. Le bouton rouge ne marche qu'en visée écran vidéo."],
+    ["Je ne trouve pas la molette de mode", "Le D800 n'en a pas : maintiens la commande MODE (à côté du déclencheur) et tourne la molette principale. Le mode s'affiche sur l'écran de contrôle."],
+    ["Pas de bip de mise au point", "Normal : sur le D800, le signal sonore est désactivé par défaut. Active-le en d1 « Signal sonore » > Volume. Même activé, il reste muet en AF-C, en visée écran vidéo et en déclenchement discret (Q)."],
+    ["Une icône d'horloge clignote", "L'horloge n'est plus réglée : règle de nouveau « Fuseau horaire et date » dans le menu Configuration."],
+    ["La batterie se vide vite", "La visée écran, la vidéo, le froid et l'autofocus répété la vident plus vite. Compte environ 900 photos par charge (norme CIPA). Une deuxième EN-EL15 règle le problème."],
+    ["Mes réglages ont disparu", "Le D800 range les réglages dans des jeux (Prise de vue A à D, Réglages perso A à D). Vérifie le jeu choisi en haut du menu Prise de vue et du menu Réglages personnalisés."]
+  ];
+  var S = [["Type", "Reflex numérique, monture Nikon F"], ["Capteur", "CMOS FX 35,9 × 24 mm, 36,3 Mpx effectifs"], ["Formats photo", "NEF (RAW) 12 ou 14 bits, TIFF (RVB), JPEG"], ["Taille d'image", "7360 × 4912 pixels (L, FX)"], ["Zones d'image", "FX, 1,2×, DX et 5:4"], ["Sensibilité", "100 à 6400 ISO ; Lo 1 (équivalent 50) à Hi 2 (équivalent 25 600)"], ["Vitesses", "1/8000 à 30 s, pose B"], ["Synchro flash", "1/250 s"], ["Autofocus", "Multi-CAM 3500FX, 51 points dont 15 en croix, −2 à +19 IL"], ["Rafale", "4 vps en FX, 5 vps en DX et 1,2× (6 en DX avec la poignée MB-D12, hors EN-EL15)"], ["Viseur", "Reflex à pentaprisme, couverture 100 % (FX), grossissement ≈ 0,7×"], ["Écran", "8 cm (3,2\"), ≈ 921 000 points, ni tactile ni orientable"], ["Vidéo", "Full HD 1080 à 30, 25 ou 24p ; HD 720 jusqu'à 60p ; MOV H.264"], ["Flash", "Intégré (nombre guide 12) + griffe flash et prise synchro"], ["Connexions", "USB 3.0 Micro-B, HDMI mini (type C), micro, casque, prise télécommande 10 broches"], ["Batterie", "EN-EL15 (7,0 V, 1900 mAh)"], ["Autonomie", "≈ 900 photos (CIPA)"], ["Cartes", "CompactFlash type I (UDMA) + SD, SDHC, SDXC (UHS-I)"], ["Dimensions", "≈ 146 × 123 × 81,5 mm"], ["Poids", "≈ 1000 g avec batterie et carte SD, ≈ 900 g boîtier seul"]];
+  var L = [["Ouverture (f/)", "Taille du trou de l'objectif. Petit chiffre = grande ouverture, plus de lumière, arrière-plan plus flou."], ["Vitesse d'obturation", "Durée d'exposition du capteur. 1/1000 s fige, 1 s laisse filer le mouvement."], ["ISO", "Amplification du signal du capteur. Plus haut = plus clair, mais plus de grain."], ["IL", "Indice de lumination : +1 IL = deux fois plus de lumière."], ["Correction d'exposition", "Demander une photo plus claire (+) ou plus sombre (−) que ce qu'a calculé l'appareil."], ["RAW (NEF)", "Le fichier brut du capteur : plus lourd, mais tout se rattrape à la retouche."], ["JPEG", "Fichier compressé, prêt à partager."], ["TIFF", "Fichier non compressé, très lourd, lisible partout."], ["Format FX", "Le capteur 36 × 24 mm de Nikon, le « plein format »."], ["Zone d'image DX", "Le D800 peut n'utiliser que le centre du capteur (24 × 16) : les objectifs DX fonctionnent et les focales « s'allongent » d'environ 1,5×."], ["AF-S", "Autofocus ponctuel : fait le point une fois et le garde."], ["AF-C", "Autofocus continu : suit le sujet qui bouge."], ["AF-F", "Autofocus permanent, en visée écran (vidéo)."], ["Zone AF", "Où l'appareil cherche la netteté : un point, une zone ou tout le cadre."], ["Suivi 3D", "En AF-C, l'appareil suit le sujet d'un point AF à l'autre quand il se déplace."], ["Balance des blancs", "Correction de la couleur de la lumière pour qu'un blanc reste blanc."], ["Kelvin (K)", "Température de couleur : 3000 K chaud, 8000 K froid."], ["Picture Control", "Le style d'image de Nikon : contraste, saturation, netteté, teinte."], ["D-Lighting actif", "Préserve les détails dans les ombres et les hautes lumières."], ["Mesure matricielle", "L'appareil mesure la lumière de toute l'image ; la mesure spot, un petit cercle autour du point AF."], ["Histogramme", "La répartition des tons : tout à droite = blancs brûlés, tout à gauche = noirs bouchés."], ["VR", "La stabilisation (réduction de vibration) de l'objectif."], ["Pose B", "Pose longue en M : l'obturateur reste ouvert tant que tu appuies."], ["Reflex", "Un miroir renvoie l'image de l'objectif dans le viseur ; il se relève au moment de la photo."], ["Miroir relevé (MUP)", "Le miroir se relève avant la photo pour limiter les vibrations, sur trépied."], ["Monture F", "Le système de fixation des objectifs reflex Nikon, depuis 1959."]];
+  $("#depannage").innerHTML = D.map(function (d) { return "<details><summary>" + G.echapper(d[0]) + "</summary><div>" + G.echapper(d[1]) + "</div></details>"; }).join("");
+  $("#specs").innerHTML = S.map(function (s) { return "<div><dt>" + G.echapper(s[0]) + "</dt><dd>" + G.echapper(s[1]) + "</dd></div>"; }).join("");
+  $("#lex").innerHTML = L.map(function (l) { return "<div><dt>" + G.echapper(l[0]) + "</dt><dd>" + G.echapper(l[1]) + "</dd></div>"; }).join("");
+  G.onglets($("#rubriques"));
+  var norm = function (s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); };
+  $("#cherche").addEventListener("input", function (e) {
+    var q = norm(e.target.value.trim()), total = 0;
+    var groupes = [["#depannage details", "depannage"], ["#specs div", "fiche"], ["#lex div", "lexique"]];
+    groupes.forEach(function (x) {
+      var n = 0;
+      $$(x[0]).forEach(function (el) { var ok = !q || norm(el.textContent).indexOf(q) > -1; el.hidden = !ok; if (ok) n++; if (q && ok && el.tagName === "DETAILS") el.open = true; });
+      total += n;
+      x.push(n);
+    });
+    if (q) { // ouvre le premier onglet qui a des résultats
+      var actif = $("#rubriques [aria-selected=true]").dataset.panneau, ok = groupes.filter(function (x) { return x[2] > 0; });
+      if (ok.length && !ok.some(function (x) { return x[1] === actif; })) $('#rubriques [data-panneau="' + ok[0][1] + '"]').click();
+    }
+    $("#rien").hidden = total > 0;
+  });
+})();
+</script>
+</body>
+</html>
