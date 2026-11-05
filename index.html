@@ -1114,7 +1114,7 @@ self.onmessage=async(e)=>{
 var PREFER_URL=(/[?&]whisper=(tiny|small)/.exec(location.search)||[])[1];
 /* Le modèle suit la mémoire de l'ordinateur (un Chromebook de classe a souvent 4 Go) : Cohere Transcribe (2 Go) à partir de 8 Go, Whisper turbo (0,8 Go) à 4 Go ou en mode léger, Whisper small en dessous.
    Un onglet qui manque de mémoire plante sans prévenir : on ne tente pas un modèle trop gros. */
-function prefer(){if(PREFER_URL)return PREFER_URL;var mem=navigator.deviceMemory||8;return mem<4?'small':(S.light||mem<8)?'turbo':'max';}
+function prefer(){if(PREFER_URL)return PREFER_URL;var mem=navigator.deviceMemory||8;return (mem<=4||window.MV_FAIBLE)?'small':(S.light||mem<8)?'turbo':'max';}   /* 4 Go (Chromebook) : Whisper turbo (0,8 Go) en plus des animations faisait planter l'appareil → Whisper small */
 var wk=null,wkCb={},wkSeq=0,wkReady=null,wkLoad=null,wkInfo=null;
 function mdlSize(){var p=prefer();return p==='max'?'2 Go':p==='small'?'0,3 Go':'0,8 Go';}
 function wkGet(){
@@ -1189,6 +1189,7 @@ function liveConsent(){var ok=null;try{ok=localStorage.getItem('dictavox.hq');}c
 function liveStart(node){
   LIVE.on=false;LIVE.proc=null;
   if(!S.live||!(navigator.gpu||PREFER_URL)||!ctx.createScriptProcessor)return;   /* en direct seulement avec une carte graphique */
+  if(window.MV_FAIBLE&&!PREFER_URL)return;   /* appareil modeste : modèle + enregistrement + scène en même temps saturent la mémoire ; le texte précis arrive après l'arrêt */
   if(!liveConsent())return;
   LIVE.on=true;LIVE.rate=ctx.sampleRate;LIVE.acc=[];LIVE.accLen=0;LIVE.queue=[];LIVE.busy=false;LIVE.texts=[];LIVE.cutLen=[];LIVE.doneLen=0;LIVE.n=0;LIVE.files={};
   var sp=ctx.createScriptProcessor(4096,1,1),z=ctx.createGain();z.gain.value=0;
@@ -1234,6 +1235,7 @@ function hqRun(c){
 }
 function autoHq(c){
   if(!S.hq||c.hq||c.livePending)return;
+  if(window.MV_FAIBLE&&document.querySelector('.skill-ov')){setTimeout(function(){autoHq(c);},1500);return;}   /* appareil modeste : pas de modèle chargé pendant l'animation de fin */
   if(!(navigator.gpu||c.duration<20*60000))return;   /* sans carte graphique, un cours long serait trop lent : bouton manuel */
   var ok=null;try{ok=localStorage.getItem('dictavox.hq');}catch(e){}
   if(!ok){if(!window.confirm("Mémoclass peut affiner la transcription après chaque cours avec un modèle (environ '+mdlSize()+', téléchargé une seule fois, ensuite tout reste sur ton appareil). Activer ?")){S.hq=false;saveS();paintS();return;}try{localStorage.setItem('dictavox.hq','1');}catch(e){}}
@@ -1719,7 +1721,7 @@ window.mvCelebrate=function(info,done,status){
     function cl(x){return Math.max(0,Math.min(1,x));}
     function burst(){   /* une seule gerbe : chaque goutte part du cercle, file vers l'extérieur, puis se met à tourner et se fait aspirer vers le centre */
       drops=[];var k=U/400,Rm=DIAG*.62;
-      for(var i=0,n=W*H<500000?2200:3200;i<n;i++){var zone=i%3,r0=zone===0?U*(.38+Math.random()*.1):zone===1?U*(.28+Math.random()*.04):Math.random()*U*.28;
+      for(var i=0,n=window.MV_FAIBLE?1200:W*H<500000?2200:3200;i<n;i++){var zone=i%3,r0=zone===0?U*(.38+Math.random()*.1):zone===1?U*(.28+Math.random()*.04):Math.random()*U*.28;
         drops.push({a:Math.random()*Math.PI*2,r0:r0,reach:Rm*(.18+.82*Math.sqrt(Math.random())),arr:3.2+Math.random()*1.3,w:.75+Math.random()*.6,s:(1+Math.random()*3)*Math.max(1,k*.9),c:GOLD[i%GOLD.length],px:null,py:null});}
     }
     function col(c,m,al){var p=c.split(',');return 'rgba('+Math.round(p[0]*(1-m)+255*m)+','+Math.round(p[1]*(1-m)+52*m)+','+Math.round(p[2]*(1-m)+44*m)+','+al+')';}
@@ -1806,7 +1808,7 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catc
       u_contour:.4,u_distortion:.07,u_softness:.1,u_repetition:2,u_shiftRed:.3,u_shiftBlue:.3,u_angle:70,u_shape:0,
       u_fit:P.ShaderFitOptions.contain,u_scale:1,u_rotation:o.rotation,u_offsetX:o.offsetX,u_offsetY:o.offsetY,
       u_originX:o.originX,u_originY:o.originY,u_worldWidth:o.worldWidth,u_worldHeight:o.worldHeight
-    },undefined,(navigator.deviceMemory||8)<4?0:1,0,2,undefined,['u_image']);   /* petit appareil : reflet chromé fixe, sans calcul à chaque image */
+    },undefined,(window.MV_FAIBLE||(navigator.deviceMemory||8)<4)?0:1,0,2,undefined,['u_image']);   /* petit appareil : reflet chromé fixe, sans calcul à chaque image */
     requestAnimationFrame(function(){logo.classList.add('metal');mark.style.opacity='0';});
   }).catch(function(){});   /* hors ligne ou WebGL refusé : le logo dessiné reste */
 })();
