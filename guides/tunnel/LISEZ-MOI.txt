@@ -1,0 +1,3 @@
+Page « Tunnel » : scène WebGL (tunnel de points, bruit simplex, flou lumineux). three.js r143 (MIT)
+et ses addons sont servis par le site (dossier vendor/) : aucune requête vers un tiers.
+Sur appareil modeste (4 Go ou moins, téléphone) : maillage plus léger, résolution plafonnée, 30 i/s.
