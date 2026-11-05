@@ -49,9 +49,56 @@ footer a { display: inline-block; padding: 11px 0; color: var(--gris); text-unde
 .entre { animation: entre .9s var(--ease) both; }
 @keyframes entre { from { opacity: 0; transform: translateY(18px); } }
 @media (prefers-reduced-motion: reduce) { .entre { animation: none; } .app, .photo img { transition: none; } }
+
+/* ---------- entrée cinématique (lib/intro.js) */
+.intro { position: relative; height: 560vh; background: #000; color: #fff; }
+.intro-scene { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.intro canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.intro-grille { position: absolute; inset: 0 40px; display: flex; justify-content: space-between; pointer-events: none; }
+.intro-grille i { width: 1px; background: rgba(255, 255, 255, .08); }
+.intro-haut { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 22px 60px; border-bottom: 1px solid rgba(255, 255, 255, .1); z-index: 2; }
+.intro-marque { font-size: 13px; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; }
+.intro-passer { color: #000; background: #fff; text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 11px 20px; border-radius: 999px; transition: transform .3s var(--ease), background .3s; }
+.intro-passer:hover { transform: scale(1.04); }
+.intro-passer:focus-visible { outline: 3px solid var(--jaune); outline-offset: 3px; }
+.intro-slide { position: absolute; left: 60px; bottom: 12%; max-width: min(760px, 70vw); pointer-events: none; z-index: 2; }
+.intro-titre { margin: 0 0 18px; font-size: clamp(46px, 7.6vw, 116px); line-height: .98; font-weight: 800; letter-spacing: -.05em; color: #fff6ed; }
+.intro-titre .car { display: inline-block; opacity: 0; transform: translateY(50px); filter: blur(12px); transition: opacity .8s cubic-bezier(.25, 1, .5, 1), transform .8s cubic-bezier(.25, 1, .5, 1), filter .8s cubic-bezier(.25, 1, .5, 1); }
+.intro-slide.actif .car { opacity: 1; transform: none; filter: none; }
+.intro-slide p { margin: 0; max-width: 34ch; font-size: 17px; line-height: 1.6; color: #d1d5db; opacity: 0; transform: translateY(30px); transition: opacity .8s cubic-bezier(.25, 1, .5, 1) .4s, transform .8s cubic-bezier(.25, 1, .5, 1) .4s; }
+.intro-slide.actif p { opacity: 1; transform: none; }
+.intro-trait { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); display: grid; gap: 12px; z-index: 2; }
+.intro-trait i { display: block; width: 2px; height: 40px; border-radius: 2px; background: rgba(255, 255, 255, .15); position: relative; overflow: hidden; }
+.intro-trait i::after { content: ""; position: absolute; inset: 0; background: #fff; transform: scaleY(var(--p, 0)); transform-origin: top; }
+.intro-flash { position: absolute; inset: 0; background: #f5f5f7; opacity: 0; pointer-events: none; z-index: 3; }
+@media (max-width: 700px) {
+  .intro { height: 480vh; }
+  .intro-haut { padding: 16px 20px; }
+  .intro-marque { letter-spacing: .2em; font-size: 12px; }
+  .intro-passer .long { display: none; }
+  .intro-passer { width: 42px; height: 42px; padding: 0; display: grid; place-items: center; font-size: 16px; }
+  .intro-grille { inset: 0 16px; }
+  .intro-grille i:nth-child(2), .intro-grille i:nth-child(4) { display: none; }
+  .intro-slide { left: 20px; right: 20px; bottom: 9%; max-width: none; }
+  .intro-trait { right: 14px; }
+  .intro-trait i { height: 28px; }
+}
 </style>
 </head>
 <body>
+<section class="intro" aria-label="Présentation">
+  <div class="intro-scene">
+    <canvas aria-hidden="true"></canvas>
+    <div class="intro-grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="intro-haut"><span class="intro-marque">Les guides photo</span><a class="intro-passer" href="#contenu"><span class="long">Choisir mon appareil </span>↓</a></div>
+    <div class="intro-slide"><h2 class="intro-titre">Ton appareil,<br>enfin compris.</h2><p>Des guides gratuits et interactifs, vérifiés dans le manuel officiel de chaque appareil.</p></div>
+    <div class="intro-slide"><h2 class="intro-titre">Chaque molette<br>tourne vraiment.</h2><p>L'appareil est en 3D : fais-le tourner, touche une commande, elle bouge et le guide t'explique.</p></div>
+    <div class="intro-slide"><h2 class="intro-titre">Chaque réglage,<br>pas à pas.</h2><p>Le guide te dit sur quelle commande appuyer, écran par écran. Puis tu refais pareil sur le tien.</p></div>
+    <div class="intro-slide"><h2 class="intro-titre">Entre dans<br>l'objectif.</h2><p>Continue à faire défiler.</p></div>
+    <div class="intro-trait" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="intro-flash" aria-hidden="true"></div>
+  </div>
+</section>
 <main id="contenu">
   <header class="haut entre">
     <div class="marque"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="9" width="28" height="19" rx="5" fill="#1d1d1f"/><path d="M11 9l2-4h6l2 4z" fill="#1d1d1f"/><circle cx="16" cy="18.5" r="6.5" fill="#fff"/><circle cx="16" cy="18.5" r="4.4" fill="#1d1d1f"/><circle cx="14.6" cy="17.1" r="1.3" fill="#ffcc00"/><circle cx="25" cy="13" r="1.4" fill="#ffcc00"/></svg>Les guides photo</div>
@@ -71,7 +118,6 @@ footer a { display: inline-block; padding: 11px 0; color: var(--gris); text-unde
   </div>
   <p class="rien" id="rien" hidden>Pas encore de guide pour cet appareil.</p>
   <p class="note">Chaque guide est vérifié dans le manuel officiel de l'appareil.</p>
-<p style="text-align:center;margin:28px 0 0"><a href="cinema/" style="color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:4px">Voir la version plein écran →</a></p>
 </main>
 <footer>
   <span>Guides gratuits et indépendants, ni affiliés ni approuvés par Nikon. Nikon, Z50II et D800 sont des marques de Nikon Corporation.</span>
@@ -88,6 +134,8 @@ footer a { display: inline-block; padding: 11px 0; color: var(--gris); text-unde
   });
 })();
 </script>
+<script type="importmap">{ "imports": { "three": "./lib/three/three.module.min.js" } }</script>
+<script type="module" src="lib/intro.js"></script>
 <script src="fond.js?v=202611020900" defer></script>
 </body>
 </html>

@@ -51,7 +51,9 @@
     ]
   };
 
+  window.GZ_VUES = VUES;
   function charger(vue) {
+    if (vue === "en3d") { document.dispatchEvent(new Event("gz3d")); return; }
     var panneau = document.getElementById(vue); if (!panneau) return;
     var img = $("img", panneau);
     if (img.dataset.src && !img.getAttribute("src")) img.src = img.dataset.src;

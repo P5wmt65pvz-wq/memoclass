@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-appareil="d800">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -21,11 +21,16 @@
   </header>
 
   <div class="onglets" role="tablist" aria-label="Vue de l'appareil" id="vues">
+    <button role="tab" data-panneau="en3d" hidden>En 3D</button>
     <button role="tab" data-panneau="face">Face</button>
     <button role="tab" data-panneau="dessus">Côté</button>
     <button role="tab" data-panneau="dos">Dos</button>
   </div>
 
+  <div class="deux deux3d" id="en3d" role="tabpanel" hidden>
+    <div class="visuel"><div class="a3d a3d-decouvrir"><p class="a3d-aide">Glisse pour tourner · touche une commande</p></div><div class="puces3d" role="list" aria-label="Toutes les commandes"></div></div>
+    <aside class="carte fiche" aria-live="polite"></aside>
+  </div>
   <div class="deux" id="face" role="tabpanel">
     <div class="visuel"><div class="defil"><div class="cadre"><img data-src="img/vrai/face.webp" alt="Le D800 de face, sans objectif : monture et commandes numérotées" width="784" height="686"><div class="points"></div></div></div></div>
     <aside class="carte fiche" aria-live="polite"></aside>
@@ -62,6 +67,8 @@
 <div id="suite" data-texte="Tu entres dans l'appareil simulé : on te dit quelle commande presser."></div>
 <script src="fond.js?v=202610311700" defer></script>
 <script src="commun.js?v=202610311700"></script>
+<script type="importmap">{ "imports": { "three": "../lib/three/three.module.min.js" } }</script>
 <script src="decouvrir.js?v=202610311700"></script>
+<script type="module" src="../lib/decouvrir3d.js"></script>
 </body>
 </html>
