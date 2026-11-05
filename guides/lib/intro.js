@@ -6,7 +6,7 @@
      jusqu'au choix de l'appareil.
    L'appareil est le modèle 3D du site (lib/appareil3d.js), pas une photo. */
 import * as THREE from 'three';
-import { MODELES } from './appareil3d.js';
+import { MODELES, fusionner } from './appareil3d.js';
 import { RoomEnvironment } from './three/addons/RoomEnvironment.js';
 
 const section = document.querySelector('.intro');
@@ -19,8 +19,10 @@ if (section && (!webgl() || reduit)) section.remove();
 else if (section) demarrer();
 
 function demarrer() {
-  const modeste = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency || 8) <= 4 || innerWidth < 700;
-  const DPR = () => Math.min(devicePixelRatio, modeste ? 1 : 1.75);
+  const modeste = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency || 8) <= 2;   // un téléphone n'est pas « modeste » : sa carte graphique suit ; le garde-fou ajuste sinon
+  // définition du rendu : baisse toute seule si l'appareil peine (mesurée en continu)
+  let echelle = modeste ? 0.7 : 1;
+  const DPR = () => Math.min(devicePixelRatio, modeste ? 1 : 1.75) * echelle;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !modeste, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
@@ -88,10 +90,10 @@ function demarrer() {
 
   // l'appareil
   const m = MODELES.z50ii();
-  const pivot = new THREE.Group(); m.groupe.position.sub(m.centre); pivot.add(m.groupe); scene.add(pivot);
-  pivot.updateMatrixWorld(true);
+  m.groupe.position.sub(m.centre); m.groupe.updateMatrixWorld(true);
   const obj = m.commandes.objectif;
   const lentille = new THREE.Vector3(0, 0, obj.userData.longueur).applyMatrix4(obj.matrixWorld);   // centre du verre avant
+  const pivot = new THREE.Group(); pivot.add(fusionner(m.groupe)); scene.add(pivot);
 
   /* ---------------- scène 2 : le tunnel (référence « Tunnel », sans post-traitement pour rester léger) */
   const tScene = new THREE.Scene();
@@ -111,7 +113,7 @@ float snoise(vec3 v){ const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4
   vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0); m = m * m;
   return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3))); }`;
   const TU = { uTime: { value: 0 }, uAppear: { value: 0 }, uColLow: { value: new THREE.Color('#180a3a') }, uColHigh: { value: new THREE.Color('#2bf0ff') }, uOpacity: { value: 1.44 }, uSize: { value: 5 }, uBrightness: { value: 0.55 }, uSwirl: { value: 0.39 }, uScale: { value: 0.17 }, uPix: { value: 1 } };
-  const tunnel = new THREE.Points(new THREE.SphereGeometry(4.2, modeste ? 90 : 150, modeste ? 270 : 450), new THREE.ShaderMaterial({
+  const tunnel = new THREE.Points(new THREE.SphereGeometry(4.2, modeste ? 70 : 110, modeste ? 210 : 330), new THREE.ShaderMaterial({
     uniforms: TU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: `uniform float uTime; uniform float uSize; uniform float uSwirl; uniform float uScale; uniform float uPix;
       uniform vec3 uColLow; uniform vec3 uColHigh; varying vec3 vColor;
@@ -162,6 +164,10 @@ float snoise(vec3 v){ const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4
     lireDefil();
   }
   addEventListener('resize', cadrer); cadrer();
+  // tout compiler d'avance : pas d'à-coup quand le tunnel apparaît
+  try { renderer.compile(scene, camera); renderer.compile(tScene, tCam); } catch (e) {}
+  let somme = 0, nb = 0, leger = false, dessine = -1;
+  if (modeste) section.classList.add('leger');
 
   const horloge = new THREE.Clock(), cible3 = new THREE.Vector3(), regard = new THREE.Vector3();
   let roulis = 0;
@@ -169,8 +175,16 @@ float snoise(vec3 v){ const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4
   function image(now) {
     if (!visible) return;
     requestAnimationFrame(image);
-    if (modeste && now - dernier < 31) return;   // 30 images/s sur les appareils modestes
-    dernier = now;
+    if (now - dernier < 31) return;   // 30 images/s : assez pour une entrée de film, deux fois moins de calcul
+    const ecart = dernier ? now - dernier : 33; dernier = now;
+    somme += ecart; nb++;
+    if (nb === 10) {
+      const moy = somme / nb; somme = nb = 0;
+      if (moy > 40 && echelle > 0.42) { echelle = Math.max(0.42, echelle - 0.18); cadrer(); }
+      else if (moy > 55 && !leger) { leger = true; section.classList.add('leger'); }   // toujours trop lent : mode léger
+    }
+    // mode léger : on ne redessine que si le défilement a bougé (rien ne tourne à l'arrêt), sans étincelles
+    if (leger && Math.abs(cible - actuel) < 0.0005 && Math.abs(actuel - dessine) < 0.0005) return;
     const dt = Math.min(horloge.getDelta(), 0.1), k = a => 1 - Math.pow(1 - a, dt * 60), t = horloge.elapsedTime;
     actuel += (cible - actuel) * k(0.06);
     mx += (tmx - mx) * k(0.05); my += (tmy - my) * k(0.05);
@@ -208,6 +222,8 @@ float snoise(vec3 v){ const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4
     tCam.position.set(mx * 0.12, -my * 0.12, 20 - vol * 34);
     tCam.lookAt(mx * 0.6, -my * 0.6, tCam.position.z - 12);
 
+    dessine = actuel;
+    etincelles.visible = !leger;
     renderer.clear();
     if (tun < 1) renderer.render(scene, camera);
     if (tun > 0) {

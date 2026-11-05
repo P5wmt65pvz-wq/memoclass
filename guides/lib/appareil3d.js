@@ -5,7 +5,7 @@
    three.js r160 (MIT), servi par le site. */
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from './three/addons/RoundedBoxGeometry.js';
-import { toCreasedNormals } from './three/addons/BufferGeometryUtils.js';
+import { toCreasedNormals, mergeGeometries } from './three/addons/BufferGeometryUtils.js';
 
 /* ------------------------------------------------------------------ matières */
 function grain(taille, force) {
@@ -364,6 +364,28 @@ function d800() {
 }
 
 export const MODELES = { z50ii, d800 };
+
+/* Regroupe toutes les pièces d'une même matière en un seul maillage (pour les vues où rien
+   ne bouge, comme l'entrée de l'accueil) : des centaines d'appels de dessin deviennent une dizaine. */
+export function fusionner(groupe) {
+  groupe.updateMatrixWorld(true);
+  const parMat = new Map(), garder = [];
+  groupe.traverse(o => {
+    if (!o.isMesh || !o.visible || (o.material && o.material.visible === false)) return;
+    const m = o.material;
+    if (m.map && !m.normalMap) { garder.push(o); return; }            // étiquettes : texture propre, on les garde
+    let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+    if (!g.attributes.uv) g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+    if (!g.attributes.normal) g.computeVertexNormals();
+    g.applyMatrix4(o.matrixWorld);
+    if (!parMat.has(m)) parMat.set(m, []); parMat.get(m).push(g);
+  });
+  const res = new THREE.Group();
+  parMat.forEach((gs, m) => { const g = mergeGeometries(gs, false); if (g) res.add(new THREE.Mesh(g, m)); });
+  garder.forEach(o => { const c = new THREE.Mesh(o.geometry, o.material); o.matrixWorld.decompose(c.position, c.quaternion, c.scale); res.add(c); });
+  return res;
+}
 
 /* ------------------------------------------------------------------ visionneuse
    creerVisionneuse(conteneur, { modele: 'z50ii', vue: [lacet, tangage], zoom, fond: null,
