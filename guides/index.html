@@ -65,6 +65,7 @@ footer a { display: inline-block; padding: 11px 0; color: var(--gris); text-unde
 .intro-titre { margin: 0 0 18px; font-size: clamp(46px, 7.6vw, 116px); line-height: .98; font-weight: 800; letter-spacing: -.05em; color: #fff6ed; }
 .intro-titre .car { display: inline-block; opacity: 0; transform: translateY(50px); filter: blur(12px); transition: opacity .8s cubic-bezier(.25, 1, .5, 1), transform .8s cubic-bezier(.25, 1, .5, 1), filter .8s cubic-bezier(.25, 1, .5, 1); }
 .intro-slide.actif .car { opacity: 1; transform: none; filter: none; }
+.intro.leger .intro-titre .car { filter: none; transition-property: opacity, transform; }
 .intro-slide p { margin: 0; max-width: 34ch; font-size: 17px; line-height: 1.6; color: #d1d5db; opacity: 0; transform: translateY(30px); transition: opacity .8s cubic-bezier(.25, 1, .5, 1) .4s, transform .8s cubic-bezier(.25, 1, .5, 1) .4s; }
 .intro-slide.actif p { opacity: 1; transform: none; }
 .intro-trait { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); display: grid; gap: 12px; z-index: 2; }
