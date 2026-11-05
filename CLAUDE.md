@@ -48,5 +48,12 @@ Vidéos de référence (Google Drive, partage par lien ; télécharger avec `htt
 - Raphaël de nuit (ciel étoilé, apparition du cercle vers 8 s) : `1UrgXyu45joiC21FHS2qzMf5lVDFtBEJQ`
 Ces vidéos sont sans son. Ne jamais intégrer d'images ni de sons de l'anime dans le site (droits d'auteur) : reproduire avec du dessin canvas.
 
+## Fluidité sur Chromebook (05/11/2026)
+Adrien : « il fait que laguer ». Mesuré dans Chromium, processeur ralenti ×4, 1366×768, `deviceMemory` 4 (scripts dans le scratchpad de la session).
+- Cause n°1 : la réfraction SVG du verre (`url(#lgN)` en `backdrop-filter` sur 9 panneaux), active seulement sur Chrome, donc sur le Chromebook : accueil à 30 images/s. Sans elle : 60 images/s.
+- `window.MV_FAIBLE` (classe `html.faible`) : vrai si `deviceMemory` ≤ 4 ou ≤ 2 cœurs, ou si un garde-fou mesure, 3 s après l'ouverture, une moitié d'images à plus de 22 ms (tous navigateurs). Dans ce cas : verre dépoli simple (`window.lgOff()`, `?verre=1` force la réfraction), pas de reflet qui suit la souris, pas de flou derrière les panneaux pendant l'enregistrement, scène de Raphaël à 30 images/s et 0,75 de résolution, ciel (dégradé, étoiles, nuages) gardé en mémoire et redessiné une image sur quatre, anneau d'écriture dessiné une fois puis tourné comme une image, halo dessiné au lieu de `shadowBlur`. Animations de départ et de fin à 0,75 de résolution.
+- Pour tous : le chrono n'est réécrit que quand il change (il l'était à chaque image et faisait repeindre toute la colonne et le verre), `#timer` et `#mini-t` sur leur propre calque, dégradé du fond limité au carré utile.
+- Résultat (×4, profil modeste) : accueil 33 → 17 ms par image, souris 33 → 17 ms, 0 image au-delà de 50 ms ; écran d'enregistrement 100 → 50 ms. Le Chromium de test n'a pas de vraie carte graphique : ce dernier chiffre est pessimiste.
+
 ## Dossier `guides/` (02/11/2026)
 Site indépendant : les guides photo gratuits (accueil « Quel est ton appareil ? », puis `guides/z50ii/`, `guides/d800/`), en ligne sur `/memoclass/guides/`. Il ne partage rien avec Mémoclass ; sa source de travail est dans le dépôt BOS (`Output/guides/`, `sh construire.sh` produit `site/`). `guide-z50ii/` et `guide-d800/` ne contiennent plus que des redirections, les images de partage et `guide-z50ii/media/` (vidéos Instagram, à garder). Ne pas les modifier depuis une tâche Mémoclass.

@@ -180,6 +180,9 @@ dialog::backdrop{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);ba
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .studio .recbadge i{width:8px;height:8px;border-radius:50%;background:#FF3B30;box-shadow:0 0 10px #FF3B30;animation:blink 1s steps(2) infinite}
 @keyframes blink{50%{opacity:.2}}
+#timer,#mini-t{will-change:transform}
+/* appareil modeste : pendant l'enregistrement, le ciel bouge à chaque image ; recalculer le flou derrière chaque panneau en verre fait ramer. Panneaux sans flou (le ciel reste visible au travers). */
+html.faible body.recmode *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}   /* le chrono change 10 fois par seconde : sur son propre calque, il ne fait plus repeindre le reste */
 body.is-rec .studio .recbadge{display:flex}
 @media (max-width:480px){.studio .recbadge{font-size:0;gap:0;padding:7px;top:12px;right:12px}}
 
@@ -533,7 +536,11 @@ body.recmode .halo i{display:none}
    ailleurs, verre dépoli classique. */
 (function(){
   var ok=!!window.chrome&&!/Firefox/.test(navigator.userAgent)&&!matchMedia('(prefers-reduced-transparency: reduce)').matches;
-  if(!ok)return;
+  /* appareil modeste (beaucoup de Chromebooks : 4 Go de mémoire, ou 2 cœurs) : ces filtres recalculés à chaque image font ramer tout le site.
+     On garde le verre dépoli simple (comme sur Safari) ; ?verre=1 dans l'adresse force la réfraction. */
+  var faible=window.MV_FAIBLE=(navigator.deviceMemory||8)<=4||(navigator.hardwareConcurrency||8)<=2;
+  if(faible)document.documentElement.classList.add('faible');
+  if(!ok||(faible&&!/[?&]verre=1/.test(location.search)))return;
   var NS='http://www.w3.org/2000/svg',defs=document.querySelector('#lg-defs defs'),n=0;
   /* réglages du verre (panneau « Verre liquide » des Réglages), mêmes effets que liquid-glass-js : bord, liseré, coins, ondulation, loupe */
   var LG=window.LG=window.LG||{edge:1,rim:1,corner:.4,ripple:.2,warp:false,blur:4};
@@ -553,8 +560,9 @@ body.recmode .halo i{display:none}
       D[i]=128+dx*127;D[i+1]=128+dy*127;D[i+2]=128;D[i+3]=255;}
     g.putImageData(im,0,0);return c.toDataURL();
   }
+  var off=0;
   function apply(el){
-    if(el.classList.contains('head'))return;   /* le logo animé (WebGL) dans la barre du haut casse le filtre de Chrome (bloc rouge à bord net) : verre dépoli simple ici */
+    if(off||el.classList.contains('head'))return;   /* le logo animé (WebGL) dans la barre du haut casse le filtre de Chrome (bloc rouge à bord net) : verre dépoli simple ici */
     var r=el.getBoundingClientRect(),w=Math.round(r.width),h=Math.round(r.height);if(w<8||h<8)return;
     var key=w+'x'+h;if(el.dataset.lg===key)return;el.dataset.lg=key;
     var rad=parseFloat(getComputedStyle(el).borderTopLeftRadius)||0,big=w*h>60000;
@@ -573,7 +581,7 @@ body.recmode .halo i{display:none}
     defs.appendChild(f);
     var v='url(#'+id+') saturate(165%) brightness(1.12)',im=new Image();
     /* n'activer la réfraction qu'une fois la carte chargée, sinon Chrome peint un bord décalé */
-    im.onload=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){el.style.webkitBackdropFilter=v;el.style.backdropFilter=v;});});};im.src=url;
+    im.onload=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){if(off)return;el.style.webkitBackdropFilter=v;el.style.backdropFilter=v;});});};im.src=url;
   }
   function all(){[].forEach.call(document.querySelectorAll('.glass'),apply);}
   var ro=new ResizeObserver(function(es){es.forEach(function(e){var t=e.target;clearTimeout(t._lgT);t._lgT=setTimeout(function(){apply(t);},140);});});
@@ -581,7 +589,13 @@ body.recmode .halo i{display:none}
   var pend=0;new MutationObserver(function(ms){if(pend)return;for(var i=0;i<ms.length;i++){for(var j=0;j<ms[i].addedNodes.length;j++){var nd=ms[i].addedNodes[j];if(nd.nodeType===1&&(nd.classList.contains('glass')||nd.querySelector&&nd.querySelector('.glass'))){pend=requestAnimationFrame(function(){pend=0;watch();});return;}}}}).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('load',watch);watch();
   var rq=0;window.lgRefresh=function(){clearTimeout(rq);rq=setTimeout(function(){[].forEach.call(document.querySelectorAll('.glass'),function(el){delete el.dataset.lg;});all();},90);};   /* après un réglage : on recalcule tout le verre */
+  window.lgOff=function(){off=1;ro.disconnect();[].forEach.call(document.querySelectorAll('.glass'),function(el){el.style.backdropFilter='';el.style.webkitBackdropFilter='';});};   /* retour au verre dépoli simple */
 })();
+/* garde-fou, tous navigateurs : 3 s après l'ouverture, on mesure 90 images ; si la moitié dépasse 22 ms, l'appareil est traité comme modeste
+   (verre dépoli simple, pas de reflet qui suit la souris, scène de Raphaël allégée) */
+(function(){if(window.MV_FAIBLE)return;setTimeout(function(){var a=[],t0=0;function L(t){if(t0)a.push(t-t0);t0=t;if(a.length<90)requestAnimationFrame(L);else{a.sort(function(x,y){return x-y;});
+  if(document.visibilityState==='visible'&&a[45]>22){window.MV_FAIBLE=true;document.documentElement.classList.add('faible');if(window.lgOff)window.lgOff();}}}
+  requestAnimationFrame(L);},3000);})();
 (function(){
 'use strict';
 var $=function(id){return document.getElementById(id);};
@@ -768,7 +782,7 @@ var oGl=[],oDots=[],oSpk=[],oJit=[],TAU2=Math.PI*2,oSprite=null;
 })();
 window.mvBloom=function(){oB=0;};
 function sizeOracle(){
-  var W=window.innerWidth,H=window.innerHeight,d=W*H>1000000?1:Math.min(1.5,window.devicePixelRatio||1);
+  var W=window.innerWidth,H=window.innerHeight,d=window.MV_FAIBLE?.75:W*H>1000000?1:Math.min(1.5,window.devicePixelRatio||1);   /* appareil modeste : scène dessinée plus petite puis agrandie (ciel et halo restent doux) */
   oW=W;oH=H;oc.width=Math.round(W*d);oc.height=Math.round(H*d);og.setTransform(d,0,0,d,0,0);
   var r=recBtn.getBoundingClientRect();oCx=W/2;oCy=r.height?r.top+window.scrollY+r.height/2:H*.46;
   oc.style.transformOrigin='50% '+(oCy/H*100).toFixed(1)+'%';
@@ -792,10 +806,21 @@ function oMakeSky(){   /* nuages comme dans la scène de nuit : corps bleu sombr
 var oStars2=[];for(var s2=0;s2<340;s2++)oStars2.push({x:Math.random(),y:Math.random(),r:.3+Math.random()*.8,a:.35+Math.random()*.6,ph:Math.random()*6.3,sp:.4+Math.random()*1.6});
 function oSky(og,W,H,br,dt){   /* nuit de la vidéo : dégradé presque noir en haut à gauche, bleu nuit en bas à droite ; étoiles très fines ; nuages qui glissent doucement */
   var gr=og.createLinearGradient(0,0,W*.55,H);gr.addColorStop(0,'#000219');gr.addColorStop(.55,'#010C2E');gr.addColorStop(1,'#04204A');
-  og.globalCompositeOperation='source-over';og.globalAlpha=1;og.fillStyle=gr;og.fillRect(0,0,W,H);
+  og.globalCompositeOperation='source-over';og.globalAlpha=1;
+  if(window.MV_FAIBLE){   /* appareil modeste : dégradé et 340 étoiles gardés en mémoire, redessinés une image sur quatre (le scintillement reste visible) */
+    var C=oSky.c;if(!C||C.W!==W||C.H!==H||C.br!==br||!(oSky.n=(oSky.n+1)%4)){if(!C||C.W!==W||C.H!==H){C=oSky.c=document.createElement('canvas');C.W=W;C.H=H;C.width=Math.round(W*.75);C.height=Math.round(H*.75);}
+      C.br=br;var cg=C.getContext('2d');cg.setTransform(.75,0,0,.75,0,0);cg.fillStyle=gr;cg.fillRect(0,0,W,H);
+      for(var i=0;i<oStars2.length;i++){var s=oStars2[i],a=s.a*(.75+.25*Math.sin(oT*s.sp+s.ph))*br;cg.fillStyle='rgba(235,240,255,'+a+')';cg.fillRect(s.x*W,s.y*H*.9,s.r*1.6,s.r*1.6);}
+      if(!oSkyTex)oSkyTex=oMakeSky();var tw2=Math.max(W,H*16/9)*1.15,th2=tw2*270/480,off2=(oT*6)%tw2,y2=H-th2*1.02;
+      cg.globalAlpha=.96*br;cg.drawImage(oSkyTex,-off2,y2,tw2,th2);cg.drawImage(oSkyTex,-off2+tw2,y2,tw2,th2);cg.globalAlpha=1;}
+    og.drawImage(C,0,0,W,H);
+  }else{
+  og.fillStyle=gr;og.fillRect(0,0,W,H);
   for(var i=0;i<oStars2.length;i++){var s=oStars2[i],a=s.a*(.75+.25*Math.sin(oT*s.sp+s.ph))*br;og.fillStyle='rgba(235,240,255,'+a+')';og.fillRect(s.x*W,s.y*H*.9,s.r*1.6,s.r*1.6);}
+  }
   if(!oSkyTex)oSkyTex=oMakeSky();
   var tw=Math.max(W,H*16/9)*1.15,th=tw*270/480,off=(oT*6)%tw,y0=H-th*1.02;
+  if(window.MV_FAIBLE)return;   /* appareil modeste : les nuages sont déjà dans l'image gardée en mémoire */
   og.globalAlpha=.96*br;og.drawImage(oSkyTex,-off,y0,tw,th);og.drawImage(oSkyTex,-off+tw,y0,tw,th);og.globalAlpha=1;
 }
 function oTick(dt){
@@ -810,26 +835,33 @@ function raphaelDraw(og,W,H,cx,cy,U,br,fb,rec,dt){
   var eb=function(a,b){var x=Math.max(0,Math.min(1,(oB-a)/b));return 1-Math.pow(1-x,3);};
   og.clearRect(0,0,W,H);og.globalCompositeOperation='source-over';og.shadowBlur=0;
   oSky(og,W,H,br,dt);
-  var bg=og.createRadialGradient(cx,cy,U*.1,cx,cy,U*.75);bg.addColorStop(0,'rgba(4,20,80,'+.25*br+')');bg.addColorStop(1,'rgba(4,20,80,0)');og.fillStyle=bg;og.fillRect(0,0,W,H);
+  var bg=og.createRadialGradient(cx,cy,U*.1,cx,cy,U*.75);bg.addColorStop(0,'rgba(4,20,80,'+.25*br+')');bg.addColorStop(1,'rgba(4,20,80,0)');og.fillStyle=bg;og.fillRect(cx-U*.76,cy-U*.76,U*1.52,U*1.52);   /* le dégradé est nul au-delà de 0,75 U : inutile de remplir tout l'écran */
   var sh=og.createLinearGradient(0,H*.66,0,H);sh.addColorStop(0,'rgba(2,14,60,0)');sh.addColorStop(1,'rgba(2,14,60,'+.55*br+')');og.fillStyle=sh;og.fillRect(0,H*.66,W,H*.34);
   var Rw=U*(.02+.28*eb(0,.75)),Rg=U*(.03+.35*eb(.05,.8)),gh=U*.105*eb(.05,.8),gw=U*.064*eb(.05,.8);
   /* anneaux fins dorés */
   og.strokeStyle='rgba(255,176,60,'+.55*br*eb(.4,.5)+')';og.lineWidth=1.5;[Rg+gh*.12,Rg+gh*1.2].forEach(function(r){og.beginPath();og.arc(cx,cy,r,0,TAU2);og.stroke();});
   /* anneau d'écriture : jaune qui vire à l'orange, presque immobile comme dans la vidéo */
-  if(gh>2){
-    og.save();og.beginPath();var n=54,rot=-oT*.02;
-    for(var i=0;i<n;i++){var a=rot+i/n*TAU2,gl=oGl[(i*11+3)%oGl.length];og.save();og.translate(cx+Math.cos(a)*Rg,cy+Math.sin(a)*Rg);og.rotate(a+Math.PI/2);
+  var ringDraw=function(g,X,Y,rot,B){
+    g.save();g.beginPath();var n=54;
+    for(var i=0;i<n;i++){var a=rot+i/n*TAU2,gl=oGl[(i*11+3)%oGl.length];g.save();g.translate(X+Math.cos(a)*Rg,Y+Math.sin(a)*Rg);g.rotate(a+Math.PI/2);
       for(var k=0;k<gl.length;k++){var o=gl[k];
-        if(o[0]===0){og.moveTo(o[1]*gw,0);og.lineTo(o[1]*gw,-o[2]*gh);}
-        else if(o[0]===1){og.moveTo(o[1]*gw+o[3]*gw,-o[2]*gh);og.arc(o[1]*gw,-o[2]*gh,o[3]*gw,0,TAU2);}
-        else if(o[0]===2){og.moveTo(o[1]*gw+o[3]*gw,-o[2]*gh);og.arc(o[1]*gw,-o[2]*gh,o[3]*gw,0,Math.PI,o[4]);}
-        else if(o[0]===3){og.moveTo(-o[1]*gw,-o[2]*gh);og.lineTo(o[1]*gw,-o[2]*gh);}
-        else{og.moveTo(-.4*gw,-o[1]*gh);og.lineTo(.4*gw,-o[2]*gh);}}
-      og.restore();}
-    og.lineCap='round';og.lineJoin='round';
-    var mix=eb(.1,.5);og.shadowColor='rgba(255,160,20,'+(.9*br)+')';og.shadowBlur=U*.012;
-    og.strokeStyle='rgba(255,'+Math.round(215-70*mix)+','+Math.round(40-20*mix)+','+(.97*br)+')';og.lineWidth=gh*.17;og.stroke();
-    og.shadowBlur=0;og.strokeStyle='rgba(255,226,110,'+(.9*br)+')';og.lineWidth=gh*.06;og.stroke();og.restore();
+        if(o[0]===0){g.moveTo(o[1]*gw,0);g.lineTo(o[1]*gw,-o[2]*gh);}
+        else if(o[0]===1){g.moveTo(o[1]*gw+o[3]*gw,-o[2]*gh);g.arc(o[1]*gw,-o[2]*gh,o[3]*gw,0,TAU2);}
+        else if(o[0]===2){g.moveTo(o[1]*gw+o[3]*gw,-o[2]*gh);g.arc(o[1]*gw,-o[2]*gh,o[3]*gw,0,Math.PI,o[4]);}
+        else if(o[0]===3){g.moveTo(-o[1]*gw,-o[2]*gh);g.lineTo(o[1]*gw,-o[2]*gh);}
+        else{g.moveTo(-.4*gw,-o[1]*gh);g.lineTo(.4*gw,-o[2]*gh);}}
+      g.restore();}
+    g.lineCap='round';g.lineJoin='round';
+    var mix=eb(.1,.5);if(window.MV_FAIBLE){g.strokeStyle='rgba(255,160,20,'+(.3*B)+')';g.lineWidth=gh*.17+U*.016;g.stroke();}else{g.shadowColor='rgba(255,160,20,'+(.9*B)+')';g.shadowBlur=U*.012;}   /* appareil modeste : halo dessiné au lieu d'un flou d'ombre (très coûteux) */
+    g.strokeStyle='rgba(255,'+Math.round(215-70*mix)+','+Math.round(40-20*mix)+','+(.97*B)+')';g.lineWidth=gh*.17;g.stroke();
+    g.shadowBlur=0;g.strokeStyle='rgba(255,226,110,'+(.9*B)+')';g.lineWidth=gh*.06;g.stroke();g.restore();
+  };
+  if(gh>2){
+    if(window.MV_FAIBLE&&eb(.05,.8)>=1&&eb(.1,.5)>=1){   /* appareil modeste : une fois l'anneau sorti, il est dessiné une seule fois puis tourné comme une image */
+      var key=Math.round(Rg)+'|'+Math.round(gh),R=raphaelDraw.ring;
+      if(!R||R.key!==key){R=raphaelDraw.ring=document.createElement('canvas');R.half=Math.ceil(Rg+gh*1.3+U*.03);R.width=R.height=R.half*2;R.key=key;ringDraw(R.getContext('2d'),R.half,R.half,0,1);}
+      og.save();og.globalAlpha=br;og.translate(cx,cy);og.rotate(-oT*.02);og.drawImage(R,-R.half,-R.half);og.restore();
+    }else ringDraw(og,cx,cy,-oT*.02,br);
   }
   og.globalCompositeOperation='lighter';
   /* rayons jaunes qui partent du cœur : leur longueur saute au rythme de la voix */
@@ -841,7 +873,7 @@ function raphaelDraw(og,W,H,cx,cy,U,br,fb,rec,dt){
   var NV=22,th=U*(.008+(.011+oV*.03+oFlash*.008)*eb(.1,.7)),oP=[],iP=[];
   for(var p=0;p<NV;p++){var aa=p/NV*TAU2+.1,base=Rw*(1+oJit[(p*3)%16]*(.005+oV*.07)+oV*.04),ro=base+th*(1+.45*oJit[(p*5+3)%16]),ri=base-th*(1+.45*oJit[(p*7+1)%16]);
     oP.push([cx+Math.cos(aa)*ro,cy+Math.sin(aa)*ro]);iP.push([cx+Math.cos(aa)*ri,cy+Math.sin(aa)*ri]);}
-  og.save();og.beginPath();oSmooth(og,oP);oSmooth(og,iP);og.shadowColor='rgba(255,244,200,.95)';og.shadowBlur=U*.035;og.fillStyle='rgba(255,251,238,'+.97*br+')';og.fill('evenodd');og.restore();
+  og.save();og.beginPath();oSmooth(og,oP);oSmooth(og,iP);if(window.MV_FAIBLE){og.lineJoin='round';og.strokeStyle='rgba(255,244,200,'+(.16*br)+')';og.lineWidth=U*.05;og.stroke();og.lineWidth=U*.022;og.strokeStyle='rgba(255,244,200,'+(.3*br)+')';og.stroke();}else{og.shadowColor='rgba(255,244,200,.95)';og.shadowBlur=U*.035;}og.fillStyle='rgba(255,251,238,'+.97*br+')';og.fill('evenodd');og.restore();
   var ig=og.createRadialGradient(cx,cy,Rw*.55,cx,cy,Rw);ig.addColorStop(0,'rgba(255,240,190,0)');ig.addColorStop(1,'rgba(255,240,190,'+.2*br+')');og.fillStyle=ig;og.beginPath();og.arc(cx,cy,Rw,0,TAU2);og.fill();
   /* vagues qui partent de l'anneau quand on parle */
   if(rec&&oV>.2&&(oRipT-=dt)<=0){oRip.push(0);oRipT=.55-oV*.3;}
@@ -856,6 +888,7 @@ function raphaelDraw(og,W,H,cx,cy,U,br,fb,rec,dt){
 }
 function oracleFrame(lv,fb){
   if(!document.body.classList.contains('recmode'))return;
+  if(window.MV_FAIBLE){var nw=performance.now();if(nw-(oracleFrame.t||0)<31)return;oracleFrame.t=nw;}   /* appareil modeste : 30 images par seconde suffisent pour la scène */
   if(!oW||oW!==window.innerWidth||oH!==window.innerHeight)sizeOracle();
   var now=performance.now(),dt=Math.min(.05,(now-oLast)/1000||.016);oLast=now;oTick(dt);
   var rec=state==='rec',idle=state==='idle',v=rec?Math.pow(lv,1.9)*.85:0;   /* voix douce : presque rien ; voix forte : bien plus haut */
@@ -865,7 +898,7 @@ function oracleFrame(lv,fb){
 }
 var hist=[],bars=[0,0,0,0,0,0,0],fbuf=null;
 function draw(){
-  raf=requestAnimationFrame(draw);var tm=fmt(elapsed());timer.textContent=tm;$('mini-t').textContent=tm;
+  raf=requestAnimationFrame(draw);var tm=fmt(elapsed());if(tm!==draw.tm){draw.tm=tm;timer.textContent=tm;$('mini-t').textContent=tm;}   /* n'écrire le chrono que s'il change : le réécrire à chaque image faisait repeindre toute la page (et le verre) */
   var d=window.devicePixelRatio||1,w=canvas.width,h=canvas.height,mid=h/2;
   c2.clearRect(0,0,w,h);
   var rms=0,peak=0,db=-100,N=bars.length;
@@ -923,7 +956,7 @@ function teardown(){
   if(stream)stream.getTracks().forEach(function(t){t.stop();});
   if(ctx)ctx.close().catch(function(){});
   if(wake){wake.release().catch(function(){});wake=null;}
-  stream=ctx=analyser=null;state='idle';setUI();timer.textContent='00:00.0';c2.clearRect(0,0,canvas.width,canvas.height);levelEl.textContent='Touche le micro pour démarrer';levelEl.className='level';
+  stream=ctx=analyser=null;state='idle';setUI();timer.textContent='00:00.0';draw.tm=null;c2.clearRect(0,0,canvas.width,canvas.height);levelEl.textContent='Touche le micro pour démarrer';levelEl.className='level';
 }
 function stop(keep){
   if(!recorder)return;var total=elapsed();var r=recorder;recorder=null;
@@ -1414,10 +1447,11 @@ db().then(function(d){
     t.classList.add('lit');
   });
   ['pointerup','pointercancel'].forEach(function(n){document.addEventListener(n,function(){[].forEach.call(document.querySelectorAll('.lit'),function(x){x.classList.remove('lit');});},true);});
-  /* le reflet du verre suit la souris, comme une lumière qu'on déplace (ordinateur seulement) */
-  if(!calm&&matchMedia('(hover: hover) and (pointer: fine)').matches){
+  /* le reflet du verre suit la souris, comme une lumière qu'on déplace (ordinateur seulement ; pas sur un appareil modeste :
+     changer ces variables à chaque mouvement fait recalculer tout le verre de la page) */
+  if(!calm&&!window.MV_FAIBLE&&matchMedia('(hover: hover) and (pointer: fine)').matches){
     var lq=0,lxy=[0,0],RS=document.documentElement.style;
-    document.addEventListener('pointermove',function(e){lxy=[e.clientX,e.clientY];if(lq)return;lq=requestAnimationFrame(function(){lq=0;
+    document.addEventListener('pointermove',function(e){if(window.MV_FAIBLE)return;lxy=[e.clientX,e.clientY];if(lq)return;lq=requestAnimationFrame(function(){lq=0;
       var x=lxy[0]/innerWidth,y=lxy[1]/innerHeight,a=Math.atan2(y-.5,x-.5)*180/Math.PI+90;
       RS.setProperty('--la',(a+180).toFixed(1)+'deg');RS.setProperty('--lx',(x*100).toFixed(1)+'%');RS.setProperty('--ly',(y*40).toFixed(1)+'%');});},{passive:true});
   }
@@ -1508,7 +1542,7 @@ db().then(function(d){
        (Micro, Niveau, Stockage, Transcription, Mémoire) qui se rangent à droite puis passent au vert ·
        9 s fenêtres bleues · 14 s « Bienvenue dans … » · 16,4 s tunnel bleu · 18,5 s éclair · 19 s éclats bleus */
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){if(window.mvBloom)mvBloom();return;}
-    var W=innerWidth,H=innerHeight,dpr=Math.min(1.5,devicePixelRatio||1),cx=W/2,cy=H/2,R=Math.hypot(W,H)*.6,TAU=Math.PI*2;
+    var W=innerWidth,H=innerHeight,dpr=window.MV_FAIBLE?.75:Math.min(1.5,devicePixelRatio||1),cx=W/2,cy=H/2,R=Math.hypot(W,H)*.6,TAU=Math.PI*2;
     var APP=(document.querySelector('.logo b')||{}).textContent||'Mémoclass';
     var ov=document.createElement('div');ov.className='link-ov';ov.setAttribute('aria-hidden','true');document.body.classList.add('linkfx');
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);
@@ -1669,7 +1703,7 @@ db().then(function(d){
   
 window.mvCelebrate=function(info,done,status){
     /* À l'arrêt : Raphaël annonce « Réponse. Cours enregistré. », explose en gouttes dorées, puis un tourbillon plein écran (doré → rouge, les infos tournent vers le centre) cache tout ; « bam » : l'écran devient rouge et la carte « Ton cours est prêt » jaillit du centre vers toi, recule et se pose, sur des vagues rouges et dorées. Pendant ce temps, le texte est retravaillé (status). Aucun son. */
-    var W=innerWidth,H=innerHeight,dpr=Math.min(1.5,devicePixelRatio||1);
+    var W=innerWidth,H=innerHeight,dpr=window.MV_FAIBLE?.75:Math.min(1.5,devicePixelRatio||1);
     var ov=document.createElement('div');ov.className='skill-ov';ov.setAttribute('aria-hidden','true');
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);document.body.appendChild(ov);
     var g=cv.getContext('2d');g.scale(dpr,dpr);
