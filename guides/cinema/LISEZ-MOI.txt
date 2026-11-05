@@ -1,5 +1,0 @@
-Page « cinéma » des guides photo. Design : « Bronze and Time » (scène WebGL, orbite à
-la molette, étincelles, ondes de bronze vers le bleu), recréé avec three.js r160 (MIT,
-vendor/three.module.min.js). Polices Italiana et Outfit (SIL OFL 1.1, dossier polices/),
-servies par le site : aucune requête vers un tiers. L appareil est un vrai modèle 3D construit dans scene.js (aucune photo) ; ancienne version : couches des
-photos de guides/z50ii/img/3d/ (approximation de volume, pas un vrai modèle 3D).
