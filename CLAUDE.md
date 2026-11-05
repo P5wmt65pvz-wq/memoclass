@@ -58,3 +58,9 @@ Adrien : « il fait que laguer ». Mesuré dans Chromium, processeur ralenti ×4
 
 ## Dossier `guides/` (02/11/2026)
 Site indépendant : les guides photo gratuits (accueil « Quel est ton appareil ? », puis `guides/z50ii/`, `guides/d800/`), en ligne sur `/memoclass/guides/`. Il ne partage rien avec Mémoclass ; sa source de travail est dans le dépôt BOS (`Output/guides/`, `sh construire.sh` produit `site/`). `guide-z50ii/` et `guide-d800/` ne contiennent plus que des redirections, les images de partage et `guide-z50ii/media/` (vidéos Instagram, à garder). Ne pas les modifier depuis une tâche Mémoclass.
+
+## Effets « métal liquide » et « tunnel » (05/11/2026, nuit)
+Demande d'Adrien : ajouter à Mémoclass les deux effets qu'il a envoyés (« Bronze and Time » et « Tunnel »), en plus beau, sans lag sur le Chromebook. Écrits en WebGL sans bibliothèque (dernier `<script>` de `index.html`).
+- `#metal` : fond de l'accueil, ondes de métal sombre à reflets rouges + 70 étincelles (rouge, orangé, blanc), 30 images/s à demi-résolution. Appareil modeste (`MV_FAIBLE`, y compris si le garde-fou le décide après coup) et « réduire les animations » : image fixe, dessinée une seule fois. Caché pendant l'enregistrement (`recmode`), arrêté pendant les animations et quand l'onglet est caché. `?metal=0` le retire, `?metal=fixe` / `?metal=anime` forcent pour tester.
+- `mvTunnelGL` : dans `mvStartFx`, le tunnel bleu (16,4 → 18,9 s) est un tunnel de particules (120 × 360 points, 80 × 240 sur appareil modeste), lumière ajoutée seulement (ne fonce pas le fond). Sans WebGL, l'ancien tunnel dessiné reste.
+- Mesure (Chromium, processeur ×4, `deviceMemory` 4, accueil 4 s) : 126 images dont 6 lentes avec le métal, 123 dont 7 sans : rien de plus.
