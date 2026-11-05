@@ -29,6 +29,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);min
 button{font:inherit;color:inherit}
 button,a,label,summary,input,.drop{touch-action:manipulation;-webkit-tap-highlight-color:transparent}   /* pas d'attente de double-tap ni de rectangle gris : la réaction vient de .press */
 .halo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#metal{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.4s ease}#metal.on{opacity:1}body.recmode #metal{visibility:hidden}.link-ov .tunnel-gl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .halo span{position:absolute;border-radius:50%;animation:drift 26s ease-in-out infinite alternate}
 body.is-rec .halo span{animation-play-state:paused}
 .halo span:nth-child(1){width:65vmax;height:65vmax;left:-28vmax;top:-26vmax;background:radial-gradient(circle,rgba(255,59,48,.70),transparent 62%)}
@@ -1550,6 +1551,7 @@ db().then(function(d){
     var cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;ov.appendChild(cv);
     document.body.appendChild(ov);ov.style.pointerEvents='auto';
     var g=cv.getContext('2d');g.scale(dpr,dpr);
+    var TN=window.mvTunnelGL?mvTunnelGL(ov,W,H,dpr):null;   /* tunnel de particules (WebGL), sinon le tunnel dessiné reste */
     var SPK=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
     var items=[['Micro',!!stream],['Niveau sonore',true],['Stockage',!!window.indexedDB],['Transcription',SPK],['Mémoire',true]];
     var qn={'256':'Qualité maximale','160':'Haute qualité','96':'Qualité standard'}[S.q]||'Qualité maximale';
@@ -1664,7 +1666,7 @@ db().then(function(d){
 
     var t0=performance.now(),skip=false,fading=false;
         ov.addEventListener('click',function(){skip=true;});
-    function end(){quiet();document.body.classList.remove('linkfx');if(!fading&&window.mvBloom)mvBloom();cv.width=cv.height=0;bgDark.width=bgLight.width=bgGrey.width=0;}
+    function end(){quiet();if(TN){TN.stop();TN=null;}document.body.classList.remove('linkfx');if(!fading&&window.mvBloom)mvBloom();cv.width=cv.height=0;bgDark.width=bgLight.width=bgGrey.width=0;}
     function frame(now){
       var raw=(now-t0)/1000,s=raw<TG?raw:raw-TG+14;
       if(skip||s>=19.9){end();ov.remove();return;}
@@ -1688,12 +1690,12 @@ db().then(function(d){
         var w=cl((s-16.4)/1.9);
         g.fillStyle='rgb('+Math.round(lerp(157,28,w))+','+Math.round(lerp(157,70,w))+','+Math.round(lerp(159,230,w))+')';g.fillRect(0,0,W,H);
         if(s<16.9)welcome(3.4+(s-16.5)*8,cl(1-(s-16.5)*5),'#3b3b44');
-        coneField(cones2,flyD(KEY2,s));
+        if(TN)TN.draw(s,cl((s-16.45)/.45)*(1-cl((s-18.45)/.4)),cl((s-16.4)/2.3));else coneField(cones2,flyD(KEY2,s));
         if(s<17.8)bolt();
         glow(cx,cy,60+w*R*.9,.7+w*.3);
         flash((s-18.3)/.4);
       }else{                                         /* éclair blanc, puis l'écran se fond dans l'appli */
-        g.fillStyle='#fff';g.fillRect(0,0,W,H);
+        g.fillStyle='#fff';g.fillRect(0,0,W,H);if(TN){TN.stop();TN=null;}
         if(!fading){fading=true;if(window.mvBloom)mvBloom();ov.style.transition='opacity .9s ease';ov.style.opacity='0';}
       }
       if(s>1.5&&s<18.6){g.save();g.globalAlpha=.55;g.font='600 12px Manrope,system-ui,sans-serif';g.textAlign='center';g.fillStyle=(raw>=TG&&s>14&&s<18.2)||(raw>TG-.4&&raw<TG)?'#fff':'#6e6e76';g.fillText('Touche l’écran pour passer',cx,H-16);g.restore();}
@@ -1811,6 +1813,131 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catc
     },undefined,(window.MV_FAIBLE||(navigator.deviceMemory||8)<4)?0:1,0,2,undefined,['u_image']);   /* petit appareil : reflet chromé fixe, sans calcul à chaque image */
     requestAnimationFrame(function(){logo.classList.add('metal');mark.style.opacity='0';});
   }).catch(function(){});   /* hors ligne ou WebGL refusé : le logo dessiné reste */
+})();
+</script>
+<script>
+/* Deux effets envoyés par Adrien (05/11), adaptés à Mémoclass, en WebGL sans bibliothèque :
+   1) fond de l'accueil : ondes de métal liquide, rouge et noir, et étincelles qui montent
+      (d'après « Bronze and Time ») ;
+   2) « Link Start » : le tunnel bleu devient un tunnel de particules (d'après « Tunnel »).
+   Appareil modeste (window.MV_FAIBLE) : le métal est une image fixe (rien ne tourne), tunnel plus léger.
+   Rien ne tourne pendant l'enregistrement, les animations, ni quand l'onglet est caché. */
+(function(){
+  var Q=new URLSearchParams(location.search).get('metal');
+  /* appareil modeste : le métal est dessiné une seule fois (image fixe) ; le flou du verre au-dessus n'a alors rien à recalculer */
+  var reduit=matchMedia('(prefers-reduced-motion: reduce)').matches||(window.MV_FAIBLE&&Q!=='anime')||Q==='fixe';
+  function prog(gl,vs,fs){
+    function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o;}
+    var p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);
+    if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));return p;}
+
+  /* ---------------- 1) métal liquide de l'accueil */
+  var cv=document.createElement('canvas');cv.id='metal';if(Q==='0')cv=null;else{cv.setAttribute('aria-hidden','true');
+  var halo=document.querySelector('.halo');if(halo)halo.parentNode.insertBefore(cv,halo);else document.body.prepend(cv);
+  }
+  var gl=null;if(cv)try{gl=cv.getContext('webgl',{antialias:false,alpha:false,depth:false,powerPreference:'low-power'});}catch(e){}
+  if(gl){try{
+    var FS='precision mediump float;uniform float uT;uniform vec2 uR;uniform vec2 uM;'+
+      'void main(){vec2 uv=(gl_FragCoord.xy-.5*uR)/uR.y;float a=uR.x/uR.y,t=uT*.08;vec2 w=uv;'+
+      'w.x+=sin(uv.y*2.5+t*.2)*.35;w.y+=cos(uv.x*2.5-t*.15)*.35;w.x+=sin(uv.y*1.2-t*.1)*.25;w.y+=cos(uv.x*1.2+t*.18)*.25;'+
+      'w+=vec2(uM.x*a*.05,uM.y*.05);'+
+      'float w1=sin(dot(w,vec2(.8253,.5646))*2.4+t);float w2=cos(dot(w,vec2(.7648,-.6442))*3.2-t*1.4+w1*.4);float w3=sin(dot(w,vec2(.3624,.932))*4.+t*1.8+w2*.5);'+
+      'float f=w1*.5+w2*.35+w3*.15;float c1=pow(max(0.,1.-abs(f-.1)),2.5),c2=pow(max(0.,1.-abs(f-.15)),8.);'+
+      /* métal sombre : ombre presque noire, corps graphite rougi, reflets rouges et un éclat clair sur les crêtes */
+      'vec3 col=vec3(.012,.008,.009);col=mix(col,vec3(.024,.011,.012),smoothstep(-.6,.2,f));col=mix(col,vec3(.042,.014,.014),smoothstep(0.,.8,f));'+
+      'col+=vec3(.36,.05,.04)*c1*.42+vec3(.30,.20,.20)*c2*.42;col*=1.-dot(uv,uv)*.2;gl_FragColor=vec4(col,1.);}';
+    var P=prog(gl,'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}',FS);
+    var b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+    var lp=gl.getAttribLocation(P,'p'),uT=gl.getUniformLocation(P,'uT'),uR=gl.getUniformLocation(P,'uR'),uM=gl.getUniformLocation(P,'uM');
+    // étincelles : petits points rouges, orangés et blancs qui montent
+    var NE=window.MV_FAIBLE?0:70,EP=null,eb=null,ed=new Float32Array(NE*3),ev=[];
+    if(NE){
+      EP=prog(gl,'attribute vec3 q;uniform float uS;varying float vA;varying float vK;void main(){gl_Position=vec4(q.xy,0.,1.);gl_PointSize=uS*(1.+fract(q.z*7.)*1.6);vA=smoothstep(-1.,-.6,q.y)*(1.-smoothstep(.6,1.,q.y));vK=q.z;}',
+        'precision mediump float;varying float vA;varying float vK;void main(){vec2 d=gl_PointCoord-.5;float l=length(d);if(l>.5)discard;float a=smoothstep(.5,.0,l)*vA*.8;'+
+        'vec3 c=vK<.55?vec3(1.,.23,.16):vK<.85?vec3(1.,.55,.25):vec3(1.,.9,.85);gl_FragColor=vec4(c*a,a);}');
+      eb=gl.createBuffer();
+      for(var i=0;i<NE;i++){ev.push({x:Math.random()*2-1,y:Math.random()*2.4-1.2,v:.04+Math.random()*.07,s:Math.random()*6.3,k:Math.random()});}
+    }
+    var echelle=window.MV_FAIBLE?.34:.5,pas=window.MV_FAIBLE?66:33,mx=0,my=0,tx=0,ty=0,t0=performance.now(),last=0,dernier=0,W=0,H=0;
+    function taille(){W=Math.max(1,Math.round(innerWidth*echelle));H=Math.max(1,Math.round(innerHeight*echelle));cv.width=W;cv.height=H;gl.viewport(0,0,W,H);}
+    taille();addEventListener('resize',function(){taille();if(reduit)dessin(performance.now());});
+    if(!window.MV_FAIBLE)addEventListener('pointermove',function(e){if(e.pointerType==='mouse'){tx=e.clientX/innerWidth*2-1;ty=1-e.clientY/innerHeight*2;}},{passive:true});
+    function dessin(now){
+      var t=(now-t0)/1000,dt=Math.min(.1,(now-(last||now))/1000);last=now;
+      mx+=(tx-mx)*Math.min(1,dt*3);my+=(ty-my)*Math.min(1,dt*3);
+      gl.disable(gl.BLEND);gl.useProgram(P);gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(lp);gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
+      gl.uniform1f(uT,t+40);gl.uniform2f(uR,W,H);gl.uniform2f(uM,mx,my);gl.drawArrays(gl.TRIANGLES,0,3);
+      if(NE){
+        for(var i=0;i<NE;i++){var e=ev[i];e.y+=e.v*dt;e.x+=Math.sin(t*.7+e.s)*.012*dt;if(e.y>1.2){e.y=-1.2;e.x=Math.random()*2-1;}ed[i*3]=e.x;ed[i*3+1]=e.y;ed[i*3+2]=e.k;}
+        gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);gl.useProgram(EP);gl.bindBuffer(gl.ARRAY_BUFFER,eb);gl.bufferData(gl.ARRAY_BUFFER,ed,gl.DYNAMIC_DRAW);
+        var lq=gl.getAttribLocation(EP,'q');gl.enableVertexAttribArray(lq);gl.vertexAttribPointer(lq,3,gl.FLOAT,false,0,0);
+        gl.uniform1f(gl.getUniformLocation(EP,'uS'),Math.max(1.5,3.2*echelle*2));gl.drawArrays(gl.POINTS,0,NE);
+      }
+    }
+    function occupe(){return document.hidden||document.body.classList.contains('recmode')||document.body.classList.contains('linkfx')||!!document.querySelector('.skill-ov');}
+    function boucle(now){
+      requestAnimationFrame(boucle);
+      if(now-dernier<pas||occupe()||(window.MV_FAIBLE&&Q!=='anime'))return;   /* le garde-fou peut classer l'appareil « modeste » après coup : on fige alors le métal */
+      dernier=now;dessin(now);
+    }
+    dessin(performance.now());cv.classList.add('on');
+    if(!reduit)requestAnimationFrame(boucle);
+  }catch(e){cv.remove();}}
+  else if(cv)cv.remove();
+
+  /* ---------------- 2) tunnel de particules pour le « Link Start » */
+  window.mvTunnelGL=function(parent,W,H,dpr){
+    var c=document.createElement('canvas');c.className='tunnel-gl';c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);
+    var g=null;try{g=c.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false});}catch(e){}
+    if(!g)return null;
+    try{
+      var SN='vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}vec4 tis(vec4 r){return 1.79284291400159-0.85373472095314*r;}'+
+        'float snoise(vec3 v){const vec2 C=vec2(1.0/6.0,1.0/3.0);const vec4 D=vec4(0.0,0.5,1.0,2.0);vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.0-g;'+
+        'vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+2.0*C.xxx;vec3 x3=x0-1.0+3.0*C.xxx;i=mod(i,289.0);'+
+        'vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));float n_=1.0/7.0;vec3 ns=n_*D.wyz-D.xzx;'+
+        'vec4 j=p-49.0*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.0*x_);vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.0-abs(x)-abs(y);'+
+        'vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);vec4 s0=floor(b0)*2.0+1.0;vec4 s1=floor(b1)*2.0+1.0;vec4 sh=-step(h,vec4(0.0));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;'+
+        'vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);vec4 norm=tis(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));'+
+        'p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;vec4 m=max(0.5-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);m=m*m;return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}';
+      var VS='attribute vec3 position;uniform mat4 uPV;uniform float uRoll;uniform float uTime;uniform float uSwirl;uniform float uPix;varying vec3 vC;'+SN+
+        'void main(){vec3 wp=vec3(position.x*7.0,0.0,position.z*25.0);wp.x+=position.y*6.0;'+
+        'float wn=snoise(vec3(wp.x*.08,wp.z*.08,uTime*.15))*2.0+snoise(vec3(wp.x*.16,wp.z*.16,uTime*.3))*.8;'+
+        'float r=sqrt(max(0.0,17.64-position.z*position.z));float an=wp.x/(9.2195*r+.001)*3.14159265;'+
+        'an+=snoise(vec3(position.x*15.0,position.y*15.0,uTime*.1))*.35+snoise(vec3(position.x*5.0,position.y*5.0,uTime*.2))*3.0*uSwirl;'+
+        'float jz=snoise(vec3(position.y*15.0,position.z*15.0,uTime*.1))*4.0;float R=12.0-wn;'+
+        'vec3 q=vec3(R*sin(an),-R*cos(an),wp.z+jz)*.17;float cr=cos(uRoll),sr=sin(uRoll);q.xy=vec2(cr*q.x-sr*q.y,sr*q.x+cr*q.y);'+
+        'vec4 cp=uPV*vec4(q,1.0);vC=mix(vec3(.094,.039,.227),vec3(.169,.941,1.0),clamp(smoothstep(-3.0,3.0,position.y+position.x*.5),0.0,1.0));'+
+        'gl_PointSize=max(5.0*(10.0/cp.w)*uPix,1.5);gl_Position=cp;}';
+      var FSt='precision mediump float;uniform float uA;varying vec3 vC;void main(){vec2 xy=gl_PointCoord-.5;float l=length(xy);if(l>.5)discard;float a=smoothstep(.5,.1,l)*uA;gl_FragColor=vec4(vC*a,0.);}';
+      var P2=prog(g,VS,FSt);
+      // la grille de la référence (sphère 200 × 600), allégée : 120 × 360, et 80 × 240 sur appareil modeste
+      var ws=window.MV_FAIBLE?80:120,hs=window.MV_FAIBLE?240:360,n=(ws+1)*(hs+1),pos=new Float32Array(n*3),k=0;
+      for(var iy=0;iy<=hs;iy++)for(var ix=0;ix<=ws;ix++){var u=ix/ws,v=iy/hs;pos[k++]=-4.2*Math.cos(u*6.2832)*Math.sin(v*3.1416);pos[k++]=4.2*Math.cos(v*3.1416);pos[k++]=4.2*Math.sin(u*6.2832)*Math.sin(v*3.1416);}
+      var bf=g.createBuffer();g.bindBuffer(g.ARRAY_BUFFER,bf);g.bufferData(g.ARRAY_BUFFER,pos,g.STATIC_DRAW);
+      var L={p:g.getAttribLocation(P2,'position'),pv:g.getUniformLocation(P2,'uPV'),roll:g.getUniformLocation(P2,'uRoll'),t:g.getUniformLocation(P2,'uTime'),sw:g.getUniformLocation(P2,'uSwirl'),pix:g.getUniformLocation(P2,'uPix'),a:g.getUniformLocation(P2,'uA')};
+    }catch(e){return null;}
+    parent.appendChild(c);
+    function pv(eye,tgt,asp){   // projection (45°) × vue
+      var f=1/Math.tan(22.5*Math.PI/180),nr=.1,fr=400,P=[f/asp,0,0,0,0,f,0,0,0,0,(fr+nr)/(nr-fr),-1,0,0,2*fr*nr/(nr-fr),0];
+      var z=[eye[0]-tgt[0],eye[1]-tgt[1],eye[2]-tgt[2]],zl=Math.hypot(z[0],z[1],z[2]);z=[z[0]/zl,z[1]/zl,z[2]/zl];
+      var x=[z[2],0,-z[0]],xl=Math.hypot(x[0],x[2])||1;x=[x[0]/xl,0,x[2]/xl];var y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];
+      var V=[x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-(x[0]*eye[0]+x[1]*eye[1]+x[2]*eye[2]),-(y[0]*eye[0]+y[1]*eye[1]+y[2]*eye[2]),-(z[0]*eye[0]+z[1]*eye[1]+z[2]*eye[2]),1];
+      var o=new Float32Array(16);for(var i=0;i<4;i++)for(var j=0;j<4;j++){var s=0;for(var q=0;q<4;q++)s+=P[q*4+j]*V[i*4+q];o[i*4+j]=s;}return o;
+    }
+    var roll=0,prev=0;
+    return {
+      draw:function(s,app,vol){   // s : secondes de l'animation ; app : apparition 0→1 ; vol : avancée dans le tunnel 0→1
+        var dt=prev?Math.min(.1,s-prev):0;prev=s;roll+=dt*(.065+vol*.05);
+        g.viewport(0,0,c.width,c.height);g.clearColor(0,0,0,0);g.clear(g.COLOR_BUFFER_BIT);
+        g.enable(g.BLEND);g.blendFunc(g.ONE,g.ONE_MINUS_SRC_ALPHA);g.blendFuncSeparate(g.ONE,g.ONE,g.ONE,g.ONE_MINUS_SRC_ALPHA);
+        g.useProgram(P2);g.bindBuffer(g.ARRAY_BUFFER,bf);g.enableVertexAttribArray(L.p);g.vertexAttribPointer(L.p,3,g.FLOAT,false,0,0);
+        var ez=20-vol*34;g.uniformMatrix4fv(L.pv,false,pv([0,0,ez],[0,0,ez-12],c.width/c.height));
+        g.uniform1f(L.roll,roll);g.uniform1f(L.t,performance.now()/1000);g.uniform1f(L.sw,.39*(1+vol*1.5));g.uniform1f(L.pix,c.height/900);g.uniform1f(L.a,app);
+        g.drawArrays(g.POINTS,0,n);
+      },
+      stop:function(){c.width=c.height=0;c.remove();}
+    };
+  };
 })();
 </script>
 </body>
