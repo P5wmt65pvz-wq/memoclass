@@ -16,7 +16,7 @@ const shaderUniforms = {
 // Appareil modeste (Chromebook 4 Go, téléphone) : moins d'étincelles, résolution plafonnée
 const modeste = (navigator.deviceMemory && navigator.deviceMemory <= 4) || window.innerWidth < 800;
 const sparkCount = modeste ? 220 : 450;
-const maxDpr = modeste ? 1.25 : 2;
+const maxDpr = modeste ? 1 : 2;
 const sparkData = [];
 const sizes = { width: window.innerWidth, height: window.innerHeight };
 
@@ -123,41 +123,109 @@ function createSparks() {
   scene.add(sparkParticles);
 }
 
-/* L'appareil : le modèle d'origine (un cheval en bronze) est remplacé par le Z50II.
-   Pas de vrai modèle 3D : face et dos sont les photos du guide, le volume est fait de
-   couches découpées dans la photo de face (même technique que les guides). */
+/* L'appareil : vrai modèle 3D fait ici, en formes simples (boîtier, bossage, objectif, molettes,
+   écran). Il tourne donc sous tous les angles, sans couches de photos. Inspiré du Nikon Z50II. */
+function boite(w, h, d, r, mat) {
+  const sh = new THREE.Shape(), x = -w / 2, y = -h / 2;
+  sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.quadraticCurveTo(x + w, y, x + w, y + r);
+  sh.lineTo(x + w, y + h - r); sh.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  sh.lineTo(x + r, y + h); sh.quadraticCurveTo(x, y + h, x, y + h - r);
+  sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y);
+  const b = Math.min(r * 0.6, d / 4);
+  const g = new THREE.ExtrudeGeometry(sh, { depth: d - 2 * b, bevelEnabled: true, bevelThickness: b, bevelSize: b * 0.9, bevelSegments: 8, curveSegments: 14 });
+  g.translate(0, 0, -(d - 2 * b) / 2);
+  return new THREE.Mesh(g, mat);
+}
+function cyl(rt, rb, h, mat, seg) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg || 48), mat);
+  m.rotation.x = Math.PI / 2;           // axe le long de z
+  return m;
+}
+function texteTexture(dessin, w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  dessin(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+}
+function construireAppareil() {
+  const G = new THREE.Group();
+  const corps = new THREE.MeshStandardMaterial({ color: 0x202226, roughness: 0.62, metalness: 0.3 });
+  const gomme = new THREE.MeshStandardMaterial({ color: 0x0b0b0c, roughness: 0.92, metalness: 0.0 });
+  const argent = new THREE.MeshStandardMaterial({ color: 0xc4c8ce, roughness: 0.28, metalness: 0.95 });
+  const verre = new THREE.MeshPhysicalMaterial({ color: 0x070a14, roughness: 0.12, metalness: 0.1, clearcoat: 0.6, clearcoatRoughness: 0.1 });
+  const rouge = new THREE.MeshStandardMaterial({ color: 0xd8232a, roughness: 0.4, metalness: 0.2 });
+
+  // boîtier + poignée (à droite de l'image quand on regarde l'avant)
+  const boitier = boite(3.5, 2.0, 1.1, 0.22, corps); G.add(boitier);
+  const poignee = boite(1.05, 2.0, 1.55, 0.3, corps); poignee.position.set(1.22, 0, 0.22); G.add(poignee);
+  const gripGomme = boite(0.72, 1.5, 0.06, 0.2, gomme); gripGomme.position.set(1.28, -0.08, 1.02); G.add(gripGomme);
+  const filet = boite(0.05, 1.5, 0.07, 0.02, rouge); filet.position.set(0.9, -0.08, 1.0); G.add(filet);
+  // bossage du viseur (prisme) et sabot
+  const prisme = boite(1.25, 0.62, 1.0, 0.2, corps); prisme.position.set(-0.28, 1.28, -0.02); G.add(prisme);
+  const sabot = boite(0.5, 0.06, 0.42, 0.02, argent); sabot.position.set(-0.28, 1.63, -0.02); G.add(sabot);
+  // dessus : molette de modes, déclencheur, bouton rouge
+  const molette = cyl(0.3, 0.3, 0.2, corps, 40); molette.rotation.x = 0; molette.position.set(-1.3, 1.1, 0.0); G.add(molette);
+  const molStries = cyl(0.31, 0.31, 0.12, gomme, 24); molStries.rotation.x = 0; molStries.position.set(-1.3, 1.12, 0.0); G.add(molStries);
+  const decl = cyl(0.17, 0.17, 0.12, argent, 32); decl.rotation.x = 0; decl.position.set(1.25, 1.1, 0.3); G.add(decl);
+  const bRouge = cyl(0.09, 0.09, 0.1, rouge, 24); bRouge.rotation.x = 0; bRouge.position.set(0.7, 1.08, 0.3); G.add(bRouge);
+  // logo sur le bossage
+  const logo = texteTexture((ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#e9e9ec';
+    ctx.font = 'italic 800 150px Outfit, Arial, sans-serif'; ctx.textBaseline = 'middle'; ctx.fillText('Nikon', 20, h / 2);
+  }, 512, 192);
+  const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.32), new THREE.MeshBasicMaterial({ map: logo, transparent: true }));
+  pl.position.set(0.0, 1.18, 0.5 + 0.12); G.add(pl);
+  // objectif : baïonnette, bague striée, bague de zoom, verre
+  const R = 0.8;
+  const bague = cyl(R + 0.06, R + 0.06, 0.14, argent, 64); bague.position.z = 0.63; G.add(bague);
+  const fut = cyl(R, R + 0.04, 0.5, corps, 64); fut.position.z = 0.92; G.add(fut);
+  for (let i = 0; i < 48; i++) {
+    const a = (i / 48) * Math.PI * 2;
+    const st = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.05, 0.36), gomme);
+    st.position.set(Math.cos(a) * (R + 0.04), Math.sin(a) * (R + 0.04), 0.95); st.rotation.z = a; G.add(st);
+  }
+  const fut2 = cyl(R - 0.12, R - 0.04, 0.55, corps, 64); fut2.position.z = 1.42; G.add(fut2);
+  const anneau = cyl(R - 0.08, R - 0.08, 0.05, argent, 64); anneau.position.z = 1.72; G.add(anneau);
+  const interieur = cyl(R - 0.16, R - 0.16, 0.1, gomme, 64); interieur.position.z = 1.72; G.add(interieur);
+  const glace = new THREE.Mesh(new THREE.CircleGeometry(R - 0.2, 64), verre); glace.position.z = 1.78; G.add(glace);
+  [0.5, 0.33, 0.16].forEach((r, i) => { const t = new THREE.Mesh(new THREE.TorusGeometry(r, 0.012, 8, 64), i % 2 ? argent : gomme); t.position.z = 1.79; G.add(t); });
+  // arrière : écran, viseur, boutons
+  const ecran = texteTexture((ctx, w, h) => {
+    ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#ffcc00'; ctx.fillRect(24, 22, 92, 34);
+    ctx.fillStyle = '#05060a'; ctx.font = '800 22px Outfit, Arial'; ctx.fillText('MENU', 36, 47);
+    ctx.fillStyle = '#fff'; ctx.font = '800 40px Outfit, Arial'; ctx.fillText('Par où tu commences ?', 24, 112);
+    const t = ['Découvrir', 'Prendre en main', 'Apprendre', 'Photographier'];
+    t.forEach((x, i) => {
+      const cx = 24 + (i % 2) * 262, cy = 140 + Math.floor(i / 2) * 120;
+      ctx.fillStyle = '#17181d'; ctx.fillRect(cx, cy, 246, 104);
+      ctx.fillStyle = '#ffcc00'; ctx.fillRect(cx + 16, cy + 16, 22, 4);
+      ctx.fillStyle = '#fff'; ctx.font = '700 24px Outfit, Arial'; ctx.fillText(x, cx + 16, cy + 78);
+    });
+  }, 540, 400);
+  const ec = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.48), new THREE.MeshStandardMaterial({ map: ecran, emissiveMap: ecran, emissive: 0xffffff, emissiveIntensity: 0.7, roughness: 0.2, metalness: 0.1 }));
+  ec.rotation.y = Math.PI; ec.position.set(-0.45, -0.1, -0.605); G.add(ec);
+  const cadre = boite(2.12, 1.6, 0.04, 0.1, gomme); cadre.rotation.y = Math.PI; cadre.position.set(-0.45, -0.1, -0.56); G.add(cadre);
+  const oeilleton = boite(0.72, 0.5, 0.18, 0.08, gomme); oeilleton.rotation.y = Math.PI; oeilleton.position.set(-0.28, 1.28, -0.58); G.add(oeilleton);
+  const oculaire = new THREE.Mesh(new THREE.PlaneGeometry(0.46, 0.28), verre); oculaire.rotation.y = Math.PI; oculaire.position.set(-0.28, 1.28, -0.69); G.add(oculaire);
+  [[1.1, 0.5], [1.1, 0.0], [1.1, -0.5]].forEach(([x, y]) => { const b = cyl(0.1, 0.1, 0.05, argent, 20); b.position.set(x, y, -0.58); G.add(b); });
+  const molArr = cyl(0.26, 0.26, 0.05, gomme, 32); molArr.position.set(1.12, 0.95, -0.57); G.add(molArr);
+  // anneaux de sangle
+  [-1.78, 1.78].forEach(x => { const t = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.035, 10, 24), argent); t.position.set(x, 0.8, 0); t.rotation.y = Math.PI / 2; G.add(t); });
+  return G;
+}
+
 function loadModel() {
-  const loader = new THREE.TextureLoader();
-  const base = '../z50ii/img/3d/';
-  const load = (f) => new Promise((ok, ko) => loader.load(base + f, ok, undefined, ko));
-  Promise.all([load('avant.webp'), load('dos.webp')]).then(([front, back]) => {
-    [front, back].forEach(t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; });
-    const W = 3.5;                      // largeur : plus grande dimension = 3.5
-    const hF = W * front.image.height / front.image.width;
-    const wB = W * 0.96, hB = wB * back.image.height / back.image.width;
-    const depth = 1.05;                 // épaisseur du boîtier
-    const group = new THREE.Group();
-    const mat = (map, color) => new THREE.MeshStandardMaterial({ map, color, roughness: 0.42, metalness: 0.5, alphaTest: 0.5, side: THREE.FrontSide });
-    const fr = new THREE.Mesh(new THREE.PlaneGeometry(W, hF), mat(front, 0xffffff));
-    fr.position.z = depth / 2; group.add(fr);
-    const bk = new THREE.Mesh(new THREE.PlaneGeometry(wB, hB), mat(back, 0xffffff));
-    bk.rotation.y = Math.PI; bk.position.z = -depth / 2; group.add(bk);
-    const n = modeste ? 8 : 14;
-    for (let i = 1; i < n; i++) {
-      const k = i / n;
-      const s = new THREE.Mesh(new THREE.PlaneGeometry(W, hF),
-        new THREE.MeshStandardMaterial({ map: front, color: 0x2a2a2e, roughness: 0.55, metalness: 0.7, alphaTest: 0.5, side: THREE.DoubleSide }));
-      s.position.z = depth / 2 - k * depth;
-      const sc = 1 - 0.035 * Math.sin(k * Math.PI);
-      s.scale.set(sc, sc, 1);
-      group.add(s);
-    }
-    modelPivot = new THREE.Group();
-    scene.add(modelPivot);
-    group.position.y = 0;
-    modelPivot.add(group);
-    modelPivot.position.y = -0.4;
-  }).catch((e) => console.error('Image de l\'appareil introuvable', e));
+  const cam = construireAppareil();
+  const box = new THREE.Box3().setFromObject(cam);
+  const size = box.getSize(new THREE.Vector3()), centre = box.getCenter(new THREE.Vector3());
+  const k = 3.5 / Math.max(size.x, size.y, size.z);
+  cam.position.sub(centre);
+  const pivotInterne = new THREE.Group(); pivotInterne.add(cam); pivotInterne.scale.setScalar(k);
+  modelPivot = new THREE.Group();
+  modelPivot.add(pivotInterne);
+  modelPivot.position.y = -0.4;
+  scene.add(modelPivot);
 }
 
 function setupScene() {
@@ -182,6 +250,16 @@ function setupScene() {
   rimLight.position.set(-5, 3, -4); scene.add(rimLight);
   const fillLight = new THREE.DirectionalLight('#fff3e6', 0.8);
   fillLight.position.set(-2, -4, 2); scene.add(fillLight);
+  // reflets : petite pièce lumineuse générée ici (aucun fichier)
+  const env = new THREE.Scene();
+  env.background = new THREE.Color(0x050505);
+  [[0, 6, 0, 10, 0xffffff, 3], [-6, 2, 3, 6, 0xfff0e0, 2], [6, 1, -4, 6, 0xcfe6ff, 2]].forEach(([x, y, z, sz, c, i]) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(sz, sz), new THREE.MeshBasicMaterial({ color: new THREE.Color(c).multiplyScalar(i), side: THREE.DoubleSide }));
+    m.position.set(x, y, z); m.lookAt(0, 0, 0); env.add(m);
+  });
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(env, 0.04).texture;
+  scene.environmentIntensity = 0.22;
   createSparks();
   loadModel();
 }
@@ -238,8 +316,11 @@ function updateSlides(scroll) {
   s('slide-4').classList.toggle('active', on(scroll, 0.84, 1.05));
 }
 
-function animate() {
+let dernier = 0;
+function animate(now) {
   requestAnimationFrame(animate);
+  if (modeste && now - dernier < 30) return;   // ~30 i/s sur Chromebook et téléphone : fluide et léger
+  dernier = now;
   const dt = Math.min(clock.getDelta(), 0.1);
   const k60 = (a) => 1 - Math.pow(1 - a, dt * 60);   // même vitesse à 60 i/s, régulier si l'appareil ralentit
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -313,5 +394,5 @@ window.addEventListener('resize', onWindowResize);
 splitTitlesIntoChars();
 setupScene();
 onWindowResize();
-animate();
+requestAnimationFrame(animate);
 setupNavigation();
