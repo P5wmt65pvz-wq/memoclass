@@ -295,6 +295,15 @@ function z50ii() {
   const temoin = new THREE.Mesh(new THREE.CircleGeometry(0.1, 16), new THREE.MeshPhysicalMaterial({ color: 0x3a0a0a, clearcoat: 1 })); temoin.position.set(4.9, 6.4, zF + 0.05); A.add(temoin); n(temoin, "Témoin d'enregistrement");
   const lampe = new THREE.Mesh(new THREE.CircleGeometry(0.2, 24), new THREE.MeshPhysicalMaterial({ color: 0x2a1508, roughness: 0.1, clearcoat: 1 })); lampe.position.set(-2.55, 6.35, zF + 0.05); A.add(lampe); n(lampe, "Illuminateur d'assistance AF");
   const z = etiquette('Z', 0.9, 0.9, { style: 'italic 900 ', taille: 700 }); z.position.set(-2.25, 6.3, zF + 0.04); A.add(z);
+  // côté (opposé à la poignée) : trappes en caoutchouc des prises (micro, casque, USB-C, HDMI)
+  [[5.2, 1.5], [2.2, 1.5]].forEach(([y, h]) => { const t = boite(0.12, h, 2.2, 0.08, M.gomme); t.position.set(W / 2 + 0.03, y, 0); A.add(t); });
+  // dessous : trappe batterie et carte, embase pour trépied
+  const trappe = boite(4.2, 0.08, 2.6, 0.12, M.gomme); trappe.position.set(-3.6, -0.02, 0.1); A.add(trappe);
+  const embase = new THREE.Mesh(new THREE.RingGeometry(0.22, 0.38, 32), M.metal); embase.rotation.x = Math.PI / 2; embase.position.set(hx, -0.03, 0.2); A.add(embase);
+  // micros stéréo : deux grilles de chaque côté du viseur, sur le dessus
+  [-1.6, 1.6].forEach(dx => { const g = grille(0.5, 0.32, 3, 2); g.rotation.x = -Math.PI / 2; g.position.set(hx + dx, 9.3, 0.55); A.add(g); });
+  // repose-pouce en caoutchouc au dos, à droite
+  const pouce = boite(1.9, 2.0, 0.08, 0.3, M.cuir); pouce.position.set(-5.4, 5.6, zB - 0.02); A.add(pouce);
   // anneaux de courroie
   [-W / 2 - 0.15, W / 2 + 0.15].forEach(x => { const t = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.07, 12, 32), M.metal); t.position.set(x, 6.6, 0); t.rotation.y = Math.PI / 2; A.add(t); });
   // objectif NIKKOR Z DX 16-50 (rentré)
