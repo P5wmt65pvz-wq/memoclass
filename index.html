@@ -1824,8 +1824,10 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catc
    Rien ne tourne pendant l'enregistrement, les animations, ni quand l'onglet est caché. */
 (function(){
   var Q=new URLSearchParams(location.search).get('metal');
+  /* sans carte graphique (rendu logiciel), une image WebGL coûte cher : métal fixe, tunnel dessiné d'avant */
+  var logiciel=(function(){try{var g=document.createElement('canvas').getContext('webgl');if(!g)return true;var i=g.getExtension('WEBGL_debug_renderer_info');return /swiftshader|llvmpipe|software|softpipe/i.test(i?String(g.getParameter(i.UNMASKED_RENDERER_WEBGL)):'');}catch(e){return true;}})();
   /* appareil modeste : le métal est dessiné une seule fois (image fixe) ; le flou du verre au-dessus n'a alors rien à recalculer */
-  var reduit=matchMedia('(prefers-reduced-motion: reduce)').matches||(window.MV_FAIBLE&&Q!=='anime')||Q==='fixe';
+  var reduit=matchMedia('(prefers-reduced-motion: reduce)').matches||(window.MV_FAIBLE&&Q!=='anime')||Q==='fixe'||(logiciel&&Q!=='anime');
   function prog(gl,vs,fs){
     function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o;}
     var p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);
@@ -1887,6 +1889,7 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catc
 
   /* ---------------- 2) tunnel de particules pour le « Link Start » */
   window.mvTunnelGL=function(parent,W,H,dpr){
+    if(logiciel&&Q!=='anime')return null;
     var c=document.createElement('canvas');c.className='tunnel-gl';c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);
     var g=null;try{g=c.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false});}catch(e){}
     if(!g)return null;
