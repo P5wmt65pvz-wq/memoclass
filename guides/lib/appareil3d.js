@@ -172,15 +172,19 @@ function objectif(M, o) {
   const fond = new THREE.Mesh(new THREE.CylinderGeometry(o.r + 0.02, o.r + 0.02, o.bague, 96), M.gomme); fond.rotation.x = Math.PI / 2; fond.position.z = 0.78 + o.bague / 2; bague.add(fond);
   for (let i = 0; i < nb; i++) { const a = i / nb * Math.PI * 2, s = new THREE.Mesh(geoS, M.gomme); s.position.set(Math.cos(a) * (o.r + 0.06), Math.sin(a) * (o.r + 0.06), 0.78 + o.bague / 2); s.rotation.z = a; bague.add(s); }
   const z1 = 0.78 + o.bague;
-  tube(o.r - 0.05, o.r - 0.25, o.avant, M.corps, z1);            // avant
-  tube(o.r - 0.25, o.r - 0.3, 0.12, M.metalSombre, z1 + o.avant); // jonc
+  // tube intérieur, visible quand l'objectif se déplie
+  tube(o.r - 0.36, o.r - 0.36, 1.5, M.corps, z1 - 0.2);
+  const avantG = new THREE.Group(); g.add(avantG);
+  const tubeA = (r1, r2, l, mat, z) => { const m = new THREE.Mesh(lisse(new THREE.CylinderGeometry(r2, r1, l, 96, 1)), mat); m.rotation.x = Math.PI / 2; m.position.z = z + l / 2; avantG.add(m); return m; };
+  tubeA(o.r - 0.05, o.r - 0.25, o.avant, M.corps, z1);            // avant
+  tubeA(o.r - 0.25, o.r - 0.3, 0.12, M.metalSombre, z1 + o.avant); // jonc
   const z2 = z1 + o.avant + 0.12;
-  const interieur = new THREE.Mesh(new THREE.CylinderGeometry(o.r - 0.42, o.r - 0.42, 0.5, 64, 1, true), M.gomme); interieur.rotation.x = Math.PI / 2; interieur.position.z = z2 - 0.25; g.add(interieur);
+  const interieur = new THREE.Mesh(new THREE.CylinderGeometry(o.r - 0.42, o.r - 0.42, 0.5, 64, 1, true), M.gomme); interieur.rotation.x = Math.PI / 2; interieur.position.z = z2 - 0.25; avantG.add(interieur);
   const a = o.r - 0.42, Rs = a * 2.4, th = Math.asin(a / Rs);
   const lentille = new THREE.Mesh(new THREE.SphereGeometry(Rs, 96, 16, 0, Math.PI * 2, 0, th), M.verre);
-  lentille.rotation.x = Math.PI / 2; lentille.position.z = z2 - 0.32 - Rs * Math.cos(th); g.add(lentille);
+  lentille.rotation.x = Math.PI / 2; lentille.position.z = z2 - 0.32 - Rs * Math.cos(th); avantG.add(lentille);
   // lentilles intérieures : reflets en anneaux
-  [0.62, 0.38].forEach((k, i) => { const r = new THREE.Mesh(new THREE.TorusGeometry(a * k, 0.025, 8, 96), new THREE.MeshBasicMaterial({ color: i ? 0x5a3c8c : 0x2f6b4f, transparent: true, opacity: 0.6 })); r.position.z = z2 - 0.5 - i * 0.1; g.add(r); });
+  [0.62, 0.38].forEach((k, i) => { const r = new THREE.Mesh(new THREE.TorusGeometry(a * k, 0.025, 8, 96), new THREE.MeshBasicMaterial({ color: i ? 0x5a3c8c : 0x2f6b4f, transparent: true, opacity: 0.6 })); r.position.z = z2 - 0.5 - i * 0.1; avantG.add(r); });
   // inscriptions de l'avant de l'objectif
   const t = texte((x, w, h) => {
     x.translate(w / 2, h / 2); x.fillStyle = '#cfcfd3'; x.font = '600 34px ' + POLICE; x.textAlign = 'center';
@@ -188,8 +192,9 @@ function objectif(M, o) {
     for (let i = 0; i < s.length; i++) { x.save(); x.rotate((i - s.length / 2) * pas - 0.6); x.fillText(s[i], 0, -h * 0.43); x.restore(); }
   }, 1024, 1024);
   const anneau = new THREE.Mesh(new THREE.RingGeometry(o.r - 0.42, o.r - 0.25, 96), new THREE.MeshStandardMaterial({ color: 0x111113, map: t, roughness: 0.6 }));
-  anneau.position.z = z2 - 0.01; g.add(anneau);
+  anneau.position.z = z2 - 0.01; avantG.add(anneau);
   g.userData.bague = bague;
+  g.userData.avant = avantG; g.userData.course = o.course || 0;
   g.userData.longueur = z2;
   return g;
 }
@@ -198,6 +203,7 @@ function objectif(M, o) {
 function z50ii() {
   const M = matieres(), A = new THREE.Group(), C = {}, N = {};     // C : commandes interactives, N : pièces nommées
   const n = (o, nom) => { o.userData.nom = nom; N[nom] = o; return o; };
+  const vue = (nom, l, t) => { if (N[nom]) N[nom].userData.vue = [l, t]; };
   const W = 12.65, H = 7.3, zB = -1.6, zF = 1.6;
   // corps vu de dessus : bloc + poignée bombée (à gauche vu de face)
   const corps = extrusion([
@@ -212,7 +218,11 @@ function z50ii() {
   // bossage du viseur (profil de côté, extrudé en x)
   const hx = 0.75, hl = 4.6;
   const bossage = effiler(extrusion(profilZ([[-1.5, 6.8], [1.6, 6.8], [1.6, 7.3], [1.25, 8.4, 0.5, 9.12], [-0.6, 9.25], [-1.35, 9.25, -1.5, 8.6]]), hl, 0.42, M.corps, 'x'), hx - hl / 2, 6.9, 9.3, 0.74);
-  A.add(bossage); n(bossage, 'Flash intégré');
+  A.add(bossage);
+  const flash = new THREE.Group(); flash.position.set(hx, 9.12, -0.45); A.add(flash); flash.userData.flash = true;   // charnière à l'arrière de la tête
+  const tete = boite(2.5, 0.36, 1.1, 0.12, M.corps); tete.position.set(0, 0, 0.55); flash.add(tete);
+  const diffuseur = boite(2.1, 0.22, 0.05, 0.05, new THREE.MeshPhysicalMaterial({ color: 0xf4f4f0, roughness: 0.35, transmission: 0.2, clearcoat: 0.6 })); diffuseur.position.set(0, -0.04, 1.0); flash.add(diffuseur);
+  n(flash, 'Flash intégré');
   const logo = etiquette('Nikon', 3.0, 0.8, { style: 'italic 800 ', taille: 210 });
   logo.position.set(hx, 8.3, 1.2); logo.rotation.x = -0.54; A.add(logo);
   // sabot porte-accessoire
@@ -225,8 +235,10 @@ function z50ii() {
   const capt = new THREE.Mesh(new THREE.CircleGeometry(0.09, 20), new THREE.MeshBasicMaterial({ color: 0x5a1a7a })); capt.position.set(hx, 7.25, zB - 1.18); capt.rotation.y = Math.PI; A.add(capt); n(capt, 'Détecteur oculaire');
   // écran orientable
   const ecran = new THREE.Group(); A.add(ecran);
-  const dalle = boite(8.7, 5.9, 0.42, 0.22, M.corps); dalle.position.set(1.25, 3.35, zB - 0.25); ecran.add(dalle); n(dalle, 'Écran tactile orientable');
-  const vitre = boite(7.6, 5.05, 0.06, 0.08, M.vitre); vitre.position.set(1.25, 3.35, zB - 0.48); ecran.add(vitre);
+  ecran.position.set(5.6, 3.35, zB - 0.25); ecran.userData.orientable = true;   // charnière à gauche, vu de dos
+  const dalle = boite(8.7, 5.9, 0.42, 0.22, M.corps); dalle.position.set(1.25 - 5.6, 0, 0); ecran.add(dalle); n(ecran, 'Écran tactile orientable');
+  const vitre = boite(7.6, 5.05, 0.06, 0.08, M.vitre); vitre.position.set(1.25 - 5.6, 0, -0.23); ecran.add(vitre);
+  const charn = new THREE.Mesh(lisse(new THREE.CylinderGeometry(0.16, 0.16, 4.6, 24)), M.metalSombre); charn.position.set(0.05, 0, 0.05); ecran.add(charn);
   C.ecran = { centre: new THREE.Vector3(1.25, 3.35, zB - 0.52), l: 7.2, h: 4.8 };
   // dessus : molette de mode, déclencheur + commutateur, boutons
   const MODES = ['AUTO', 'P', 'S', 'A', 'M', 'U1', 'U2', 'U3', 'SCN'];
@@ -286,8 +298,15 @@ function z50ii() {
   // anneaux de courroie
   [-W / 2 - 0.15, W / 2 + 0.15].forEach(x => { const t = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.07, 12, 32), M.metal); t.position.set(x, 6.6, 0); t.rotation.y = Math.PI / 2; A.add(t); });
   // objectif NIKKOR Z DX 16-50 (rentré)
-  const obj = objectif(M, { r: 3.25, bague: 1.25, avant: 1.0, nom: 'NIKKOR Z DX 16-50mm 1:3.5-6.3 VR' });
+  const obj = objectif(M, { r: 3.25, bague: 1.25, avant: 1.0, course: 1.2, nom: 'NIKKOR Z DX 16-50mm 1:3.5-6.3 VR' });
   obj.position.set(hx - 0.1, 3.75, zF); A.add(obj); C.objectif = obj; n(obj.userData.bague, "L'objectif"); n(obj.children[0], 'La monture Z'); N['Le capteur'] = obj; N['Les contacts'] = obj.children[0];
+
+  // angles de vue pour Découvrir (lacet, tangage) : la pièce bien en face
+  [['Le boîtier', 25, 15], ['La poignée', -40, 12], ['Flash intégré', 12, 38], ['Griffe flash', 195, 52], ['Réglage dioptrique', 225, 22], ['Viseur électronique', 192, 14],
+   ['Détecteur oculaire', 186, 8], ['Écran tactile orientable', 145, 14], ['Sélecteur de mode', 205, 50], ['Sélecteur photo/vidéo', 210, 48], ['Déclencheur et marche-arrêt', 240, 44],
+   ['Enregistrement vidéo', 245, 46], ['Touche ISO', 238, 50], ["Correction d'exposition ±", 230, 52], ['Touche Picture Control', 225, 52], ['Molette principale', 222, 36],
+   ['Molette secondaire', -40, 26], ['Fn1', -28, 8], ['Fn2', -28, 6], ["Illuminateur d'assistance AF", -22, 16], ["Déverrouillage de l'objectif", 38, 8], ['La monture Z', 12, 8],
+   ["L'objectif", 24, 10], ["Témoin d'enregistrement", 30, 16], ['Haut-parleur', 178, 62], ['Déclenchement / retardateur', 172, 18], ['Suppression', 174, 18]].forEach(v => vue(...v));
   return { groupe: A, commandes: C, noms: N, modes: MODES, centre: new THREE.Vector3(0, 4.6, 0.3), taille: 13 };
 }
 
@@ -295,6 +314,7 @@ function z50ii() {
 function d800() {
   const M = matieres(), A = new THREE.Group(), C = {}, N = {};
   const n = (o, nom) => { o.userData.nom = nom; N[nom] = o; return o; };
+  const vue = (nom, l, t) => { if (N[nom]) N[nom].userData.vue = [l, t]; };
   const W = 14.6, H = 9.0, zB = -2.1, zF = 2.1;
   const corps = extrusion([
     [-W / 2 + 0.6, 2.1], [W / 2 - 0.6, 2.1], [W / 2, 2.1, W / 2, 1.5], [W / 2, -1.6], [W / 2, -2.1, W / 2 - 0.6, -2.1],
@@ -368,6 +388,11 @@ function d800() {
   [-W / 2 - 0.15, W / 2 + 0.15].forEach(x => { const t = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.08, 12, 32), M.metal); t.position.set(x, 8.0, 0); t.rotation.y = Math.PI / 2; A.add(t); if (x > 0) n(t, 'Œillet pour courroie'); });
   const obj = objectif(M, { r: 3.6, bague: 2.0, avant: 2.4, nom: 'AF-S NIKKOR 24-120mm 1:4G ED VR' });
   obj.position.set(hx, 4.3, zF); A.add(obj); C.objectif = obj; n(obj.children[0], 'Monture F et bouchon de boîtier');
+
+  [['Flash intégré et son ouverture', 12, 32], ['Écran (moniteur)', 196, 10], ['Viseur reflex', 190, 16], ['Volet des cartes mémoire', -62, 10], ['La poignée', -36, 10],
+   ['Écran de contrôle', 232, 55], ['Réglage dioptrique', 168, 22], ["Levier de l'obturateur d'oculaire", 202, 20], ['Monture F et bouchon de boîtier', 10, 8],
+   ['Sélecteur du mode de déclenchement', 150, 50], ['Microphone intégré', 22, 20], ['Œillet pour courroie', 82, 14], ['Haut-parleur et voyant de carte', 205, 8],
+   ['Déclencheur et marche-arrêt', 238, 40], ['Commande MODE', 236, 46], ['Enregistrement vidéo', 240, 44], ["Correction d'exposition ±", 236, 46], ['Molette secondaire', -40, 24]].forEach(v => vue(...v));
   return { groupe: A, commandes: C, noms: N, modes: ['P', 'S', 'A', 'M'], centre: new THREE.Vector3(0, 5.6, 0.6), taille: 15 };
 }
 
@@ -400,7 +425,7 @@ export function fusionner(groupe) {
                                  onCommande(c), ombre: true, libre: true })               */
 export async function creerVisionneuse(conteneur, opts) {
   const { RoomEnvironment } = await import('./three/addons/RoomEnvironment.js');
-  const o = Object.assign({ modele: 'z50ii', vue: [205, 22], zoom: 1, libre: true, limites: [140, 270, 2, 60] }, opts);
+  const o = Object.assign({ modele: 'z50ii', vue: [205, 22], zoom: 1, libre: true, limites: [140, 270, 2, 60] }, opts); opts = o;
   const modeste = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency || 8) <= 2;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, modeste ? 1.5 : 2));
@@ -458,7 +483,7 @@ export async function creerVisionneuse(conteneur, opts) {
   // ---------- animations des commandes
   const anims = [];
   function animer(duree, f, fin) { anims.push({ t0: performance.now(), duree, f, fin }); demander(); }
-  const ease = t => 1 - Math.pow(1 - t, 3), ressort = t => 1 - Math.exp(-6 * t) * Math.cos(9 * t);
+  const ease = t => 1 - Math.pow(1 - t, 3), ressort = t => 1 - Math.exp(-6 * t) * Math.cos(9 * t), ressortDoux = t => 1 - Math.exp(-7 * t) * Math.cos(6 * t);
   function enfoncer(obj) {
     const base = obj.userData.base || (obj.userData.base = obj.position.clone());
     const n = new THREE.Vector3(0, 1, 0).applyQuaternion(obj.quaternion).multiplyScalar(-0.09);
@@ -539,12 +564,24 @@ export async function creerVisionneuse(conteneur, opts) {
     cibler([obj]);
     const d = normale(obj);
     let l = THREE.MathUtils.radToDeg(Math.atan2(d.x, d.z)) + 14, t = THREE.MathUtils.radToDeg(Math.asin(THREE.MathUtils.clamp(d.y, -1, 1))) * 0.8 + 10;
+    if (obj.userData.vue) [l, t] = obj.userData.vue;
     while (l - lacet > 180) l -= 360; while (l - lacet < -180) l += 360;
     cibleVue = [THREE.MathUtils.clamp(l, L[0], L[1]), THREE.MathUtils.clamp(t, L[2], L[3])];
     actionner(obj);
     demander(); return true;
   }
+  // mouvement aller-retour (la pièce bouge, reste un instant, puis revient)
+  function allerRetour(f, aller, garde) {
+    animer(aller, t => f(ressortDoux(t)), () => setTimeout(() => animer(aller * 0.8, t => f(1 - ease(t))), garde || 2600));
+  }
   function actionner(obj) {
+    if (obj.userData.orientable) { allerRetour(k => { obj.rotation.y = -2.95 * k; }, 1100); return; }
+    if (obj.userData.flash) { const y0 = obj.userData.y0 ?? (obj.userData.y0 = obj.position.y); allerRetour(k => { obj.position.y = y0 + 0.62 * k; obj.rotation.x = -0.32 * k; }, 520); return; }
+    if (m.commandes.objectif && obj === m.commandes.objectif.userData.bague) {
+      const ob = m.commandes.objectif.userData; tournerBague(1);
+      if (ob.course) allerRetour(k => { ob.avant.position.z = ob.course * k; }, 800);
+      return;
+    }
     if (obj === m.commandes.dial && obj.userData.type === 'cadran') { const k = obj.userData.k = ((obj.userData.k || 0) + 1) % obj.userData.modes.length; tournerCadran(k); return; }
     if (obj === m.commandes.molettePrincipale || obj.userData.molette) { tournerMolette(1, obj); return; }
     if (m.commandes.objectif && obj === m.commandes.objectif.userData.bague) { tournerBague(1); return; }
@@ -567,19 +604,52 @@ export async function creerVisionneuse(conteneur, opts) {
     }
     return null;
   }
+  // pièces qu'on tourne au doigt
+  const rotatives = [m.commandes.dial, m.commandes.molettePrincipale, m.commandes.objectif && m.commandes.objectif.userData.bague].filter(x => x && x.isObject3D);
+  let tourne = null;
+  function prendre(e) {
+    const r = renderer.domElement.getBoundingClientRect();
+    ptr.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ptr, camera);
+    const h = ray.intersectObjects(rotatives, true)[0]; if (!h) return null;
+    let x = h.object; while (x && rotatives.indexOf(x) < 0) x = x.parent;
+    if (!x) return null;
+    const bague = m.commandes.objectif && x === m.commandes.objectif.userData.bague;
+    return { obj: x, bague, depart: bague ? x.rotation.z : x.rotation.y, x0: e.clientX, y0: e.clientY };
+  }
+  function lacher() {
+    const t = tourne; tourne = null; if (!t) return;
+    const o2 = t.obj;
+    if (t.bague) return;
+    if (o2.userData.type === 'cadran') {
+      const n = o2.userData.modes.length, pas = Math.PI * 2 / n, k = Math.round(o2.rotation.y / pas), de = o2.rotation.y;
+      animer(260, u => { o2.rotation.y = de + (k * pas - de) * ease(u); });
+      if (opts.onCadran) opts.onCadran(((k % n) + n) % n);
+    } else {
+      const pas = Math.PI / 9, k = Math.round(o2.rotation.y / pas), de = o2.rotation.y, crans = Math.round((o2.rotation.y - t.depart) / pas);
+      animer(220, u => { o2.rotation.y = de + (k * pas - de) * ease(u); });
+      if (crans && opts.onMolette) opts.onMolette(o2, crans);
+    }
+  }
   let bas = null, glisse = false, dernier = null;
   const surface = css ? css.domElement : renderer.domElement;
   surface.style.touchAction = o.libre ? 'pan-y' : 'auto';
-  surface.addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('.a3d-ecran')) return; bas = { x: e.clientX, y: e.clientY, t: performance.now() }; dernier = bas; glisse = false; });
+  surface.addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('.a3d-ecran')) return; bas = { x: e.clientX, y: e.clientY, t: performance.now() }; dernier = bas; glisse = false; tourne = prendre(e); if (tourne) { try { surface.setPointerCapture(e.pointerId); } catch (x) {} } });
   window.addEventListener('pointermove', e => {
     if (!bas) { if (e.pointerType === 'mouse' && e.target === surface) surface.style.cursor = viser(e, !!o.onSelection) ? 'pointer' : (o.libre ? 'grab' : 'default'); return; }
     const dx = e.clientX - dernier.x, dy = e.clientY - dernier.y;
     if (!glisse && Math.hypot(e.clientX - bas.x, e.clientY - bas.y) > 6) glisse = true;
-    if (glisse && o.libre) { vL = -dx * 0.35; vT = dy * 0.25; lacet += vL; tangage += vT; borner(); cibleVue = null; demander(); }
+    if (glisse && tourne) {
+      const d = (e.clientX - tourne.x0) - (e.clientY - tourne.y0) * 0.5;
+      if (tourne.bague) tourne.obj.rotation.z = tourne.depart + d * 0.01; else tourne.obj.rotation.y = tourne.depart - d * 0.012;
+      demander();
+    } else if (glisse && o.libre) { vL = -dx * 0.35; vT = dy * 0.25; lacet += vL; tangage += vT; borner(); cibleVue = null; demander(); }
     dernier = { x: e.clientX, y: e.clientY };
   });
   window.addEventListener('pointerup', e => {
     if (!bas) return;
+    if (glisse && tourne) { lacher(); bas = null; demander(); return; }
+    tourne = null;
     if (!glisse) {
       if (o.onSelection) { const x = viser(e, true); if (x) { let y = x; while (y && !y.userData.nom) y = y.parent; if (y) o.onSelection(y.userData.nom); } }
       else { const c = viser(e); if (c && o.onCommande) o.onCommande(c); }
@@ -590,17 +660,20 @@ export async function creerVisionneuse(conteneur, opts) {
 
   // ---------- rendu à la demande (rien ne tourne quand rien ne bouge)
   let enCours = false;
-  function demander() { if (!enCours) { enCours = true; requestAnimationFrame(image); } }
+  function demander() { if (!enCours) { enCours = true; if (!anims.length && !cibleVue) precedent = 0; requestAnimationFrame(image); } }
+  let precedent = 0;
   function image(now) {
     enCours = false;
     let encore = false;
+    const dt = precedent ? Math.min(0.1, (now - precedent) / 1000) : 1 / 60; precedent = now;
+    const k60 = a => 1 - Math.pow(1 - a, dt * 60);   // même vitesse quelle que soit la cadence
     for (let i = anims.length - 1; i >= 0; i--) {
       const a = anims[i], t = Math.min(1, (now - a.t0) / a.duree); a.f(t);
       if (t >= 1) { anims.splice(i, 1); if (a.fin) a.fin(); } else encore = true;
     }
-    if (!bas && (Math.abs(vL) > 0.02 || Math.abs(vT) > 0.02)) { vL *= 0.9; vT *= 0.9; lacet += vL; tangage += vT; borner(); encore = true; }
+    if (!bas && (Math.abs(vL) > 0.02 || Math.abs(vT) > 0.02)) { vL *= Math.pow(0.9, dt * 60); vT *= Math.pow(0.9, dt * 60); lacet += vL; tangage += vT; borner(); encore = true; }
     if (cibleVue) {
-      lacet += (cibleVue[0] - lacet) * 0.12; tangage += (cibleVue[1] - tangage) * 0.12;
+      lacet += (cibleVue[0] - lacet) * k60(0.12); tangage += (cibleVue[1] - tangage) * k60(0.12);
       if (Math.abs(cibleVue[0] - lacet) + Math.abs(cibleVue[1] - tangage) > 0.05) encore = true; else cibleVue = null;
     }
     if ([...halos.values()].some(Boolean)) { const k = Math.sin(now / 220); halos.forEach(h => { if (!h) return; h.material.opacity = 0.65 + 0.35 * k; h.scale.setScalar(1 + 0.08 * k); }); encore = true; }
@@ -618,6 +691,13 @@ export async function creerVisionneuse(conteneur, opts) {
     set vueImmediate(v) { lacet = v[0]; tangage = v[1]; demander(); },
     get vueActuelle() { return [lacet, tangage]; },
     rendre: demander,
+    // position à l'écran (px, dans le conteneur) d'une commande ou d'une pièce nommée : pour les tests
+    position2D(cle) {
+      const obj = m.commandes[cle] || (m.noms && m.noms[cle]); if (!obj) return null;
+      placer(); camera.updateMatrixWorld();
+      const c = new THREE.Box3().setFromObject(obj).getCenter(new THREE.Vector3()).project(camera), r = renderer.domElement.getBoundingClientRect();
+      return { x: r.left + (c.x + 1) / 2 * r.width, y: r.top + (1 - c.y) / 2 * r.height };
+    },
     capture() { placer(); renderer.render(scene, camera); return renderer.domElement.toDataURL('image/png'); },
     detruire() { ro.disconnect(); renderer.dispose(); conteneur.innerHTML = ''; }
   };

@@ -9,7 +9,15 @@ const panneau = document.getElementById('en3d');
 const VUES = window.GZ_VUES;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-function webgl() { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } }
+function webgl() {
+  try {
+    const g = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl'); if (!g) return false;
+    if (new URLSearchParams(location.search).get('3d') === 'force') return true;
+    // rendu logiciel (pas de carte graphique) : trop lent, on garde la version d'avant
+    const info = g.getExtension('WEBGL_debug_renderer_info');
+    return !/swiftshader|llvmpipe|software|softpipe/i.test(info ? String(g.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '');
+  } catch (e) { return false; }
+}
 
 let v = null, liste = [], sel = -1;
 async function demarrer() {
@@ -22,6 +30,7 @@ async function demarrer() {
     modele, vue: [28, 16], zoom: 1.08, limites: [-100000, 100000, -8, 80],
     onSelection(nom) { const i = liste.findIndex(c => c[0] === nom); if (i > -1) choisir(i, false); }
   });
+  window.__a3d = v;
   const presentes = liste.map(c => !!(v.modele.noms && v.modele.noms[c[0]]));
   puces.innerHTML = liste.map((c, i) => '<button type="button" class="puce3d' + (presentes[i] ? '' : ' sans') + '" data-i="' + i + '">' + esc(c[0]) + '</button>').join('');
   puces.querySelectorAll('button').forEach(b => b.addEventListener('click', () => choisir(+b.dataset.i, true)));
@@ -43,8 +52,11 @@ async function demarrer() {
 if (onglet && panneau && VUES && webgl()) {
   onglet.hidden = false;
   document.addEventListener('gz3d', demarrer);
-  if (!location.hash || location.hash === '#en3d') onglet.click();
+  const h0 = window.GZ_HASH0 || '';
+  if (!h0 || h0 === '#en3d') onglet.click();
   if (!panneau.hidden) demarrer();
 } else if (onglet) {
+  const actif = onglet.getAttribute('aria-selected') === 'true';
   onglet.remove(); if (panneau) panneau.remove();
+  if (actif) { const f = document.querySelector('#vues [role=tab]'); if (f) f.click(); }
 }

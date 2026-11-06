@@ -13,7 +13,16 @@ const section = document.querySelector('.intro');
 const scene3d = section && section.querySelector('.intro-scene');
 const canvas = section && section.querySelector('canvas');
 const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
-function webgl() { try { return !!document.createElement('canvas').getContext('webgl2'); } catch (e) { return false; } }
+function webgl() {
+  try {
+    const g = document.createElement('canvas').getContext('webgl2'); if (!g) return false;
+    if (new URLSearchParams(location.search).get('intro') === 'force') return true;
+    // sans carte graphique (rendu logiciel), chaque image coûterait des secondes : on garde la page simple
+    const info = g.getExtension('WEBGL_debug_renderer_info');
+    const nom = info ? String(g.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+    return !/swiftshader|llvmpipe|software|softpipe/i.test(nom);
+  } catch (e) { return false; }
+}
 
 if (section && (!webgl() || reduit)) section.remove();
 else if (section) demarrer();
@@ -22,7 +31,8 @@ function demarrer() {
   const modeste = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency || 8) <= 2;   // un téléphone n'est pas « modeste » : sa carte graphique suit ; le garde-fou ajuste sinon
   // définition du rendu : baisse toute seule si l'appareil peine (mesurée en continu)
   let echelle = modeste ? 0.7 : 1;
-  const DPR = () => Math.min(devicePixelRatio, modeste ? 1 : 1.75) * echelle;
+  // plafond : au plus ~2,4 millions de pixels dessinés (écrans 4K, fenêtres géantes)
+  const DPR = () => Math.min(Math.min(devicePixelRatio, modeste ? 1 : 1.75) * echelle, Math.sqrt(2.4e6 / Math.max(1, scene3d.clientWidth * scene3d.clientHeight)));
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !modeste, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
