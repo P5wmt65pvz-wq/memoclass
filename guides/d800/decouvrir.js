@@ -52,7 +52,7 @@
     ]
   };
 
-  window.GZ_VUES = VUES;
+  window.GZ_VUES = VUES; window.GZ_HASH0 = location.hash;   // l'adresse demandée, avant que les onglets ne la réécrivent
   function charger(vue) {
     if (vue === "en3d") { document.dispatchEvent(new Event("gz3d")); return; }
     var panneau = document.getElementById(vue); if (!panneau) return;

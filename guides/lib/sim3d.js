@@ -8,7 +8,15 @@ const zone = document.getElementById('sim');
 const modele = document.documentElement.dataset.appareil || 'z50ii';
 const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function webgl() { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } }
+function webgl() {
+  try {
+    const g = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl'); if (!g) return false;
+    if (new URLSearchParams(location.search).get('3d') === 'force') return true;
+    // rendu logiciel (pas de carte graphique) : trop lent, on garde la version d'avant
+    const info = g.getExtension('WEBGL_debug_renderer_info');
+    return !/swiftshader|llvmpipe|software|softpipe/i.test(info ? String(g.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '');
+  } catch (e) { return false; }
+}
 
 async function brancher() {
   const boitier = zone && zone.querySelector('.sim-boitier');
@@ -23,13 +31,29 @@ async function brancher() {
   if (large) ecran.classList.add('a3d-ecran');
   const btn = c => zone.querySelector('.sim-b[data-c="' + c + '"]');
   const vueDos = large ? [198, 14] : [204, 18], vueDessus = [204, 46];
-  const v = await creerVisionneuse(scene, {
+  let v = null;
+  v = await creerVisionneuse(scene, {
     modele, vue: vueDos, zoom: large ? 1.22 : 1.3,
     regard: large ? [0, -0.5, 0] : [-1.4, -0.3, 0],
     limites: [140, 260, 0, 70],
     ecranHTML: large ? ecran : null,
-    onCommande(c) { const b = btn(c); if (b) b.click(); masquerAide(); }
+    onCommande(c) { const b = btn(c); if (b) b.click(); masquerAide(); },
+    // molette de mode tournée au doigt : le simulateur avance d'autant de crans
+    onCadran(i) {
+      const lettre = zone.querySelector('.molette b'), modes = v ? v.modele.modes : [];
+      const cur = lettre ? modes.indexOf(lettre.textContent) : -1; if (cur < 0) return;
+      const pas = (i - cur + modes.length) % modes.length;
+      for (let k = 0; k < pas; k++) btn('dial').click();
+      masquerAide();
+    },
+    // D800 : molette principale tournée au doigt = un mode de plus par cran (MODE maintenu)
+    onMolette(obj, crans) {
+      if (obj !== (v && v.modele.commandes.dial) || v.modele.commandes.dial.userData.type === 'cadran') return;
+      for (let k = 0; k < Math.abs(crans); k++) btn('dial').click();
+      masquerAide();
+    }
   });
+  window.__a3d = v;
   let aideVue = false;
   function masquerAide() { if (!aideVue) { aideVue = true; scene.classList.add('a3d-vu'); } }
   scene.addEventListener('pointerdown', masquerAide, { once: true });
