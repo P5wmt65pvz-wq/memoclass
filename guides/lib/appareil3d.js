@@ -132,6 +132,11 @@ function icone(x, n, w, h) {
   else if (n === 'cle') { b(); x.arc(-18, 0, 20, 0, 7); x.stroke(); b(); x.moveTo(2, 0); x.lineTo(46, 0); x.moveTo(30, 0); x.lineTo(30, 16); x.moveTo(42, 0); x.lineTo(42, 14); x.stroke(); }
   else if (n === 'lv') { x.font = '800 62px ' + POLICE; x.fillText('Lv', 0, 4); }
 }
+function grille(l, h, cols, rangs) {
+  cols = cols || 6; rangs = rangs || 4;
+  const t = texte((x, w, hh) => { x.fillStyle = '#000'; for (let i = 0; i < cols; i++) for (let j = 0; j < rangs; j++) { x.beginPath(); x.arc(w / cols * (i + .5), hh / rangs * (j + .5), Math.min(w / cols, hh / rangs) * .22, 0, 7); x.fill(); } }, 256, 176);
+  return new THREE.Mesh(new THREE.PlaneGeometry(l, h), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+}
 // étiquette imprimée sur une face (plan transparent)
 function etiquette(txt, l, h, opts) {
   const o = opts || {};
@@ -240,6 +245,7 @@ function z50ii() {
   const corr = bouton(0.36, 0.22, M.bouton, '±'); corr.position.set(-4.5, H + 0.55, 0.45); A.add(corr); n(corr, "Correction d'exposition ±");
   const pcb = bouton(0.34, 0.2, M.bouton, '#pc'); pcb.position.set(-3.6, H + 0.5, 0.05); A.add(pcb); n(pcb, 'Touche Picture Control');
   const zlogo = etiquette('Z 50II', 2.4, 0.6, { style: 'italic 800 ', taille: 170 }); zlogo.rotation.set(-Math.PI / 2, 0, Math.PI); zlogo.position.set(4.7, H + 0.46, 0.4); A.add(zlogo);
+  const hp = grille(0.9, 0.6); hp.rotation.x = -Math.PI / 2; hp.position.set(5.2, H + 0.46, -0.9); A.add(hp); n(hp, 'Haut-parleur');
   // molettes de commande (principale à l'arrière, secondaire à l'avant de la poignée)
   const mPrinc = molette(0.85, 0.42, 36, M.gomme); mPrinc.position.set(-4.55, H + 0.15, zB + 0.25); A.add(mPrinc); C.molettePrincipale = mPrinc; n(mPrinc, 'Molette principale');
   const mSec = molette(0.75, 0.38, 32, M.gomme); mSec.position.set(-4.4, H - 0.65, 3.25); A.add(mSec); n(mSec, 'Molette secondaire');
@@ -293,18 +299,19 @@ function d800() {
   const corps = extrusion([
     [-W / 2 + 0.6, 2.1], [W / 2 - 0.6, 2.1], [W / 2, 2.1, W / 2, 1.5], [W / 2, -1.6], [W / 2, -2.1, W / 2 - 0.6, -2.1],
     [-3.6, -2.1], [-3.95, -2.6, -4.05, -3.3], [-4.2, -4.6, -5.4, -4.8], [-6.8, -4.85, -7.1, -4.0], [-W / 2, -3.2, -W / 2, -1.6], [-W / 2, 1.5], [-W / 2, 2.1, -W / 2 + 0.6, 2.1]
-  ], H, 0.55, M.corps, 'y');
+  ], H, 0.95, M.corps, 'y');
   A.add(corps); n(corps, 'Volet des cartes mémoire');
   const cuirG = extrusion([[-W / 2 + 0.06, 0.4], [-3.65, 0.4], [-3.65, -2.12], [-4.0, -2.6, -4.1, -3.3], [-4.25, -4.65, -5.4, -4.86], [-6.8, -4.92, -7.15, -4.02], [-W / 2 - 0.06, -3.2, -W / 2 - 0.06, -1.6]], 6.6, 0.22, M.cuir, 'y');
-  cuirG.position.y = 0.8; A.add(cuirG); n(cuirG, 'La poignée');
+  cuirG.position.y = 0.8; A.add(cuirG);
+  const lisere = new THREE.Mesh(new THREE.TorusGeometry(3.1, 0.07, 8, 48, 1.15), M.rouge); lisere.position.set(-4.3, 4.6, 1.2); lisere.rotation.set(Math.PI / 2 - 0.25, 0, 0.35); A.add(lisere); n(cuirG, 'La poignée');
   const cuirD = boite(3.2, 6.4, 0.12, 0.05, M.cuir); cuirD.position.set(5.4, 4.1, zF + 0.04); A.add(cuirD);
   // prisme (plus haut, faces inclinées)
-  const hx = 0.6, hl = 5.6;
-  const prisme = effiler(extrusion(profilZ([[-1.9, 8.6], [2.0, 8.6], [2.0, 9.4], [1.55, 10.9, 0.6, 11.75], [-0.8, 11.88], [-1.75, 11.85, -1.9, 11.0]]), hl, 0.5, M.corps, 'x'), hx - hl / 2, 8.7, 11.9, 0.66);
+  const hx = 0.6, hl = 6.4;
+  const prisme = effiler(extrusion(profilZ([[-2.0, 8.2], [2.3, 8.2], [2.3, 8.9], [1.7, 10.7, 0.55, 11.9], [-0.9, 12.0], [-1.85, 11.95, -2.0, 11.0]]), hl, 0.6, M.corps, 'x'), hx - hl / 2, 8.4, 12.0, 0.5);
   A.add(prisme); n(prisme, 'Flash intégré et son ouverture');
-  const logo = etiquette('Nikon', 3.6, 0.95, { style: 'italic 800 ', taille: 210 }); logo.position.set(hx, 10.2, 1.66); logo.rotation.x = -0.5; A.add(logo);
+  const logo = etiquette('Nikon', 3.4, 0.9, { style: 'italic 800 ', taille: 210 }); logo.position.set(hx, 10.15, 1.88); logo.rotation.x = -0.62; A.add(logo);
   const nom = etiquette('D800', 1.6, 0.5, { style: '700 ', taille: 190 }); nom.position.set(-3.9, 8.0, zF + 0.05); A.add(nom);
-  const sabot = boite(2.2, 0.12, 2.0, 0.04, M.metal); sabot.position.set(hx, 11.93, -0.2); A.add(sabot);
+  const sabot = boite(2.2, 0.12, 2.0, 0.04, M.metal); sabot.position.set(hx, 12.06, -0.2); A.add(sabot);
   const oeil = boite(3.0, 2.4, 1.0, 0.6, M.gomme); oeil.position.set(hx, 10.0, zB - 0.5); A.add(oeil); n(oeil, 'Viseur reflex');
   const diop = new THREE.Mesh(lisse(new THREE.CylinderGeometry(0.28, 0.28, 0.3, 24)), M.bouton); diop.rotation.z = Math.PI / 2; diop.position.set(hx + 1.75, 10.2, zB - 0.4); A.add(diop); n(diop, 'Réglage dioptrique');
   const lev = boite(0.2, 0.6, 0.2, 0.06, M.bouton); lev.position.set(hx - 1.7, 10.0, zB - 0.45); A.add(lev); n(lev, "Levier de l'obturateur d'oculaire");
@@ -333,6 +340,7 @@ function d800() {
   n(dos(bouton(0.36, 0.2, M.bouton, '#cle'), 6.3, 4.2), 'Clé : protection, Picture Control, aide'); n(dos(bouton(0.36, 0.2, M.bouton, '#loupe+'), 6.3, 3.2), 'Loupes'); dos(bouton(0.36, 0.2, M.bouton, '#loupe-'), 6.3, 2.2); n(dos(bouton(0.36, 0.2, M.bouton, 'OK'), 6.3, 1.2), 'OK');
   C.info = dos(bouton(0.36, 0.2, M.bouton, 'info'), -5.5, 1.2); Object.assign(C.info.userData, { c: 'info', type: 'bouton' }); n(C.info, 'info');
   n(dos(bouton(0.38, 0.2, M.bouton, '#lv'), -5.2, 2.6), 'Visée écran (Lv)');
+  const hp = grille(0.9, 0.3, 3, 1); hp.rotation.y = Math.PI; hp.position.set(-5.6, 0.5, zB - 0.02); A.add(hp); n(hp, 'Haut-parleur et voyant de carte');
   n(dos(bouton(0.42, 0.22, M.bouton, 'AF-ON'), -5.9, 8.4), 'AF-ON'); n(dos(bouton(0.36, 0.2, M.bouton, 'AE-L'), -4.4, 8.4), 'Mesure et AE-L/AF-L');
   const pad = new THREE.Group(); pad.rotation.x = -Math.PI / 2; pad.position.set(-5.2, 5.2, zB - 0.08); A.add(pad);
   const disque = new THREE.Mesh(lisse(new THREE.CylinderGeometry(1.15, 1.2, 0.2, 64)), M.bouton);
