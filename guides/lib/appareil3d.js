@@ -568,6 +568,7 @@ export async function creerVisionneuse(conteneur, opts) {
   }
   // Découvrir : montrer une pièce par son nom (la vue se tourne, la pièce s'anime)
   function montrer(nom) {
+    tourActif = false;
     const obj = m.noms && m.noms[nom];
     if (!obj) { cibler([]); return false; }
     cibler([obj]);
@@ -668,6 +669,10 @@ export async function creerVisionneuse(conteneur, opts) {
   function borner() { lacet = THREE.MathUtils.clamp(lacet, L[0], L[1]); tangage = THREE.MathUtils.clamp(tangage, L[2], L[3]); }
 
   // ---------- rendu à la demande (rien ne tourne quand rien ne bouge)
+  // petit tour automatique au départ (Découvrir), arrêté dès qu'on touche l'appareil
+  let tourActif = !!o.tour && !matchMedia('(prefers-reduced-motion: reduce)').matches, debutTour = performance.now(), visible3d = true;
+  if (tourActif) new IntersectionObserver(es => { visible3d = es[0].isIntersecting; if (visible3d && tourActif) demander(); }).observe(conteneur);
+  surface.addEventListener('pointerdown', () => { tourActif = false; }, { capture: true });
   let enCours = false;
   function demander() { if (!enCours) { enCours = true; if (!anims.length && !cibleVue) precedent = 0; requestAnimationFrame(image); } }
   let precedent = 0;
@@ -681,6 +686,9 @@ export async function creerVisionneuse(conteneur, opts) {
       if (t >= 1) { anims.splice(i, 1); if (a.fin) a.fin(); } else encore = true;
     }
     if (!bas && (Math.abs(vL) > 0.02 || Math.abs(vT) > 0.02)) { vL *= Math.pow(0.9, dt * 60); vT *= Math.pow(0.9, dt * 60); lacet += vL; tangage += vT; borner(); encore = true; }
+    if (tourActif && !bas && !cibleVue) {
+      if (now - debutTour < (o.tourDuree || 12) * 1000 && visible3d) { lacet += o.tour * dt; encore = true; } else tourActif = false;
+    }
     if (cibleVue) {
       lacet += (cibleVue[0] - lacet) * k60(0.12); tangage += (cibleVue[1] - tangage) * k60(0.12);
       if (Math.abs(cibleVue[0] - lacet) + Math.abs(cibleVue[1] - tangage) > 0.05) encore = true; else cibleVue = null;

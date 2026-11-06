@@ -27,7 +27,7 @@ async function demarrer() {
   liste = [];
   Object.keys(VUES).forEach(k => (VUES[k] || []).forEach(c => { if (!liste.some(x => x[0] === c[0])) liste.push(c); }));
   v = await creerVisionneuse(scene, {
-    modele, vue: [28, 16], zoom: 1.08, limites: [-100000, 100000, -8, 80],
+    modele, vue: [28, 16], zoom: 1.08, limites: [-100000, 100000, -8, 80], tour: 14, tourDuree: 14,
     onSelection(nom) { const i = liste.findIndex(c => c[0] === nom); if (i > -1) choisir(i, false); }
   });
   window.__a3d = v;
