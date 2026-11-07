@@ -27,7 +27,7 @@ function webgl() {
 if (section && (!webgl() || reduit)) section.remove();
 else if (section) demarrer();
 
-function demarrer() {
+async function demarrer() {
   const modeste = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency || 8) <= 2;   // un téléphone n'est pas « modeste » : sa carte graphique suit ; le garde-fou ajuste sinon
   // définition du rendu : baisse toute seule si l'appareil peine (mesurée en continu)
   let echelle = modeste ? 0.7 : 1;
@@ -99,10 +99,10 @@ function demarrer() {
   scene.add(etincelles);
 
   // l'appareil
-  const m = MODELES.z50ii();
+  const m = await MODELES.z50ii();
   m.groupe.position.sub(m.centre); m.groupe.updateMatrixWorld(true);
   const obj = m.commandes.objectif;
-  const lentille = new THREE.Vector3(0, 0, obj.userData.longueur).applyMatrix4(obj.matrixWorld);   // centre du verre avant
+  const lentille = m.lentille ? m.lentille.clone().applyMatrix4(m.groupe.matrixWorld) : new THREE.Vector3(0, 0, obj.userData.longueur).applyMatrix4(obj.matrixWorld);   // centre du verre avant
   const pivot = new THREE.Group(); pivot.add(fusionner(m.groupe)); scene.add(pivot);
 
   /* ---------------- scène 2 : le tunnel (référence « Tunnel », sans post-traitement pour rester léger) */
