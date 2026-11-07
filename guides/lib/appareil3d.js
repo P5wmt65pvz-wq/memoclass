@@ -141,6 +141,7 @@ function grille(l, h, cols, rangs) {
 function etiquette(txt, l, h, opts) {
   const o = opts || {};
   const t = texte((x, w, hh) => {
+    if (o.fond) { x.fillStyle = o.fond; x.beginPath(); x.roundRect(0, 0, w, hh, hh * 0.25); x.fill(); }
     x.fillStyle = o.couleur || '#dcdcdf'; x.textAlign = o.align || 'center'; x.textBaseline = 'middle';
     x.font = (o.style || '700 ') + (o.taille || 150) + 'px ' + (o.police || POLICE);
     x.fillText(txt, o.align === 'left' ? 10 : w / 2, hh / 2 + 6);
@@ -405,7 +406,111 @@ function d800() {
   return { groupe: A, commandes: C, noms: N, modes: ['P', 'S', 'A', 'M'], centre: new THREE.Vector3(0, 5.6, 0.6), taille: 15 };
 }
 
-export const MODELES = { z50ii, d800 };
+
+/* ------------------------------------------------------------------ modèles hybrides (IA + vraies photos)
+   Le corps vient d'une IA « photo → 3D » (TRELLIS, à partir des photos de face et de dos du guide) ;
+   le dos est la vraie photo de l'appareil, posée derrière. Les commandes sont des zones invisibles
+   placées sur la photo (dos) ou sur la surface du modèle (le reste) ; la molette de mode reste une
+   vraie pièce qui tourne. */
+const IA = {
+  z50ii: {
+    base: z50ii, glb: '../modeles/z50ii-ia.glb', dos: '../modeles/z50ii-dos.webp',
+    ecran: { x0: 0.1065, y0: 0.3945, x1: 0.7177, y1: 0.9648 },
+    pts: { 'Écran tactile orientable': [41, 68], 'Viseur électronique': [38.5, 22.3], 'Détecteur oculaire': [39, 31.6], 'Mode moniteur': [61.8, 32], 'DISP': [69.2, 32], 'AE-L/AF-L': [79, 36.4], 'Touche i': [79.1, 52.5], 'Sélecteur multidirectionnel + OK': [82.9, 67.2], 'MENU': [86.5, 80.6], 'Visualisation': [86.3, 90], 'Loupe arrière / imagettes / aide': [78.6, 90], 'Loupe avant': [78.6, 80.6], 'Déclenchement / retardateur': [10.6, 31.2], 'Suppression': [17.7, 31.2] },
+    cmd: { i: 'Touche i', menu: 'MENU', ok: 'Sélecteur multidirectionnel + OK' }, logo: [0.6, 0.855, 2.7, 1.1]
+  },
+  d800: {
+    base: d800, glb: '../modeles/d800-ia.glb', dos: '../modeles/d800-dos.webp',
+    ecran: { x0: 0.1807, y0: 0.4926, x1: 0.6024, y1: 0.8820 }, pts: {}, cmd: {}, logo: [0.3, 0.81, 3.1, 1.15, -0.55, 0.45]
+  }
+};
+function zone(r) { return new THREE.Mesh(new THREE.SphereGeometry(r || 0.35, 12, 8), new THREE.MeshBasicMaterial({ visible: false })); }
+async function hybride(id) {
+  const D = IA[id], base = D.base(), A = new THREE.Group(), C = {}, N = {};
+  const { GLTFLoader } = await import('./three/addons/GLTFLoader.js');
+  const [gltf, tx] = await Promise.all([
+    new GLTFLoader().loadAsync(new URL(D.glb, import.meta.url).href),
+    new THREE.TextureLoader().loadAsync(new URL(D.dos, import.meta.url).href)
+  ]);
+  // repère du modèle géométrique (les positions des pièces y sont connues)
+  base.groupe.updateMatrixWorld(true);
+  const bb = new THREE.Box3().setFromObject(base.groupe);
+  const corps = gltf.scene; corps.traverse(o => { if (o.isMesh) { o.material.metalness = 0; o.material.roughness = 0.5; } });
+  let b = new THREE.Box3().setFromObject(corps), sz = b.getSize(new THREE.Vector3());
+  const k = 12.65 / sz.x; corps.scale.setScalar(k); corps.updateMatrixWorld(true);
+  b = new THREE.Box3().setFromObject(corps); sz = b.getSize(new THREE.Vector3());
+  corps.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, bb.min.z - b.min.z);
+  A.add(corps); A.updateMatrixWorld(true);
+  const ia = new THREE.Box3().setFromObject(corps);
+  // la vraie photo du dos, cadrée sur le corps grâce à la zone opaque de l'image
+  tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8;
+  const im = tx.image, cv = document.createElement('canvas'); cv.width = 256; cv.height = Math.round(256 * im.height / im.width);
+  const cx = cv.getContext('2d'); cx.drawImage(im, 0, 0, cv.width, cv.height);
+  const px = cx.getImageData(0, 0, cv.width, cv.height).data; let x0 = cv.width, x1 = 0, y0 = cv.height, y1 = 0;
+  for (let y = 0; y < cv.height; y++) for (let x = 0; x < cv.width; x++) if (px[(y * cv.width + x) * 4 + 3] > 128) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  const Wp = (ia.max.x - ia.min.x) * cv.width / (x1 - x0 + 1), Hp = Wp * im.height / im.width;
+  const zDos = ia.min.z - 0.03;
+  // photo (pourcentages) → point 3D sur le dos ; vu de dos, la gauche de l'image est du côté +x
+  const gaucheX = ia.max.x + (x0 / cv.width) * Wp, hautY = Hp * (y1 + 1) / cv.height;   // le bas de la zone opaque posé sur y = 0
+  const surDos = (p, q) => new THREE.Vector3(gaucheX - p / 100 * Wp, hautY - q / 100 * Hp, zDos - 0.05);
+  const dos = new THREE.Mesh(new THREE.PlaneGeometry(Wp, Hp), new THREE.MeshStandardMaterial({ map: tx, alphaTest: 0.5, roughness: 0.45 }));
+  dos.rotation.y = Math.PI; dos.position.set(gaucheX - Wp / 2, hautY - Hp / 2, zDos); A.add(dos);
+  // logo Nikon net sur le bossage (l'IA l'avait déformé)
+  const ray = new THREE.Raycaster();
+  const toucher = (o, d) => { ray.set(o, d); const h = ray.intersectObject(corps, true)[0]; return h ? h.point : null; };
+  if (D.logo) {
+    const [lx, ly, lw, lh, la = -0.25, lz = 0.22] = D.logo, p = toucher(new THREE.Vector3(lx, ia.max.y * ly, 40), new THREE.Vector3(0, 0, -1));
+    if (p) { const l = etiquette('Nikon', lw, lh, { style: 'italic 800 ', taille: 210, couleur: '#f2f2f4', fond: '#16161a' }); l.position.copy(p).add(new THREE.Vector3(0, 0, lz)); l.rotation.x = la; A.add(l); }
+  }
+  // zones nommées (Découvrir) et commandes (Prendre en main)
+  const poser = (nom, src) => {
+    const z = zone(); let pos, n;
+    if (D.pts[nom]) { pos = surDos(...D.pts[nom]); n = new THREE.Vector3(0, 0, -1); }
+    else if (src) {
+      const c = new THREE.Box3().setFromObject(src).getCenter(new THREE.Vector3());
+      n = (src.userData.type || src.userData.appui || src.userData.molette)
+        ? new THREE.Vector3(0, 1, 0).applyQuaternion(src.getWorldQuaternion(new THREE.Quaternion()))
+        : c.clone().sub(new THREE.Vector3(0, (bb.min.y + bb.max.y) / 2, 0)).normalize();
+      pos = toucher(c.clone().addScaledVector(n, 25), n.clone().negate()) || c;
+      pos.addScaledVector(n, 0.05);
+    } else return null;
+    z.position.copy(pos); z.userData.axe = true;
+    z.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), n.normalize());
+    A.add(z); return z;
+  };
+  for (const [nom, src] of Object.entries(base.noms)) {
+    const z = poser(nom, src); if (!z) continue;
+    z.userData.nom = nom; if (src.userData.vue) z.userData.vue = src.userData.vue; N[nom] = z;
+  }
+  // molette de mode : la vraie pièce du modèle géométrique, posée sur le dessus du corps
+  const cad = base.commandes.dial;
+  if (cad && cad.userData.type === 'cadran') {
+    const p = toucher(new THREE.Vector3(cad.position.x, 40, cad.position.z), new THREE.Vector3(0, -1, 0));
+    base.groupe.remove(cad); cad.position.set(cad.position.x, (p ? p.y : cad.position.y) + 0.12, cad.position.z); A.add(cad);
+    C.dial = cad; N['Sélecteur de mode'] = cad; cad.userData.nom = 'Sélecteur de mode';
+  }
+  // commandes du dos (sur la photo) et du dessus
+  for (const [c, nom] of Object.entries(D.cmd)) if (N[nom]) { const z = zone(0.45); z.position.copy(N[nom].position); z.quaternion.copy(N[nom].quaternion); z.userData = { c, type: 'bouton', axe: true }; A.add(z); C[c] = z; }
+  if (C.ok) [['up', 0, 1], ['down', 0, -1], ['left', 1, 0], ['right', -1, 0]].forEach(([c, dx, dy]) => {
+    const z = zone(0.4); z.position.copy(C.ok.position).add(new THREE.Vector3(dx * 0.95, dy * 0.95, 0)); z.quaternion.copy(C.ok.quaternion);
+    z.userData = { c, type: 'bouton', axe: true }; A.add(z); C[c] = z;
+  });
+  for (const c of ['menu', 'i', 'info', 'ok', 'up', 'down', 'left', 'right']) if (!C[c] && base.commandes[c]) { const z = poser('_' + c, base.commandes[c]); if (z) { z.userData = { c, type: 'bouton', axe: true }; C[c] = z; } }
+  if (!C.dial && base.commandes.dial) {
+    const z = poser('_dial', base.commandes.dial); if (z) { z.userData = { c: 'dial', type: 'bouton', axe: true }; C.dial = z; C.molettePrincipale = z; }
+    if (base.commandes.dialBouton) { const b = poser('_mode', base.commandes.dialBouton); if (b) { b.userData = { c: 'dial', type: 'bouton', axe: true }; C.dialBouton = b; } }
+  }
+  if (base.commandes.half) { const z = poser('_declencheur', base.commandes.half); if (z) { z.userData = { c: 'half', type: 'bouton', axe: true }; C.half = z; } }
+  // écran : zone de la photo où l'écran du simulateur vient se poser
+  const e = D.ecran, p0 = surDos(e.x0 * 100, e.y0 * 100), p1 = surDos(e.x1 * 100, e.y1 * 100);
+  C.ecran = { centre: p0.clone().add(p1).multiplyScalar(0.5).setZ(zDos - 0.02), l: Math.abs(p1.x - p0.x), h: Math.abs(p1.y - p0.y) };
+  // centre du verre avant (pour la plongée dans l'objectif de l'accueil)
+  const lentille = toucher(new THREE.Vector3(0.65, 3.75, 40), new THREE.Vector3(0, 0, -1)) || new THREE.Vector3(0.65, 3.75, ia.max.z);
+  return { groupe: A, commandes: C, noms: N, modes: base.modes, centre: new THREE.Vector3(0, ia.max.y / 2, (ia.min.z + ia.max.z) / 2), taille: base.taille, lentille, ia: true };
+}
+
+export const MODELES = { z50ii: () => hybride('z50ii'), d800: () => hybride('d800') };
+export const GEOMETRIQUES = { z50ii, d800 };
 
 /* Regroupe toutes les pièces d'une même matière en un seul maillage (pour les vues où rien
    ne bouge, comme l'entrée de l'accueil) : des centaines d'appels de dessin deviennent une dizaine. */
@@ -448,7 +553,7 @@ export async function creerVisionneuse(conteneur, opts) {
   scene.environmentIntensity = 0.75;
   const cle = new THREE.DirectionalLight(0xffffff, 1.6); cle.position.set(6, 14, 8); scene.add(cle);
   const contre = new THREE.DirectionalLight(0xdfe9ff, 1.0); contre.position.set(-10, 6, -12); scene.add(contre);
-  const m = MODELES[o.modele]();
+  const m = await MODELES[o.modele]();
   const pivot = new THREE.Group(); pivot.add(m.groupe); m.groupe.position.sub(m.centre); scene.add(pivot);
   // ombre de contact : un dégradé doux sous l'appareil
   const ombreT = texte((x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(0,0,0,.55)'); g.addColorStop(0.55, 'rgba(0,0,0,.18)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }, 256, 256);
@@ -473,7 +578,8 @@ export async function creerVisionneuse(conteneur, opts) {
   // ---------- vue : orbite à la souris / au doigt, avec inertie
   const regard = new THREE.Vector3(...(o.regard || [0, 0, 0]));
   let lacet = o.vue[0], tangage = o.vue[1], vL = 0, vT = 0, cibleVue = null, distance = 0;
-  const L = o.limites;
+  const L = o.limites.slice();
+  if (m.ia) L[3] = Math.min(L[3], 32);   // modèle hybride : le dos est une photo, on ne le regarde pas de trop haut
   function cadrer() {
     const r = conteneur.getBoundingClientRect(), w = Math.max(1, r.width), h = Math.max(1, r.height);
     renderer.setSize(w, h, false); renderer.domElement.style.width = w + 'px'; renderer.domElement.style.height = h + 'px';
@@ -494,11 +600,13 @@ export async function creerVisionneuse(conteneur, opts) {
   function animer(duree, f, fin) { anims.push({ t0: performance.now(), duree, f, fin }); demander(); }
   const ease = t => 1 - Math.pow(1 - t, 3), ressort = t => 1 - Math.exp(-6 * t) * Math.cos(9 * t), ressortDoux = t => 1 - Math.exp(-7 * t) * Math.cos(6 * t);
   function enfoncer(obj) {
+    if (obj.material && obj.material.visible === false) { const h = anneau(obj); if (h) { animer(420, t => { h.material.opacity = 1 - t; h.scale.setScalar(1 + t * 0.5); }, () => h.parent && h.parent.remove(h)); } return; }
     const base = obj.userData.base || (obj.userData.base = obj.position.clone());
     const n = new THREE.Vector3(0, 1, 0).applyQuaternion(obj.quaternion).multiplyScalar(-0.09);
     animer(260, t => { const k = t < 0.3 ? t / 0.3 : 1 - ease((t - 0.3) / 0.7); obj.position.copy(base).addScaledVector(n, k / 0.09 * 0.09); });
   }
   function basculer(z) {
+    if (!z.userData.pad) return enfoncer(z);
     const p = z.userData.pad, d = z.userData.dir;
     animer(300, t => { const k = t < 0.3 ? t / 0.3 : 1 - ease((t - 0.3) / 0.7); p.rotation.set(d.y * 0.16 * k, 0, -d.x * 0.16 * k); });
   }
@@ -595,7 +703,7 @@ export async function creerVisionneuse(conteneur, opts) {
     if (obj === m.commandes.dial && obj.userData.type === 'cadran') { const k = obj.userData.k = ((obj.userData.k || 0) + 1) % obj.userData.modes.length; tournerCadran(k); return; }
     if (obj === m.commandes.molettePrincipale || obj.userData.molette) { tournerMolette(1, obj); return; }
     if (m.commandes.objectif && obj === m.commandes.objectif.userData.bague) { tournerBague(1); return; }
-    if (obj.userData.type === 'fleche' || obj.userData.type === 'bouton' || obj.userData.appui) { enfoncer(obj); return; }
+    if (obj.userData.type === 'fleche' || obj.userData.type === 'bouton' || obj.userData.appui || (obj.material && obj.material.visible === false)) { enfoncer(obj); return; }
   }
 
   // ---------- pointeur : glisser = tourner la vue, toucher une commande = l'actionner
@@ -607,7 +715,7 @@ export async function creerVisionneuse(conteneur, opts) {
     ray.setFromCamera(ptr, camera);
     const hits = ray.intersectObjects(tout ? [m.groupe] : cliquables, true);
     for (const h of hits) {
-      if (h.object.material && h.object.material.visible === false && !h.object.userData.c) continue;
+      if (h.object.material && h.object.material.visible === false && !h.object.userData.c && !h.object.userData.nom) continue;
       let x = h.object; while (x && !x.userData.c && !x.userData.nom) x = x.parent;
       if (x) return tout ? x : x.userData.c;
       if (tout) return null;
