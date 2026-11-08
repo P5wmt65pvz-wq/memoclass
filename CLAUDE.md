@@ -56,6 +56,12 @@ Adrien : « il fait que laguer ». Mesuré dans Chromium, processeur ralenti ×4
 - Plantage du Chromebook (05/11, après la fluidité) : à 4 Go, `prefer()` choisissait Whisper large-v3-turbo (0,8 Go) et le faisait tourner en direct pendant l'enregistrement, en plus des animations. Sur appareil modeste : Whisper small, pas de transcription précise en direct (le texte du navigateur reste), transcription précise lancée seulement une fois l'animation de fin terminée, 1 200 gouttes dorées au lieu de 2 200 à 3 200, logo en métal liquide figé.
 - Résultat (×4, profil modeste) : accueil 33 → 17 ms par image, souris 33 → 17 ms, 0 image au-delà de 50 ms ; écran d'enregistrement 100 → 50 ms. Le Chromium de test n'a pas de vraie carte graphique : ce dernier chiffre est pessimiste.
 
+## Fluidité, suite (08/11/2026)
+Demande d'Adrien : « aucun lag, s'adapter à l'appareil (PC, téléphone…) ». Le site ne lit pas la marque : il mesure (mémoire, cœurs, carte graphique, vitesse réelle des images).
+- `MV_FAIBLE` aussi vrai **sans carte graphique** (rendu logiciel : SwiftShader, llvmpipe, « Basic Render »).
+- Garde-fou : mesure bornée à 2,5 s (avant : 90 images, soit plus de 15 s sur un appareil lent) ; s'il déclenche, événement `mvfaible` : le logo en métal liquide se fige (`setSpeed(0)`).
+- `html.faible` : plus de `backdrop-filter` sur le verre (panneaux, boutons, barre du haut, fenêtres), remplacé par une teinte sombre. Cause mesurée : le flou recalculé à chaque mouvement de souris (Chromebook ×4 : 26 images sur 40 au-delà de 50 ms ; après : 0, 60 images/s ; idem téléphone 390 px et 2 Go/×6). Ordinateur puissant avec carte graphique : inchangé (non mesurable ici, pas de vraie carte graphique).
+
 ## Dossier `guides/` (02/11/2026)
 Site indépendant : les guides photo gratuits (accueil « Quel est ton appareil ? », puis `guides/z50ii/`, `guides/d800/`), en ligne sur `/memoclass/guides/`. Il ne partage rien avec Mémoclass ; sa source de travail est dans le dépôt BOS (`Output/guides/`, `sh construire.sh` produit `site/`). `guide-z50ii/` et `guide-d800/` ne contiennent plus que des redirections, les images de partage et `guide-z50ii/media/` (vidéos Instagram, à garder). Ne pas les modifier depuis une tâche Mémoclass.
 
