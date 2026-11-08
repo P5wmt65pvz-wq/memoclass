@@ -12,8 +12,9 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 function webgl() {
   try {
     const g = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl'); if (!g) return false;
-    if (new URLSearchParams(location.search).get('3d') === 'force') return true;
-    return false;   // 3D retirée le 08/11 à la demande d'Adrien : version en vraies photos
+    const q = new URLSearchParams(location.search).get('3d');
+    if (q === 'force') return true;
+    if (q === '0' || modele !== 'z50ii') return false;   // 09/11 : 3D seulement pour le Z50II (modèle net habillé des 4 vues) ; le D800 garde ses photos
     // rendu logiciel (pas de carte graphique) : trop lent, on garde la version d'avant
     const info = g.getExtension('WEBGL_debug_renderer_info');
     return !/swiftshader|llvmpipe|software|softpipe/i.test(info ? String(g.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '');
