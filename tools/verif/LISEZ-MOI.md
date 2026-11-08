@@ -1,6 +1,7 @@
 # Vérifications dans Chromium (Playwright)
 
 Lancer un serveur : `python3 -m http.server 8131` à la racine du dépôt, puis `node tools/verif/<script>.cjs`.
+Sans carte graphique, le site se classe « modeste » (verre sans flou) : pour tester la version complète, passer `http://localhost:8131/index.html?faible=0` en argument à `verre.cjs`, `ios26.cjs`, `apple.cjs`.
 Chaque script ouvre le site avec un faux micro et affiche `erreurs []` s'il n'y a rien à signaler.
 
 - `fin.cjs` : enregistrer → arrêter → écran de fin → Mes cours → Modifier
