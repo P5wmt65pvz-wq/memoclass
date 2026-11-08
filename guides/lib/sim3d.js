@@ -12,6 +12,7 @@ function webgl() {
   try {
     const g = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl'); if (!g) return false;
     if (new URLSearchParams(location.search).get('3d') === 'force') return true;
+    return false;   // 3D retirée le 08/11 à la demande d'Adrien : version en vraies photos
     // rendu logiciel (pas de carte graphique) : trop lent, on garde la version d'avant
     const info = g.getExtension('WEBGL_debug_renderer_info');
     return !/swiftshader|llvmpipe|software|softpipe/i.test(info ? String(g.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '');
