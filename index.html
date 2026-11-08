@@ -188,7 +188,7 @@ html.faible body.recmode *{-webkit-backdrop-filter:none!important;backdrop-filte
 /* appareil modeste (08/11) : le flou derrière le verre est recalculé à chaque mouvement de souris (mesuré : 26 images sur 40 au-delà de 50 ms, 0 sans le flou).
    Verre teinté sans flou : même couleur, plus de calcul. */
 html.faible .glass,html.faible .btn,html.faible .toast.glass,html.faible dialog,html.faible .mini,html.faible .lib-bar input,html.faible header::before,html.faible .recbadge{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-html.faible .glass{background:linear-gradient(160deg,rgba(28,26,26,.78),rgba(18,17,18,.72) 60%)}html.faible .btn{background:rgba(44,42,44,.88)}html.faible dialog,html.faible .toast.glass{background:rgba(20,20,23,.96)}
+html.faible .glass{background:linear-gradient(160deg,rgba(255,255,255,var(--lg-t1,.012)),rgba(255,255,255,var(--lg-t2,.004)) 60%),linear-gradient(160deg,rgba(28,26,26,.78),rgba(18,17,18,.72) 60%)}   /* la teinte réglée dans « Verre liquide » reste active */html.faible .btn{background:rgba(44,42,44,.88)}html.faible dialog,html.faible .toast.glass{background:rgba(20,20,23,.96)}
 html.faible dialog::backdrop{background:rgba(0,0,0,.65);-webkit-backdrop-filter:none;backdrop-filter:none}   /* le chrono change 10 fois par seconde : sur son propre calque, il ne fait plus repeindre le reste */
 body.is-rec .studio .recbadge{display:flex}
 @media (max-width:480px){.studio .recbadge{font-size:0;gap:0;padding:7px;top:12px;right:12px}}
@@ -548,6 +548,7 @@ body.recmode .halo i{display:none}
   /* sans carte graphique (accélération matérielle coupée, rendu logiciel) : le flou et le verre sont calculés par le processeur et tout rame */
   var sansGPU=(function(){try{var g=document.createElement('canvas').getContext('webgl');if(!g)return true;var i=g.getExtension('WEBGL_debug_renderer_info');return /swiftshader|llvmpipe|software|softpipe|basic render/i.test(i?String(g.getParameter(i.UNMASKED_RENDERER_WEBGL)):'');}catch(e){return true;}})();
   var faible=window.MV_FAIBLE=(navigator.deviceMemory||8)<=4||(navigator.hardwareConcurrency||8)<=2||sansGPU;
+  if(/[?&]faible=0/.test(location.search))faible=window.MV_FAIBLE=false;   /* tests : forcer la version complète */
   if(faible)document.documentElement.classList.add('faible');
   if(!ok||(faible&&!/[?&]verre=1/.test(location.search)))return;
   var NS='http://www.w3.org/2000/svg',defs=document.querySelector('#lg-defs defs'),n=0;
@@ -602,7 +603,7 @@ body.recmode .halo i{display:none}
 })();
 /* garde-fou, tous navigateurs : 3 s après l'ouverture, on mesure 90 images ; si la moitié dépasse 22 ms, l'appareil est traité comme modeste
    (verre dépoli simple, pas de reflet qui suit la souris, scène de Raphaël allégée) */
-(function(){if(window.MV_FAIBLE)return;setTimeout(function(){var a=[],t0=0,d0=performance.now();function L(t){if(t0)a.push(t-t0);t0=t;if(a.length<90&&performance.now()-d0<2500)requestAnimationFrame(L);else{a.sort(function(x,y){return x-y;});
+(function(){if(window.MV_FAIBLE||/[?&]faible=0/.test(location.search))return;setTimeout(function(){var a=[],t0=0,d0=performance.now();function L(t){if(t0)a.push(t-t0);t0=t;if(a.length<90&&performance.now()-d0<2500)requestAnimationFrame(L);else{a.sort(function(x,y){return x-y;});
   /* mesure bornée à 2,5 s : sur un appareil très lent, 90 images prenaient plus de 15 s et la page ramait tout ce temps */
   if(document.visibilityState==='visible'&&a.length>8&&a[a.length>>1]>22){window.MV_FAIBLE=true;document.documentElement.classList.add('faible');if(window.lgOff)window.lgOff();window.dispatchEvent(new Event('mvfaible'));}}}
   requestAnimationFrame(L);},3000);})();
