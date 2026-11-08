@@ -880,6 +880,8 @@ export async function creerVisionneuse(conteneur, opts) {
   return {
     modele: m, presser, cibler, montrer, tournerCadran, tournerMolette, tournerBague,
     vue(l, t) { cibleVue = [l, t]; demander(); },
+    zoomer(z) { o.zoom = z; cadrer(); },                       // rapprocher la caméra (vidéos, gros plans)
+    viser(x, y, z) { regard.set(x, y, z); demander(); },       // point regardé, dans le repère centré du modèle
     set vueImmediate(v) { lacet = v[0]; tangage = v[1]; demander(); },
     get vueActuelle() { return [lacet, tangage]; },
     rendre: demander,
