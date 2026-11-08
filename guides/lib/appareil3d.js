@@ -217,7 +217,7 @@ function z50ii() {
   cuirG.position.y = 0.9; A.add(cuirG); n(cuirG, 'La poignée');
   const cuirD = boite(2.4, 5.0, 0.12, 0.05, M.cuir); cuirD.position.set(4.85, 3.4, zF + 0.04); A.add(cuirD);
   // bossage du viseur (profil de côté, extrudé en x)
-  const hx = 0.75, hl = 4.6;
+  const hx = 1.6, hl = 4.6;   // bossage décalé comme sur le vrai boîtier (photos de face et de dos)
   const bossage = effiler(extrusion(profilZ([[-1.5, 6.8], [1.6, 6.8], [1.6, 7.3], [1.25, 8.4, 0.5, 9.12], [-0.6, 9.25], [-1.35, 9.25, -1.5, 8.6]]), hl, 0.42, M.corps, 'x'), hx - hl / 2, 6.9, 9.3, 0.74);
   A.add(bossage);
   const flash = new THREE.Group(); flash.position.set(hx, 9.12, -0.45); A.add(flash); flash.userData.flash = true;   // charnière à l'arrière de la tête
@@ -225,7 +225,7 @@ function z50ii() {
   const diffuseur = boite(2.1, 0.22, 0.05, 0.05, new THREE.MeshPhysicalMaterial({ color: 0xf4f4f0, roughness: 0.35, transmission: 0.2, clearcoat: 0.6 })); diffuseur.position.set(0, -0.04, 1.0); flash.add(diffuseur);
   n(flash, 'Flash intégré');
   const logo = etiquette('Nikon', 3.0, 0.8, { style: 'italic 800 ', taille: 210 });
-  logo.position.set(hx, 8.3, 1.2); logo.rotation.x = -0.54; A.add(logo);
+  logo.position.set(hx, 8.3, 1.2); logo.rotation.x = -0.54; A.add(logo); logo.userData.etiquette = true;
   // sabot porte-accessoire
   const sabot = boite(2.0, 0.12, 1.9, 0.04, M.metal); sabot.position.set(hx, 9.32, -0.2); A.add(sabot); n(sabot, 'Griffe flash');
   const diop = new THREE.Mesh(lisse(new THREE.CylinderGeometry(0.28, 0.28, 0.3, 24)), M.bouton); diop.rotation.z = Math.PI / 2; diop.position.set(hx - 2.55, 8.2, -0.9); A.add(diop); n(diop, 'Réglage dioptrique');
@@ -264,12 +264,12 @@ function z50ii() {
   const mSec = molette(0.75, 0.38, 32, M.gomme); mSec.position.set(-4.4, H - 0.65, 3.25); A.add(mSec); n(mSec, 'Molette secondaire');
   // dos : boutons
   const dos = (b, x, y) => { b.rotation.x = -Math.PI / 2; b.position.set(x, y, zB - 0.12); A.add(b); return b; };
-  n(dos(bouton(0.36, 0.2, M.bouton, '#rafale'), 5.6, 6.6), 'Déclenchement / retardateur'); n(dos(bouton(0.36, 0.2, M.bouton, '#poubelle'), 4.6, 6.6), 'Suppression');
-  n(dos(bouton(0.36, 0.2, M.bouton, 'DISP'), -1.55, 6.65), 'DISP'); n(dos(bouton(0.36, 0.2, M.bouton, '#moniteur'), -2.55, 6.65), 'Mode moniteur');
-  n(dos(bouton(0.4, 0.22, M.bouton, 'AE-L'), -5.15, 6.05), 'AE-L/AF-L');
-  C.i = dos(bouton(0.45, 0.24, M.bouton, 'i'), -5.0, 4.95); Object.assign(C.i.userData, { c: 'i', type: 'bouton' }); n(C.i, 'Touche i');
+  n(dos(bouton(0.36, 0.2, M.bouton, '#rafale'), 5.08, 6.55), 'Déclenchement / retardateur'); n(dos(bouton(0.36, 0.2, M.bouton, '#poubelle'), 4.17, 6.55), 'Suppression');
+  n(dos(bouton(0.36, 0.2, M.bouton, 'DISP'), -1.33, 6.62), 'DISP'); n(dos(bouton(0.38, 0.2, M.bouton, '#moniteur'), -1.98, 6.55), 'Mode moniteur');
+  n(dos(bouton(0.42, 0.22, M.bouton, 'AE-L'), -3.79, 6.5), 'AE-L/AF-L');
+  C.i = dos(bouton(0.42, 0.24, M.bouton, 'i'), -3.69, 4.7); Object.assign(C.i.userData, { c: 'i', type: 'bouton' }); n(C.i, 'Touche i');
   // sélecteur multidirectionnel (anneau qui bascule) + OK
-  const pad = new THREE.Group(); pad.rotation.x = -Math.PI / 2; pad.position.set(-4.85, 3.4, zB - 0.1); A.add(pad);
+  const pad = new THREE.Group(); pad.rotation.x = -Math.PI / 2; pad.position.set(-4.22, 3.25, zB - 0.1); A.add(pad);
   const anneau = new THREE.Mesh(lisse(new THREE.TorusGeometry(0.88, 0.2, 20, 64)), M.bouton); anneau.rotation.x = Math.PI / 2; anneau.scale.y = 0.6;
   const anneauG = new THREE.Group(); anneauG.add(anneau); pad.add(anneauG);
   const fleches = texte((x, w, h) => {
@@ -287,22 +287,22 @@ function z50ii() {
     z.position.set(Math.cos(a) * 0.9, 0.1, -Math.sin(a) * 0.9); pad.add(z);
     Object.assign(z.userData, { c, type: 'fleche', pad: anneauG, dir: new THREE.Vector2(Math.cos(a), -Math.sin(a)) }); C[c] = z;
   });
-  n(dos(bouton(0.38, 0.2, M.bouton, '#loupe+'), -4.3, 1.75), 'Loupe avant'); C.menu = dos(bouton(0.42, 0.22, M.bouton, 'MENU'), -5.45, 1.75); Object.assign(C.menu.userData, { c: 'menu', type: 'bouton' }); n(C.menu, 'MENU');
-  n(dos(bouton(0.38, 0.2, M.bouton, '#loupe-'), -4.3, 0.75), 'Loupe arrière / imagettes / aide'); n(dos(bouton(0.38, 0.2, M.bouton, '#lecture'), -5.45, 0.75), 'Visualisation');
+  n(dos(bouton(0.38, 0.2, M.bouton, '#loupe+'), -3.69, 1.88), 'Loupe avant'); C.menu = dos(bouton(0.38, 0.22, M.bouton, 'MENU'), -4.75, 1.88); Object.assign(C.menu.userData, { c: 'menu', type: 'bouton' }); n(C.menu, 'MENU');
+  n(dos(bouton(0.38, 0.2, M.bouton, '#loupe-'), -3.61, 1.05), 'Loupe arrière / imagettes / aide'); n(dos(bouton(0.38, 0.2, M.bouton, '#lecture'), -4.75, 1.05), 'Visualisation');
   // façade : Fn1, Fn2, illuminateur AF, logo Z
   const face = (b, x, y) => { b.rotation.x = Math.PI / 2; b.position.set(x, y, zF + 0.08); A.add(b); return b; };
-  n(face(bouton(0.28, 0.16, M.bouton), -2.65, 2.9), 'Fn1'); n(face(bouton(0.28, 0.16, M.bouton), -2.65, 2.0), 'Fn2');
-  n(face(bouton(0.3, 0.18, M.bouton), hx + 3.75, 2.6), "Déverrouillage de l'objectif");
+  n(face(bouton(0.28, 0.16, M.bouton), -2.2, 3.8), 'Fn1'); n(face(bouton(0.28, 0.16, M.bouton), -2.05, 1.65), 'Fn2');
+  n(face(bouton(0.3, 0.18, M.bouton), 5.46, 3.83), "Déverrouillage de l'objectif");
   const temoin = new THREE.Mesh(new THREE.CircleGeometry(0.1, 16), new THREE.MeshPhysicalMaterial({ color: 0x3a0a0a, clearcoat: 1 })); temoin.position.set(4.9, 6.4, zF + 0.05); A.add(temoin); n(temoin, "Témoin d'enregistrement");
   const lampe = new THREE.Mesh(new THREE.CircleGeometry(0.2, 24), new THREE.MeshPhysicalMaterial({ color: 0x2a1508, roughness: 0.1, clearcoat: 1 })); lampe.position.set(-2.55, 6.35, zF + 0.05); A.add(lampe); n(lampe, "Illuminateur d'assistance AF");
-  const z = etiquette('Z', 0.9, 0.9, { style: 'italic 900 ', taille: 700 }); z.position.set(-2.25, 6.3, zF + 0.04); A.add(z);
+  const z = etiquette('Z', 0.9, 0.9, { style: 'italic 900 ', taille: 700 }); z.position.set(-2.25, 6.3, zF + 0.04); A.add(z); z.userData.etiquette = true;
   // côté (opposé à la poignée) : trappes en caoutchouc des prises (micro, casque, USB-C, HDMI)
-  [[5.2, 1.5], [2.2, 1.5]].forEach(([y, h]) => { const t = boite(0.12, h, 2.2, 0.08, M.gomme); t.position.set(W / 2 + 0.03, y, 0); A.add(t); });
+  [[5.2, 1.5], [2.2, 1.5]].forEach(([y, h]) => { const t = boite(0.12, h, 2.2, 0.08, M.gomme); t.position.set(W / 2 + 0.03, y, 0); A.add(t); t.userData.etiquette = true; });   // sur la photo
   // dessous : trappe batterie et carte, embase pour trépied
   const trappe = boite(4.2, 0.08, 2.6, 0.12, M.gomme); trappe.position.set(-3.6, -0.02, 0.1); A.add(trappe);
   const embase = new THREE.Mesh(new THREE.RingGeometry(0.22, 0.38, 32), M.metal); embase.rotation.x = Math.PI / 2; embase.position.set(hx, -0.03, 0.2); A.add(embase);
   // micros stéréo : deux grilles de chaque côté du viseur, sur le dessus
-  [-1.6, 1.6].forEach(dx => { const g = grille(0.5, 0.32, 3, 2); g.rotation.x = -Math.PI / 2; g.position.set(hx + dx, 9.3, 0.55); A.add(g); });
+  [-1.15, 1.15].forEach(dx => { const g = grille(0.5, 0.32, 3, 2); g.rotation.x = -Math.PI / 2; g.position.set(hx + dx, 9.27, 0.35); A.add(g); });
   // repose-pouce en caoutchouc au dos, à droite
   const pouce = boite(1.9, 2.0, 0.08, 0.3, M.cuir); pouce.position.set(-5.4, 5.6, zB - 0.02); A.add(pouce);
   // anneaux de courroie
@@ -317,6 +317,7 @@ function z50ii() {
    ['Enregistrement vidéo', 245, 46], ['Touche ISO', 238, 50], ["Correction d'exposition ±", 230, 52], ['Touche Picture Control', 225, 52], ['Molette principale', 222, 36],
    ['Molette secondaire', -40, 26], ['Fn1', -28, 8], ['Fn2', -28, 6], ["Illuminateur d'assistance AF", -22, 16], ["Déverrouillage de l'objectif", 38, 8], ['La monture Z', 12, 8],
    ["L'objectif", 24, 10], ["Témoin d'enregistrement", 30, 16], ['Haut-parleur', 178, 62], ['Déclenchement / retardateur', 172, 18], ['Suppression', 174, 18]].forEach(v => vue(...v));
+  A.userData.peau = [corps, cuirG, cuirD, bossage, oeil, dalle, pouce, tete];
   return { groupe: A, commandes: C, noms: N, modes: MODES, centre: new THREE.Vector3(0, 4.6, 0.3), taille: 13 };
 }
 
@@ -509,7 +510,73 @@ async function hybride(id) {
   return { groupe: A, commandes: C, noms: N, modes: base.modes, centre: new THREE.Vector3(0, ia.max.y / 2, (ia.min.z + ia.max.z) / 2), taille: base.taille, lentille, ia: true };
 }
 
-export const MODELES = { z50ii: () => hybride('z50ii'), d800: () => hybride('d800') };
+/* Z50II « habillé » : formes nettes du modèle géométrique, couleurs et détails pris sur
+   4 vues (face, dos, côtés) projetées sur chaque face selon son orientation.
+   Repères relevés sur l'image (1082 × 976, 4 vues) : bords du boîtier et du viseur. */
+const VUES_PEAU = {
+  face: [14, 39.8, 422, 40.2], dos: [575, 39.45, 420, 40.0], gauche: [304, 45.5, 951, 45.7], droite: [586, 51.9, 950, 45.4]
+};
+async function habille(base, image) {
+  const tx = await new THREE.TextureLoader().loadAsync(new URL(image, import.meta.url).href);
+  tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8; tx.generateMipmaps = true;
+  const A = base.groupe; A.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(A.matrixWorld).invert(), rel = new THREE.Matrix4(), nm = new THREE.Matrix3();
+  const V = VUES_PEAU, mats = new Map();
+  const habiller = (mat, face) => {
+    const cle = mat.uuid + (face ? 'f' : '');
+    if (mats.has(cle)) return mats.get(cle);
+    const m = mat.clone(); if (face) m.defines = Object.assign({}, m.defines, { PEAU_FACE: '' });
+    m.onBeforeCompile = sh => {
+      sh.uniforms.peau = { value: tx };
+      sh.vertexShader = 'attribute vec3 pA;\nattribute vec3 nA;\nvarying vec3 vPA;\nvarying vec3 vNA;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvPA = pA; vNA = nA;');
+      const f = (k, ax, sens) => `vec2((${V[k][0].toFixed(2)} + (${sens}) * ${V[k][1].toFixed(2)}) / 1082., 1. - (${V[k][2].toFixed(2)} - vPA.y * ${V[k][3].toFixed(2)}) / 976.)`;
+      sh.fragmentShader = 'uniform sampler2D peau;\nvarying vec3 vPA;\nvarying vec3 vNA;\n' + sh.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
+  {
+    vec3 nn = normalize(vNA);
+    vec4 w = pow(max(vec4(nn.z, -nn.z, nn.x, -nn.x), 0.), vec4(5.));
+    if (vPA.x < 2.0 && vPA.z > 1.7) { w.x += w.z; w.z = 0.; }   // flanc intérieur de la poignée : vue de face
+    float wt = pow(abs(nn.y), 5.);
+    #ifdef PEAU_FACE
+    w = vec4(smoothstep(0.55, 0.9, nn.z), 0., 0., 0.); wt = 0.;
+    #endif
+    vec4 cF = texture2D(peau, ${f('face', 'x', 'vPA.x + 6.325')});
+    vec4 cB = texture2D(peau, ${f('dos', 'x', '6.325 - vPA.x')});
+    vec4 cG = texture2D(peau, ${f('gauche', 'z', '1.6 - vPA.z')});
+    vec4 cD = texture2D(peau, ${f('droite', 'z', 'vPA.z + 2.75')});
+    vec3 col = cF.rgb * cF.a * w.x + cB.rgb * cB.a * w.y + cG.rgb * cG.a * w.z + cD.rgb * cD.a * w.w;
+    float aw = cF.a * w.x + cB.a * w.y + cG.a * w.z + cD.a * w.w;
+    float s = w.x + w.y + w.z + w.w + wt + 1e-4;
+    diffuseColor.rgb = mix(diffuseColor.rgb, col / max(aw, 1e-4) * 0.9, clamp(aw / s, 0., 1.));
+  }`);
+    };
+    m.customProgramCacheKey = () => 'peau-' + cle;
+    if (m.normalScale) m.normalScale = m.normalScale.clone().multiplyScalar(0.5);   // le grain est déjà sur la photo
+    m.roughness = 0.62; m.envMapIntensity = 0.55; if ('clearcoat' in m) m.clearcoat = 0.12;
+    if (face) { m.iridescence = 0; m.roughness = 0.2; m.clearcoat = 0.8; }
+    mats.set(cle, m); return m;
+  };
+  const obj = base.commandes.objectif, avant = obj ? [obj.userData.avant] : [];
+  for (const o of [...A.userData.peau, ...avant]) o.traverse(me => {
+    if (!me.isMesh || me.material.transparent || me.material.type === 'MeshBasicMaterial') return;
+    const face = avant.includes(o);
+    rel.multiplyMatrices(inv, me.matrixWorld); nm.getNormalMatrix(rel);
+    const g = me.geometry.clone(), p = g.attributes.position, n = g.attributes.normal;
+    const pa = new Float32Array(p.count * 3), na = new Float32Array(p.count * 3), v = new THREE.Vector3();
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i).applyMatrix4(rel); pa.set([v.x, v.y, v.z], i * 3);
+      v.fromBufferAttribute(n, i).applyMatrix3(nm).normalize(); na.set([v.x, v.y, v.z], i * 3);
+    }
+    g.setAttribute('pA', new THREE.BufferAttribute(pa, 3)); g.setAttribute('nA', new THREE.BufferAttribute(na, 3));
+    me.geometry = g; me.material = habiller(me.material, face);
+  });
+  // les inscriptions dessinées font doublon avec la photo
+  A.traverse(o => { if (o.userData.etiquette) o.visible = false; });
+  base.photo = true;
+  return base;
+}
+
+export const MODELES = { z50ii: () => habille(z50ii(), '../modeles/z50ii-peau.webp'), d800: () => hybride('d800') };
+export const SANS_3D = { d800: true };   // pas encore de modèle validé par Adrien
 export const GEOMETRIQUES = { z50ii, d800 };
 
 /* Regroupe toutes les pièces d'une même matière en un seul maillage (pour les vues où rien
@@ -522,7 +589,7 @@ export function fusionner(groupe) {
     const m = o.material;
     if (m.map && !m.normalMap) { garder.push(o); return; }            // étiquettes : texture propre, on les garde
     let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
-    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv', 'pA', 'nA'].includes(k)) g.deleteAttribute(k);   // pA / nA : peau photo du Z50II
     if (!g.attributes.uv) g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
     if (!g.attributes.normal) g.computeVertexNormals();
     g.applyMatrix4(o.matrixWorld);

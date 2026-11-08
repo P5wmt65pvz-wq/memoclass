@@ -16,8 +16,9 @@ const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function webgl() {
   try {
     const g = document.createElement('canvas').getContext('webgl2'); if (!g) return false;
-    if (new URLSearchParams(location.search).get('intro') === 'force') return true;
-    return false;   // 3D retirée le 08/11 à la demande d'Adrien : version en vraies photos
+    const q = new URLSearchParams(location.search).get('intro');
+    if (q === 'force') return true;
+    if (q === '0') return false;
     // sans carte graphique (rendu logiciel), chaque image coûterait des secondes : on garde la page simple
     const info = g.getExtension('WEBGL_debug_renderer_info');
     const nom = info ? String(g.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
