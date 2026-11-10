@@ -662,9 +662,10 @@ export async function creerVisionneuse(conteneur, opts) {
     distance = (m.taille * 0.62) / Math.tan(fov / 2) / Math.min(1, camera.aspect * 0.95) / o.zoom;
     camera.updateProjectionMatrix(); demander();
   }
+  let kEclat = 0, kMarche = 0;
   function placer() {
-    const a = THREE.MathUtils.degToRad(lacet), b = THREE.MathUtils.degToRad(tangage);
-    camera.position.set(Math.sin(a) * Math.cos(b) * distance, Math.sin(b) * distance, Math.cos(a) * Math.cos(b) * distance).add(regard);
+    const a = THREE.MathUtils.degToRad(lacet), b = THREE.MathUtils.degToRad(tangage), dd = distance * (1 + 0.42 * kEclat);
+    camera.position.set(Math.sin(a) * Math.cos(b) * dd, Math.sin(b) * dd, Math.cos(a) * Math.cos(b) * dd).add(regard);
     camera.lookAt(regard);
   }
 
@@ -713,6 +714,10 @@ export async function creerVisionneuse(conteneur, opts) {
     const obj = m.commandes[c]; if (!obj) return;
     if (obj.userData.type === 'fleche') basculer(obj); else enfoncer(obj);
   }
+
+  // ---------- vue éclatée et mise en marche (modèles qui les fournissent)
+  function eclater(oui) { const de = kEclat, vers = oui ? 1 : 0; animer(1000, t => { kEclat = de + (vers - de) * ressortDoux(t); (m.eclats || []).forEach(w => w.position.copy(w.userData.eclat).multiplyScalar(kEclat)); }); }
+  function allumer(oui) { if (!m.actions) return; const de = kMarche, vers = oui ? 1 : 0; animer(520, t => { kMarche = de + (vers - de) * ease(t); m.actions.allumer(kMarche); }); }
 
   // ---------- commandes visées : halo jaune qui pulse
   const halos = new Map();
@@ -824,12 +829,19 @@ export async function creerVisionneuse(conteneur, opts) {
       if (crans && opts.onMolette) opts.onMolette(o2, crans);
     }
   }
-  let bas = null, glisse = false, dernier = null;
+  let bas = null, glisse = false, dernier = null, bulle = null, dernierSurvol = 0;
+  if (o.onSelection) { bulle = document.createElement('div'); bulle.className = 'a3d-bulle'; conteneur.appendChild(bulle); }
   const surface = css ? css.domElement : renderer.domElement;
   surface.style.touchAction = o.libre ? 'pan-y' : 'auto';
-  surface.addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('.a3d-ecran')) return; bas = { x: e.clientX, y: e.clientY, t: performance.now() }; dernier = bas; glisse = false; tourne = prendre(e); if (tourne) { try { surface.setPointerCapture(e.pointerId); } catch (x) {} } });
+  surface.addEventListener('pointerdown', e => { if (bulle) bulle.classList.remove('vu'); if (e.target.closest && e.target.closest('.a3d-ecran')) return; bas = { x: e.clientX, y: e.clientY, t: performance.now() }; dernier = bas; glisse = false; tourne = prendre(e); if (tourne) { try { surface.setPointerCapture(e.pointerId); } catch (x) {} } });
   window.addEventListener('pointermove', e => {
-    if (!bas) { if (e.pointerType === 'mouse' && e.target === surface) surface.style.cursor = viser(e, !!o.onSelection) ? 'pointer' : (o.libre ? 'grab' : 'default'); return; }
+    if (!bas) {
+      if (e.pointerType !== 'mouse' || e.target !== surface) { if (bulle) bulle.classList.remove('vu'); return; }
+      const maintenant = performance.now(); if (maintenant - dernierSurvol < 70) return; dernierSurvol = maintenant;
+      const x = viser(e, !!o.onSelection); surface.style.cursor = x ? 'pointer' : (o.libre ? 'grab' : 'default');
+      if (bulle) { let y = x && x.isObject3D ? x : null; while (y && !y.userData.nom) y = y.parent; if (y) { const r = conteneur.getBoundingClientRect(); bulle.textContent = y.userData.nom; bulle.style.transform = 'translate(' + Math.min(r.width - 190, e.clientX - r.left + 14) + 'px,' + (e.clientY - r.top + 16) + 'px)'; bulle.classList.add('vu'); } else bulle.classList.remove('vu'); }
+      return;
+    }
     const dx = e.clientX - dernier.x, dy = e.clientY - dernier.y;
     if (!glisse && Math.hypot(e.clientX - bas.x, e.clientY - bas.y) > 6) glisse = true;
     if (glisse && tourne) {
@@ -886,7 +898,7 @@ export async function creerVisionneuse(conteneur, opts) {
   cadrer();
 
   return {
-    modele: m, presser, cibler, montrer, tournerCadran, tournerMolette, tournerBague,
+    modele: m, presser, cibler, montrer, tournerCadran, tournerMolette, tournerBague, eclater, allumer,
     vue(l, t) { cibleVue = [l, t]; demander(); },
     zoomer(z) { o.zoom = z; cadrer(); },                       // rapprocher la caméra (vidéos, gros plans)
     viser(x, y, z) { regard.set(x, y, z); demander(); },       // point regardé, dans le repère centré du modèle
