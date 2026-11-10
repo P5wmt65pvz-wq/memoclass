@@ -21,9 +21,9 @@ function webgl() {
   } catch (e) { return false; }
 }
 
-let v = null, liste = [], sel = -1;
+let v = null, liste = [], sel = -1, lance = false;
 async function demarrer() {
-  if (v || !panneau) return;
+  if (lance || !panneau) return; lance = true;   // une seule scène (l'appel pouvait arriver deux fois pendant le chargement)
   const scene = panneau.querySelector('.a3d'), fiche = panneau.querySelector('.fiche'), puces = panneau.querySelector('.puces3d');
   // toutes les commandes de la page, dans l'ordre face → dessus → dos
   liste = [];
@@ -33,6 +33,19 @@ async function demarrer() {
     onSelection(nom) { const i = liste.findIndex(c => c[0] === nom); if (i > -1) choisir(i, false); }
   });
   window.__a3d = v;
+  // boutons de la scène : vue éclatée, mise en marche
+  if (v.modele.eclats || v.modele.actions) {
+    const outils = document.createElement('div'); outils.className = 'a3d-outils';
+    outils.innerHTML = (v.modele.eclats ? '<button type="button" data-a="eclate" aria-pressed="false">Vue éclatée</button>' : '') + (v.modele.actions ? '<button type="button" data-a="marche" aria-pressed="false">Allumer</button>' : '');
+    scene.appendChild(outils);
+    outils.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      const oui = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', oui ? 'true' : 'false');
+      if (b.dataset.a === 'eclate') { v.cibler([]); v.eclater(oui); if (oui) v.vue(34, 18); }
+      else { v.allumer(oui); b.textContent = oui ? 'Éteindre' : 'Allumer'; if (oui) v.vue(200, 14); }
+      scene.classList.add('a3d-vu');
+    });
+  }
   const presentes = liste.map(c => !!(v.modele.noms && v.modele.noms[c[0]]));
   puces.innerHTML = liste.map((c, i) => '<button type="button" class="puce3d' + (presentes[i] ? '' : ' sans') + '" data-i="' + i + '">' + esc(c[0]) + '</button>').join('');
   puces.querySelectorAll('button').forEach(b => b.addEventListener('click', () => choisir(+b.dataset.i, true)));

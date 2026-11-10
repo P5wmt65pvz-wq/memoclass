@@ -398,6 +398,24 @@ export async function z50ii(opts) {
   const verrou = boite(0.5, 0.05, 0.26, 0.02, M.bouton); verrou.position.set(-3.1, -0.01, 1.9); A.add(verrou);
   const ecrou = new THREE.Mesh(tour([[0.42, 0.0], [0.42, -0.025], [0.24, -0.025], [0.22, 0.12]], 32), M.metal); ecrou.position.set(MX, 0.012, 0.2); A.add(ecrou);
 
+  // ---------- écran allumé (exemple d'affichage) : visible seulement quand on met l'appareil en marche
+  const ui = toile((x, w, h) => {
+    const c = x.createLinearGradient(0, 0, 0, h); c.addColorStop(0, '#7fb2e6'); c.addColorStop(0.55, '#f3d9b0'); c.addColorStop(0.56, '#5d7a4a'); c.addColorStop(1, '#2f4a2c'); x.fillStyle = c; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#3b5a37'; x.beginPath(); x.moveTo(0, h * 0.58); x.lineTo(w * 0.22, h * 0.4); x.lineTo(w * 0.42, h * 0.56); x.lineTo(w * 0.66, h * 0.34); x.lineTo(w, h * 0.6); x.lineTo(w, h); x.lineTo(0, h); x.fill();
+    x.fillStyle = 'rgba(255,244,210,.95)'; x.beginPath(); x.arc(w * 0.76, h * 0.22, h * 0.07, 0, 7); x.fill();
+    x.strokeStyle = '#fff'; x.lineWidth = 3; const b = h * 0.11; x.strokeRect(w / 2 - b, h / 2 - b * 0.75, b * 2, b * 1.5);
+    x.fillStyle = 'rgba(0,0,0,.45)'; x.fillRect(0, 0, w, h * 0.105); x.fillRect(0, h * 0.885, w, h * 0.115);
+    x.fillStyle = '#fff'; x.font = '700 ' + h * 0.062 + 'px ' + POLICE; x.textBaseline = 'middle'; x.textAlign = 'left'; x.fillText('A', w * 0.03, h * 0.054); x.textAlign = 'right'; x.fillText('RAW+F', w * 0.97, h * 0.054);
+    x.textAlign = 'left'; x.fillText('1/250   F5.6', w * 0.03, h * 0.945); x.textAlign = 'right'; x.fillText('ISO 400', w * 0.97, h * 0.945);
+  }, 720, 480);
+  const affichage = new THREE.Mesh(new THREE.PlaneGeometry(6.9, 4.6), new THREE.MeshBasicMaterial({ map: ui, transparent: true, opacity: 0, toneMapped: false })); pose(affichage, -4.2, 0, -0.194, 0, Math.PI, 0); affichage.visible = false; bascule.add(affichage);
+  const actions = { allumer(k) { inter.rotation.y = 0.45 * k; affichage.visible = k > 0.01; affichage.material.opacity = k; } };
+
+  // ---------- vue éclatée : chaque sous-ensemble dans une enveloppe qui s'écarte du boîtier
+  const eclats = [];
+  const ecl = (piece, x, y, z) => { const w = new THREE.Group(); w.userData.eclat = new THREE.Vector3(x, y, z); piece.parent.add(w); w.add(piece); eclats.push(w); };
+  ecl(obj, 0, 0, 5.0); ecl(flash, 0, 1.3, 0.3); ecl(gr, 0, 2.5, 0); ecl(pied, 0, 2.0, 0); ecl(levier, 0, 1.2, 0); ecl(mPrinc, 0, 1.7, -0.5); ecl(mSec, 0, 0.4, 2.0); ecl(dec, 0, 1.6, 1.0); ecl(ecran, 0, 0, -3.0); ecl(oeil, 0, 0, -2.0);
+
   // angles de vue pour Découvrir (lacet, tangage) : la pièce bien en face
   const vue = (nom, l, t) => { if (N[nom]) N[nom].userData.vue = [l, t]; };
   [['Le boîtier', 25, 15], ['La poignée', -40, 12], ['Flash intégré', 12, 38], ['Griffe flash', 195, 52], ['Réglage dioptrique', 225, 22], ['Viseur électronique', 192, 14],
@@ -405,5 +423,5 @@ export async function z50ii(opts) {
    ['Enregistrement vidéo', 245, 46], ['Touche ISO', 238, 50], ["Correction d'exposition ±", 230, 52], ['Touche Picture Control', 225, 52], ['Molette principale', 222, 36],
    ['Molette secondaire', -40, 26], ['Fn1', -28, 8], ['Fn2', -28, 6], ["Illuminateur d'assistance AF", -22, 16], ["Déverrouillage de l'objectif", 38, 8], ['La monture Z', 12, 8], ['Le capteur', 8, 6], ['Les contacts', 8, 14],
    ["L'objectif", 24, 10], ["Témoin d'enregistrement", 30, 16], ['Haut-parleur', 178, 62], ['Déclenchement / retardateur', 172, 18], ['Suppression', 174, 18]].forEach(v => vue(...v));
-  return { groupe: A, commandes: C, noms: N, modes: MODES, centre: new THREE.Vector3(0, 4.6, 0.3), taille: 13 };
+  return { groupe: A, commandes: C, noms: N, modes: MODES, centre: new THREE.Vector3(0, 4.6, 0.3), taille: 13, eclats, actions };
 }
