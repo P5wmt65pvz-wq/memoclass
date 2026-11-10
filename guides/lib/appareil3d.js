@@ -317,6 +317,7 @@ function z50ii() {
    ['Enregistrement vidéo', 245, 46], ['Touche ISO', 238, 50], ["Correction d'exposition ±", 230, 52], ['Touche Picture Control', 225, 52], ['Molette principale', 222, 36],
    ['Molette secondaire', -40, 26], ['Fn1', -28, 8], ['Fn2', -28, 6], ["Illuminateur d'assistance AF", -22, 16], ["Déverrouillage de l'objectif", 38, 8], ['La monture Z', 12, 8],
    ["L'objectif", 24, 10], ["Témoin d'enregistrement", 30, 16], ['Haut-parleur', 178, 62], ['Déclenchement / retardateur', 172, 18], ['Suppression', 174, 18]].forEach(v => vue(...v));
+  dalle.userData.peauDos = true;   // l'écran pivote : sa face intérieure (vers l'avant au repos) reste noire, sans photo
   A.userData.peau = [corps, cuirG, cuirD, bossage, oeil, dalle, pouce, tete];
   return { groupe: A, commandes: C, noms: N, modes: MODES, centre: new THREE.Vector3(0, 4.6, 0.3), taille: 13 };
 }
@@ -562,9 +563,12 @@ async function habille(base, image) {
     rel.multiplyMatrices(inv, me.matrixWorld); nm.getNormalMatrix(rel);
     const g = me.geometry.clone(), p = g.attributes.position, n = g.attributes.normal;
     const pa = new Float32Array(p.count * 3), na = new Float32Array(p.count * 3), v = new THREE.Vector3();
+    let dosSeul = false; for (let x = me; x; x = x.parent) if (x.userData && x.userData.peauDos) dosSeul = true;
     for (let i = 0; i < p.count; i++) {
       v.fromBufferAttribute(p, i).applyMatrix4(rel); pa.set([v.x, v.y, v.z], i * 3);
-      v.fromBufferAttribute(n, i).applyMatrix3(nm).normalize(); na.set([v.x, v.y, v.z], i * 3);
+      v.fromBufferAttribute(n, i).applyMatrix3(nm).normalize();
+      if (dosSeul && v.z > 0.3) v.set(0, 1, 0);   // traitée comme un dessus : couleur du boîtier
+      na.set([v.x, v.y, v.z], i * 3);
     }
     g.setAttribute('pA', new THREE.BufferAttribute(pa, 3)); g.setAttribute('nA', new THREE.BufferAttribute(na, 3));
     me.geometry = g; me.material = habiller(me.material, face);
@@ -575,7 +579,8 @@ async function habille(base, image) {
   return base;
 }
 
-export const MODELES = { z50ii: () => habille(z50ii(), '../modeles/z50ii-peau.webp'), d800: () => hybride('d800') };
+// Z50II : modèle net construit pièce par pièce (lib/z50ii.js, 10/11) ; l'ancien modèle géométrique reste dans GEOMETRIQUES
+export const MODELES = { z50ii: async () => (await import('./z50ii.js')).z50ii(), d800: () => hybride('d800') };
 export const SANS_3D = { d800: true };   // pas encore de modèle validé par Adrien
 export const GEOMETRIQUES = { z50ii, d800 };
 
@@ -616,9 +621,10 @@ export async function creerVisionneuse(conteneur, opts) {
   conteneur.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
   const pm = new THREE.PMREMGenerator(renderer);
-  scene.environment = pm.fromScene(new RoomEnvironment(renderer), 0.04).texture;
-  scene.environmentIntensity = 0.75;
-  const cle = new THREE.DirectionalLight(0xffffff, 1.6); cle.position.set(6, 14, 8); scene.add(cle);
+  const neuf = o.modele === 'z50ii';   // éclairage de studio (boîtes à lumière) pour le modèle détaillé
+  scene.environment = pm.fromScene(neuf ? (await import('./z50ii.js')).studio() : new RoomEnvironment(renderer), neuf ? 0.03 : 0.04).texture;
+  scene.environmentIntensity = neuf ? 1.0 : 0.75;
+  const cle = new THREE.DirectionalLight(0xffffff, neuf ? 1.2 : 1.6); cle.position.set(6, 14, 8); scene.add(cle);
   const contre = new THREE.DirectionalLight(0xdfe9ff, 1.0); contre.position.set(-10, 6, -12); scene.add(contre);
   const m = await MODELES[o.modele]();
   const pivot = new THREE.Group(); pivot.add(m.groupe); m.groupe.position.sub(m.centre); scene.add(pivot);
@@ -725,6 +731,7 @@ export async function creerVisionneuse(conteneur, opts) {
   }
   // direction vers laquelle « regarde » une pièce : son axe y pour un bouton ou une molette, sinon depuis le centre
   function normale(obj) {
+    if (obj.userData.normale) return obj.userData.normale.clone().applyQuaternion(obj.getWorldQuaternion(new THREE.Quaternion())).normalize();
     if (obj.userData.type || obj.userData.axe) return new THREE.Vector3(0, 1, 0).applyQuaternion(obj.getWorldQuaternion(new THREE.Quaternion())).normalize();
     const c = new THREE.Box3().setFromObject(obj).getCenter(new THREE.Vector3());
     const d = c.sub(new THREE.Vector3(0, 0, 0)); d.y *= 0.6; return d.normalize();
@@ -760,6 +767,7 @@ export async function creerVisionneuse(conteneur, opts) {
     animer(aller, t => f(ressortDoux(t)), () => setTimeout(() => animer(aller * 0.8, t => f(1 - ease(t))), garde || 2600));
   }
   function actionner(obj) {
+    if (obj.userData.anim) { allerRetour(obj.userData.anim, obj.userData.duree || 600, obj.userData.garde); return; }   // pièce qui fournit son propre mouvement
     if (obj.userData.orientable) { allerRetour(k => { obj.rotation.y = -2.95 * k; }, 1100); return; }
     if (obj.userData.flash) { const y0 = obj.userData.y0 ?? (obj.userData.y0 = obj.position.y); allerRetour(k => { obj.position.y = y0 + 0.62 * k; obj.rotation.x = -0.32 * k; }, 520); return; }
     if (m.commandes.objectif && obj === m.commandes.objectif.userData.bague) {
